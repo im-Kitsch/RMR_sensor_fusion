@@ -1,0 +1,48 @@
+\section{Sensor Data}
+
+This document contains a table listing all sensory data, which is transferred by the protocol to create.
+\newline \newline
+
+\captionof{table}{Sensor Data}
+\begin{tabular}{p{4cm} C{3cm} C{3cm} C{3cm}}
+
+\hline 
+ Sensor Data & Representation & Size & Sampling\\
+ as a description & type &in Bits & in kHz \\
+\hline 
+
+angle\_pitch & int & 32 & 1 \\
+angle\_roll & int & 32 & 1 \\
+angle\_yaw & int & 32 & 1 \\
+angvel\_pitch & int & 32 & 1 \\
+angvel\_roll & int & 32 & 1 \\
+angvel\_yaw & int & 32 & 1 \\
+acc\_x & short & 16 & 1 \\
+acc\_y & short & 16 & 1 \\
+acc\_z & short & 16 & 1 \\
+Hx (magnetic field)& int & 32 & 1 \\
+Hy (magnetic field)& int & 32 & 1 \\
+Hz (magnetic field)& int & 32 & 1 \\
+motor\_rpm[6] & unsigned char & 6*8=46 & 1\\
+GPS\_latitude & int & 32 & 1 \\
+GPS\_longitude & int & 32 & 1 \\
+GPS\_height & int & 32 & 1 \\
+GPS\_speed\_x & int & 32 & 1 \\
+GPS\_speed\_y & int & 32 & 1 \\
+GPS\_heading & int & 32 & 1 \\
+GPS\_position\_accuracy & unsigned int & 32 & 1 \\
+GPS\_height\_accuracy & unsigned int & 32 & 1 \\
+GPS\_speed\_accuracy & unsigned int & 32 & 1 \\
+GPS\_sat\_num & unsigned int & 32 & 1 \\
+GPS\_status & int & 32 & 1 \\
+GPS\_time\_of\_week & unsigned int & 32 & 1 \\
+GPS\_week & unsigned short & 16 & 1 \\
+
+to be continued...
+
+
+
+
+
+ 
+\end{tabular}
