@@ -1,0 +1,18 @@
+# Object files
+*.o
+*.ko
+*.obj
+*.elf
+
+/Debug/
+
+# Executables
+*.exe
+*.out
+*.app
+*.i*86
+*.x86_64
+*.hex
+*.bin
+*.list
+*.map
