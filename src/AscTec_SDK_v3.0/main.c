@@ -53,6 +53,9 @@ DAMAGE.
 #include "asctecCommIntfOnboard.h"
 #include "lpc_aci_eeprom.h"
 
+//Own Includes
+#include "spi0.h"
+
 #ifdef MATLAB
 #include "..\custom_mdl\onboard_matlab_ert_rtw\onboard_matlab.h"
 #endif
@@ -133,6 +136,8 @@ int	main (void) {
 
   //update parameters stored by ACI:
   //...
+
+  SPI0_Master_Init();
 
   PTU_init();	//initialize camera PanTiltUnit
 #ifdef MATLAB
