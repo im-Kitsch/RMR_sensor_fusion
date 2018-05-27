@@ -190,12 +190,13 @@ void SDK_mainloop(void)
 	uint8_t cobs_len = encode_COBS(protocolStream.bytestream, num_sum, cobsByteStream);
 
 
-	/* --- Polling for Nucleo's answer --- */
+	/* --- Polling for Nucleo's answer | Two-Way-Handshake --- */
 	uint8_t startingSeq[] = {0x00, 0x01};
 	uint8_t startingReceive[2];
-	while(!(startingReceive[0] == 0xFE && startingReceive[1] == 0xFF)) //Wait for right answer
+	while(!((startingReceive[0] == 0xFE && startingReceive[1] == 0xFF)||(startingReceive[0] == 0xFF && startingReceive[1] == 0xFE))) //Wait for right answer
 	{
 		SPI_Master_WriteRead(startingSeq , startingReceive, 2); //Send Starting Sequence, receive answer
+		//TODO: What happens if just the first Byte of the answer is received...
 	}
 
 	/* ---  Slave is now listening!  --- */
@@ -204,10 +205,10 @@ void SDK_mainloop(void)
 
 	/* ---  Slave is now calculating (Sensor Fusion) control signals  --- */
 
-	/* --- Polling for Nucleo's answer --- */
+	/* --- Polling for Nucleo's answer | Two-Way-Handshake --- */
 	startingSeq[0] = 0x00;
 	startingSeq[1] = 0x02;
-	while(!(startingReceive[0] == 0xFD && startingReceive[1] == 0xFF)) //Wait for right answer
+	while(!((startingReceive[0] == 0xFE && startingReceive[1] == 0xFF)||(startingReceive[0] == 0xFF && startingReceive[1] == 0xFE))) //Wait for right answer
 	{
 		SPI_Master_WriteRead(startingSeq , startingReceive, 2); //Send Starting Sequence, receive answer
 	}
