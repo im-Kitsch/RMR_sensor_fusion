@@ -5,8 +5,16 @@
  *      Author: Malte
  */
 
-#include "spi0.h"
 #include <stdint.h>
+#include "LPC214x.h"			/* LPC21XX Peripheral Registers	*/
+#include "type.h"
+#include "irq.h"
+#include "ssp.h"
+#include "main.h"
+#include "system.h"
+#include "LL_HL_comm.h"
+#include "spi0.h"
+
 
 /**
  * Initialize SPI periphery as master in default configuration.
@@ -14,8 +22,8 @@
 void SPI0_Master_Init(void)
 {
 	PINSEL0 = PINSEL0 | 0x00001500; /* Select P0.4 -> SCK0, P0.5 -> MISO0, P0.6 -> MOSI0, P0.7 -> GPIO(SS)*/
-	S0SPCR = 0x0020; /* Master mode, 8-bit frames, SPI0 mode */
-	S0SPCCR = 0x10; /* Even number, minimum value 8, pre scalar for SPI Clock */
+	S0SPCR = 0x0830; /* Master mode, 8-bit frames, SPI0 mode */
+	S0SPCCR = 0xF0; /* Even number, minimum value 8, pre scalar for SPI Clock */
 }
 
 /**
@@ -25,11 +33,11 @@ void SPI0_Master_Init(void)
 void SPI_Master_SingleWrite(uint8_t data)
 {
 	uint8_t flush; //Nothing to receive
-	IO0CLR = (1<<7);  /* SS(GPIO) to '0', enable SPI communication */
+	IOCLR0 = (1<<7);  /* SS(GPIO) to '0', enable SPI communication */
 	S0SPDR = data;  /* Load data to be written into the data register */
 	while ( (S0SPSR & 0x80) == 0 );  /* Wait till data transmission is completed, SPIF = 1? */
 	flush = S0SPDR;
-	IO0SET = (1<<7);  /* SS(GPIO) to '1', disable SPI communication */
+	IOSET0 = (1<<7);  /* SS(GPIO) to '1', disable SPI communication */
 }
 
 /**
@@ -39,11 +47,11 @@ void SPI_Master_SingleWrite(uint8_t data)
 uint8_t SPI_Master_SingleRead(void)
 {
 	uint8_t flush; //Nothing to receive
-	IO0CLR = (1<<7);  /* SS(GPIO) to '0', enable SPI communication */
-	S0SPDR = data;  /* Load data to be written into the data register */
+	IOCLR0 = (1<<7);  /* SS(GPIO) to '0', enable SPI communication */
+	S0SPDR = 0xFF;  /* Load data to be written into the data register */
 	while ( (S0SPSR & 0x80) == 0 );  /* Wait till data transmission is completed, SPIF = 1? */
 	flush = S0SPDR;
-	IO0SET = (1<<7);  /* SS(GPIO) to '1', disable SPI communication */
+	IOSET0 = (1<<7);  /* SS(GPIO) to '1', disable SPI communication */
 }
 
 /**
@@ -54,7 +62,7 @@ uint8_t SPI_Master_SingleRead(void)
 void SPI_Master_Write(uint8_t *data, uint8_t length)
 {
 	uint8_t flush; //Nothing to receive
-	IO0CLR = (1<<7);  /* SS(GPIO) to '0', enable SPI communication */
+	IOCLR0 = (1<<7);  /* SS(GPIO) to '0', enable SPI communication */
 
 	for(int i = 0; i < length; i++)
 	{
@@ -63,7 +71,7 @@ void SPI_Master_Write(uint8_t *data, uint8_t length)
 		flush = S0SPDR;
 	}
 
-	IO0SET = (1<<7);  /* SS(GPIO) to '1', disable SPI communication */
+	IOSET0 = (1<<7);  /* SS(GPIO) to '1', disable SPI communication */
 }
 
 /**
@@ -74,7 +82,7 @@ void SPI_Master_Write(uint8_t *data, uint8_t length)
 void SPI_Master_Read(uint8_t *dst, uint8_t length)
 {
 	uint8_t flush = 0xFF; //Nothing to transmit
-	IO0CLR = (1<<7);  /* SS(GPIO) to '0', enable SPI communication */
+	IOCLR0 = (1<<7);  /* SS(GPIO) to '0', enable SPI communication */
 
 	for(int i = 0; i < length; i++)
 	{
@@ -83,7 +91,7 @@ void SPI_Master_Read(uint8_t *dst, uint8_t length)
 		*(dst + i) = S0SPDR;
 	}
 
-	IO0SET = (1<<7);  /* SS(GPIO) to '1', disable SPI communication */
+	IOSET0 = (1<<7);  /* SS(GPIO) to '1', disable SPI communication */
 }
 
 /**
@@ -96,7 +104,7 @@ void SPI_Master_Read(uint8_t *dst, uint8_t length)
 char SPI_Master_WriteRead(uint8_t *data ,uint8_t *dst, uint8_t length)
 {
 	char feedback = 1;
-	IO0CLR = (1<<7);  /* SS(GPIO) to '0', enable SPI communication */
+	IOCLR0 = (1<<7);  /* SS(GPIO) to '0', enable SPI communication */
 
 	for(int i = 0; i < length; i++)
 	{
@@ -107,7 +115,7 @@ char SPI_Master_WriteRead(uint8_t *data ,uint8_t *dst, uint8_t length)
 		*(dst + i) = S0SPDR;
 	}
 
-	IO0SET = (1<<7);  /* SS(GPIO) to '1', disable SPI communication */
+	IOSET0 = (1<<7);  /* SS(GPIO) to '1', disable SPI communication */
 	return feedback;
 }
 
@@ -122,7 +130,7 @@ char SPI_Master_WriteCheck(uint8_t *data, uint8_t length)
 	char feedback = 0;
 	uint8_t checkValue = 0;
 
-	IO0CLR = (1<<7);  /* SS(GPIO) to '0', enable SPI communication */
+	IOCLR0 = (1<<7);  /* SS(GPIO) to '0', enable SPI communication */
 
 	for(int i = 0; i < length; i++)
 	{
@@ -135,7 +143,7 @@ char SPI_Master_WriteCheck(uint8_t *data, uint8_t length)
 		checkValue = S0SPDR; //Read received value
 	}
 
-	IO0SET = (1<<7);  /* SS(GPIO) to '1', disable SPI communication */
+	IOSET0 = (1<<7);  /* SS(GPIO) to '1', disable SPI communication */
 	return feedback;
 }
 
@@ -149,7 +157,7 @@ char SPI_Master_ReadCheck(uint8_t *dst, uint8_t length)
 {
 	char feedback = 0;
 
-	IO0CLR = (1<<7);  /* SS(GPIO) to '0', enable SPI communication */
+	IOCLR0 = (1<<7);  /* SS(GPIO) to '0', enable SPI communication */
 
 	for(int i = 0; i < length; i++)
 	{
@@ -161,7 +169,7 @@ char SPI_Master_ReadCheck(uint8_t *dst, uint8_t length)
 		*(dst + i) = S0SPDR; //Read received value
 	}
 
-	IO0SET = (1<<7);  /* SS(GPIO) to '1', disable SPI communication */
+	IOSET0 = (1<<7);  /* SS(GPIO) to '1', disable SPI communication */
 	return feedback;
 }
 
