@@ -19,3 +19,10 @@ Debug/
 
 .metadata/
 .settings/
+.dep/
+
+*.lst
+*.lss
+*.sym
+
+
