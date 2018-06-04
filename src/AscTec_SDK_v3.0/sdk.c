@@ -182,42 +182,24 @@ void SDK_mainloop(void)
 #else //write your own C-code within this function
 	/* USER CODE BEGINS HERE */
 
-	/* --- Refreshing the sensor data --- */
-	refreshProtocolStream(&protocolStream);
-
-	/* --- Generate COBS Byte stream out of sensor data --- */
-	uint8_t cobsByteStream[num_sum+2]; //for <256 Bytes to encode
-	uint8_t cobs_len = encode_COBS(protocolStream.bytestream, num_sum, cobsByteStream);
-
-
 	/* --- Polling for Nucleo's answer | Two-Way-Handshake --- */
-	uint8_t startingSeq[100];
+	uint8_t startingSeq[100]; //To be send
 	uint8_t startingReceive[100];
-	char offset = 0;
-
+	
 	for(int i = 0;i<100;i++)
 	{
-		startingSeq[i]= i+100;
+		startingSeq[i]= i+100; //fix Array to be sended
 	}
+	
+	char offset = 0;
 
-
-/*	while(!((startingReceive[0] == 0xFE && startingReceive[1] == 0xFF)||(startingReceive[0] == 0xFF && startingReceive[1] == 0xFE))) //Wait for right answer
-	{
-		if(offset)
-			offset = 0;
-		else
-			offset = 1;
-
-		SPI_Master_WriteRead(startingSeq , startingReceive , 10); //Send Starting Sequence, receive answer
-	}*/
-
-	char error_OR = 0;
+	char error_OR = 0; //Error Overrun
 
 		//Synchronize
 		startingSeq[0] = 0xFF;
 		startingSeq[1] = 0xFE;
-		startingReceive[0] = 0xFF;
-		startingReceive[1] = 0xFF;
+		startingReceive[0] = 0xFF; //Default Value
+		startingReceive[1] = 0xFF; //Default Value
 		SPI_Master_Read(startingReceive, 2);
 
 		while(!((startingReceive[0] == 0x00 && startingReceive[1] == 0x01)||(startingReceive[0] == 0x01 && startingReceive[1] == 0x00)))
@@ -226,39 +208,29 @@ void SDK_mainloop(void)
 				offset = 0;
 			else
 				offset = 1;
-		SPI_Master_WriteRead(startingSeq + offset, startingReceive + offset, 1); //Send Starting Sequence, receive answer
+			SPI_Master_WriteRead(startingSeq + offset, startingReceive + offset, 1); //Send Starting Sequence, receive answer
 		}
 
-		startingSeq[0] = 100;
-		startingSeq[1] = 101;
+		startingSeq[0] = 100; //Repair the sequence
+		startingSeq[1] = 101; //Repair the sequence
 
 
-		SPI_Master_WriteRead(startingSeq, startingReceive, 100); //Send Starting Sequence, receive answer
-		//check
-		//Wait for 0
-		char flag_begin_not_found = 0;
+		SPI_Master_WriteRead(startingSeq, startingReceive, 100); //Send fix 100 Byte sequence, receive answer
+
 		volatile static uint32_t errors_in_tranmission = 0;
 		volatile static uint32_t success_in_tranmission = 0;
 		volatile static uint32_t unsuccess_in_tranmission = 0;
-		uint8_t counter = 0;
-
-		while(startingReceive[counter] != 0)
-		{
-			if(counter > 99)
-				flag_begin_not_found = 1;
-			counter++;
-		}
 
 		uint32_t j = 0;
-		char error_detected = 0;
+		char error_detected = 0; //Check for ONE single Error in 100 Byte transmission
 		while(j<100)
 		{
-			if(startingReceive[(counter + j)%100] == j)
+			if(startingReceive[j] == j) //Test if received(i) == expected(i)
 			{
 				if(errors_in_tranmission >= (1<<31))
 					error_OR = 1;
-				errors_in_tranmission++;
-				error_detected++;
+				errors_in_tranmission++; //Count alle single Byte Errors
+				error_detected = 1; //Transmission is NOT 100% correctly
 			}
 			j++;
 		}
