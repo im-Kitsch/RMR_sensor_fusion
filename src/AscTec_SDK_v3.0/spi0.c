@@ -22,8 +22,8 @@
 void SPI0_Master_Init(void)
 {
 	PINSEL0 = PINSEL0 | 0x00001500; /* Select P0.4 -> SCK0, P0.5 -> MISO0, P0.6 -> MOSI0, P0.7 -> GPIO(SS)*/
-	S0SPCR = 0x0830; /* Master mode, 8-bit frames, SPI0 mode */
-	S0SPCCR = 0xF0; /* Even number, minimum value 8, pre scalar for SPI Clock */
+	S0SPCR = 0x0020; /* Master mode, 8-bit frames, SPI0 mode */
+	S0SPCCR = 0xA8; /* Even number, minimum value 8, pre scalar for SPI Clock */
 }
 
 /**

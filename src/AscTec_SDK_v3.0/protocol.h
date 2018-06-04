@@ -16,7 +16,6 @@
 
 #define num_sum ( num_8b + 2 * num_16b + 4 * num_32b + 8 * num_64b + 3)
 
-#pragma pack(push,1)
 typedef union {
 	struct {
 		/*	--- Protocol head --- */
@@ -35,7 +34,6 @@ typedef union {
 
 	uint8_t bytestream[num_sum];
 }protocol_u;
-#pragma pack(pop)
 
 void refreshProtocolStream(protocol_u *proStream);
 

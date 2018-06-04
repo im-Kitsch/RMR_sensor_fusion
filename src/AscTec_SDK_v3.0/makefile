@@ -83,6 +83,9 @@ SRCARM += $(wildcard ../custom_mdl/onboard_matlab_ert_rtw/*.c)
 endif
 SRCARM += asctecCommIntfOnboard.c
 SRCARM += buildInfoSetup.c
+SRCARM += spi0.c
+SRCARM += COBS.c
+SRCARM += protocol.c
 
 #Sources with interrupt routines in them
 SRCARMINT = $(TARGET).c

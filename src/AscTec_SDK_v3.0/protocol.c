@@ -2,7 +2,9 @@
  * protocol.c
  */
 
+#include "sdk.h"
 #include "protocol.h"
+
 /**
  * Refresh protocolStream with current sensor data.
  * @param proByteStream 	ByteStream to be refreshed

@@ -191,32 +191,82 @@ void SDK_mainloop(void)
 
 
 	/* --- Polling for Nucleo's answer | Two-Way-Handshake --- */
-	uint8_t startingSeq[] = {0x00, 0x01};
-	uint8_t startingReceive[2];
-	while(!((startingReceive[0] == 0xFE && startingReceive[1] == 0xFF)||(startingReceive[0] == 0xFF && startingReceive[1] == 0xFE))) //Wait for right answer
+	uint8_t startingSeq[100];
+	uint8_t startingReceive[100];
+	char offset = 0;
+
+	for(int i = 0;i<100;i++)
 	{
-		SPI_Master_WriteRead(startingSeq , startingReceive, 2); //Send Starting Sequence, receive answer
-		//TODO: What happens if just the first Byte of the answer is received...
+		startingSeq[i]= i+100;
 	}
 
-	/* ---  Slave is now listening!  --- */
-	SPI_Master_Write(cobsByteStream ,cobs_len); //transferring encoded sensor data to Slave
-	//TODO: Check for successful transmission (answer, direct reply, checksum, ...)
 
-	/* ---  Slave is now calculating (Sensor Fusion) control signals  --- */
-
-	/* --- Polling for Nucleo's answer | Two-Way-Handshake --- */
-	startingSeq[0] = 0x00;
-	startingSeq[1] = 0x02;
-	while(!((startingReceive[0] == 0xFE && startingReceive[1] == 0xFF)||(startingReceive[0] == 0xFF && startingReceive[1] == 0xFE))) //Wait for right answer
+/*	while(!((startingReceive[0] == 0xFE && startingReceive[1] == 0xFF)||(startingReceive[0] == 0xFF && startingReceive[1] == 0xFE))) //Wait for right answer
 	{
-		SPI_Master_WriteRead(startingSeq , startingReceive, 2); //Send Starting Sequence, receive answer
-	}
+		if(offset)
+			offset = 0;
+		else
+			offset = 1;
 
-	/* --- Nucleo is now sending control signals to HLP --- */
-	//To be continued...
+		SPI_Master_WriteRead(startingSeq , startingReceive , 10); //Send Starting Sequence, receive answer
+	}*/
+
+	char error_OR = 0;
+
+		//Synchronize
+		startingSeq[0] = 0xFF;
+		startingSeq[1] = 0xFE;
+		startingReceive[0] = 0xFF;
+		startingReceive[1] = 0xFF;
+		SPI_Master_Read(startingReceive, 2);
+
+		while(!((startingReceive[0] == 0x00 && startingReceive[1] == 0x01)||(startingReceive[0] == 0x01 && startingReceive[1] == 0x00)))
+		{
+			if(offset)
+				offset = 0;
+			else
+				offset = 1;
+		SPI_Master_WriteRead(startingSeq + offset, startingReceive + offset, 1); //Send Starting Sequence, receive answer
+		}
+
+		startingSeq[0] = 100;
+		startingSeq[1] = 101;
 
 
+		SPI_Master_WriteRead(startingSeq, startingReceive, 100); //Send Starting Sequence, receive answer
+		//check
+		//Wait for 0
+		char flag_begin_not_found = 0;
+		volatile static uint32_t errors_in_tranmission = 0;
+		volatile static uint32_t success_in_tranmission = 0;
+		volatile static uint32_t unsuccess_in_tranmission = 0;
+		uint8_t counter = 0;
+
+		while(startingReceive[counter] != 0)
+		{
+			if(counter > 99)
+				flag_begin_not_found = 1;
+			counter++;
+		}
+
+		uint32_t j = 0;
+		char error_detected = 0;
+		while(j<100)
+		{
+			if(startingReceive[(counter + j)%100] == j)
+			{
+				if(errors_in_tranmission >= (1<<31))
+					error_OR = 1;
+				errors_in_tranmission++;
+				error_detected++;
+			}
+			j++;
+		}
+
+		if(error_detected == 0)
+			success_in_tranmission++;
+		else
+			unsuccess_in_tranmission++;
 
 
 

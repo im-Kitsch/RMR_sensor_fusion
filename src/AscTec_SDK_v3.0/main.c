@@ -52,8 +52,6 @@ DAMAGE.
 #include "declination.h"
 #include "asctecCommIntfOnboard.h"
 #include "lpc_aci_eeprom.h"
-
-//Own Includes
 #include "spi0.h"
 
 #ifdef MATLAB
@@ -135,7 +133,7 @@ int	main (void) {
   ACISDK();	//AscTec Communication Interface: publish variables, set callbacks, etc.
 
   //update parameters stored by ACI:
-  //...
+
 
   SPI0_Master_Init();
 
