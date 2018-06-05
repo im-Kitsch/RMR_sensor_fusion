@@ -98,7 +98,7 @@ int main(void)
 
   char state = 0;
 
-  uint8_t input_slave[num_sum];
+  uint8_t input_slave[num_sum+2];
   uint8_t output_slave[4];//Maximum Buffer size
 
   uint8_t COBS_len = 0;
