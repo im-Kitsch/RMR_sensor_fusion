@@ -227,7 +227,7 @@ void SDK_mainloop(void)
 		char error_detected = 0; //Check for ONE single Error in 100 Byte transmission
 		while(j<100)
 		{
-			if(startingReceive[j] == j) //Test if received(i) == expected(i)
+			if(!(startingReceive[j] == j)) //Test if received(i) == expected(i)
 			{
 				if(errors_in_tranmission >= (1<<31))
 					error_OR = 1;
