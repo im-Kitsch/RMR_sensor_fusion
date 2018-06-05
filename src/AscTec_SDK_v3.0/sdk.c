@@ -214,6 +214,8 @@ void SDK_mainloop(void)
 		startingSeq[0] = 100; //Repair the sequence
 		startingSeq[1] = 101; //Repair the sequence
 
+		//Wait before transfer starts
+		delay(10000);
 
 		SPI_Master_WriteRead(startingSeq, startingReceive, 100); //Send fix 100 Byte sequence, receive answer
 
