@@ -182,65 +182,44 @@ void SDK_mainloop(void)
 #else //write your own C-code within this function
 	/* USER CODE BEGINS HERE */
 
+	/* --- Refreshing the sensor data --- */
+	refreshProtocolStream(&protocolStream);
+	
+	/* --- Generate checksum --- */
+	generateChecksum(&protocolStream);
+
+	/* --- Generate COBS Byte stream out of sensor data --- */
+	uint8_t cobsByteStream[num_sum+2]; //for <256 Bytes to encode
+	uint8_t cobs_len = encode_COBS(protocolStream.bytestream, num_sum, cobsByteStream);
+
 	/* --- Polling for Nucleo's answer | Two-Way-Handshake --- */
-	uint8_t startingSeq[100]; //To be send
-	uint8_t startingReceive[100];
-	
-	for(int i = 0;i<100;i++)
-	{
-		startingSeq[i]= i+100; //fix Array to be sended
-	}
-	
+	uint8_t startingSeq[] = {0x00, 0x01};
+	uint8_t startingReceive[2];
 	char offset = 0;
-
-	char error_OR = 0; //Error Overrun
-
-		//Synchronize
-		startingSeq[0] = 0xFF;
-		startingSeq[1] = 0xFE;
-		startingReceive[0] = 0xFF; //Default Value
-		startingReceive[1] = 0xFF; //Default Value
-		SPI_Master_Read(startingReceive, 2);
-
-		while(!((startingReceive[0] == 0x00 && startingReceive[1] == 0x01)||(startingReceive[0] == 0x01 && startingReceive[1] == 0x00)))
-		{
-			if(offset)
-				offset = 0;
-			else
-				offset = 1;
-			SPI_Master_WriteRead(startingSeq + offset, startingReceive + offset, 1); //Send Starting Sequence, receive answer
-		}
-
-		startingSeq[0] = 100; //Repair the sequence
-		startingSeq[1] = 101; //Repair the sequence
-
-		//Wait before transfer starts
-		delay(100);
-
-		SPI_Master_WriteRead(startingSeq, startingReceive, 100); //Send fix 100 Byte sequence, receive answer
-
-		volatile static uint32_t errors_in_tranmission = 0;
-		volatile static uint32_t success_in_tranmission = 0;
-		volatile static uint32_t unsuccess_in_tranmission = 0;
-
-		uint32_t j = 0;
-		char error_detected = 0; //Check for ONE single Error in 100 Byte transmission
-		while(j<100)
-		{
-			if(!(startingReceive[j] == j)) //Test if received(i) == expected(i)
-			{
-				if(errors_in_tranmission >= (1<<31))
-					error_OR = 1;
-				errors_in_tranmission++; //Count alle single Byte Errors
-				error_detected = 1; //Transmission is NOT 100% correctly
-			}
-			j++;
-		}
-
-		if(error_detected == 0)
-			success_in_tranmission++;
+	while(!((startingReceive[0] == 0xFE && startingReceive[1] == 0xFF)||(startingReceive[0] == 0xFF && startingReceive[1] == 0xFE))) //Wait for right answer
+	{
+		if(offset)
+			offset = 0;
 		else
-			unsuccess_in_tranmission++;
+			offset = 1;
+		SPI_Master_WriteRead(startingSeq + offset, startingReceive + offset, 1); //Send Starting Sequence, receive answer
+	}
+
+	delay(1000); //ToDo: Decrease
+	
+	/* ---  Slave is now listening!  --- */
+	SPI_Master_Write(cobsByteStream ,cobs_len+1); //transferring encoded sensor data to Slave; ToDo: Check alignment (cobs_len+1)
+	//TODO: Check for successful transmission (answer, direct reply, checksum, ...)
+
+	/* ---  Slave is now calculating (Sensor Fusion) control signals  --- */
+
+	/* --- Polling for Nucleo's answer | Two-Way-Handshake --- */
+	//Continue
+
+	/* --- Nucleo is now sending control signals to HLP --- */
+	//To be continued...
+
+
 
 
 
@@ -270,7 +249,7 @@ void SDK_mainloop(void)
 	//SDK_EXAMPLE_gps_waypoint_control();
 
 	//jeti telemetry can always be activated. You may deactivate this call if you don't use the AscTec Telemetry package.
-	SDK_jetiAscTecExampleRun();
+	SDK_jetiAscTecExampleRun(); //ToDo: Check if that function is necessary
 
 	if (wpExampleActive) //this is used to activate the waypoint example via the jeti telemetry display
 		SDK_EXAMPLE_gps_waypoint_control();
