@@ -52,7 +52,6 @@ typedef union {
 		int test_int_11;
 		int test_int_12;
 
-		/* --- 64Bit data --- */
 
 		/***	--- Protocol end --- ***/
 		uint32_t checksum;
