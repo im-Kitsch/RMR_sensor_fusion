@@ -36,11 +36,16 @@
   *
   ******************************************************************************
   */
+/* Defines ------------------------------------------------------------------*/
+#define BENCHMARKING
+//#define SPI_SIMULATION
+
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f7xx_hal.h"
 #include "COBS.h"
 #include "protocol.h"
+#include "benchmark.h"
 #include <stdint.h>
 
 /* USER CODE BEGIN Includes */
@@ -105,21 +110,34 @@ int main(void)
   MX_SPI1_Init(); //Master
   MX_SPI3_Init(); //Slave
 
+
+
+  /* --- Variables used in while loop --- */
   char state = 0;
+  uint8_t input_slave[num_sum+2];	//Received Bytes (SPI) are stored in here
+  uint8_t output_slave[4];			//Bytes to be sent via SPI are stored in here
+  uint8_t COBS_len = 0;				//Length of the COBS Bytestream is stored in here
+  protocol_u protocolstream;		//Current received sensory data is stored in here
 
-  uint8_t input_slave[num_sum+2];
-  uint8_t output_slave[4];//Maximum Buffer size
 
-  uint8_t COBS_len = 0;
 
-  protocol_u protocolstream;
 
- volatile uint32_t successful_protocol_real = 0;
- volatile uint32_t successful_protocol_unreal = 0;
- volatile uint32_t successful_real = 0;
- volatile uint32_t unsuccessful_COBS = 0;
- volatile uint32_t unsuccessful_checksum = 0;
- volatile uint32_t unsuccessful_real = 0;
+	#ifdef BENCHMARKING
+  	  newBenchmark(0x0E); //Enter transfer speed here
+	#endif /* BENCHMARKING */
+
+	#ifdef SPI_SIMULATION
+  	  /* --- Generate your simulated input here to test the protocol at home --- */
+  	  protocol_u proto_sim = { 1,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17 };
+  	  generateChecksum(&proto_sim);
+  	  uint8_t input_slave_simulated[num_sum+2];
+  	  //Wrong Checksum simulated:
+  	  //proto_sim.protocol_s.checksum = 12;
+  	  changeMSB_LSB(&proto_sim);
+  	  encode_COBS(proto_sim.bytestream, num_sum, input_slave_simulated); //Generate simulated received message
+  	  input_slave_simulated[num_sum+1] = 0; //ToDo: '0' is added manually for now, maybe change COBS algorithm on Nucleo.
+
+	#endif /* SPI_SIMULATION */
 
 
 
@@ -139,7 +157,6 @@ int main(void)
 		  input_slave[0] = 0xFF; // Default Values
 		  input_slave[1] = 0xFF; // Default Values
 		  char offset = 0;
-		  volatile uint32_t handC = 0;
 		  while(!((input_slave[0] == 0x00 && input_slave[1] == 0x01) || (input_slave[0] == 0x01 && input_slave[1] == 0x00)))
 		  {
 			  if(offset == 0) //Switching Offset between '0' and '1' to receive starting sequence immediately
@@ -147,83 +164,80 @@ int main(void)
 			  else
 				  offset = 0;
 
-			  HAL_SPI_Receive(&hspi3, input_slave + offset, 1, 0xFF);
-			  handC++;
+				#ifdef SPI_SIMULATION
+			  	  input_slave[0] = 0x00;
+			  	  input_slave[1] = 0x01;
+				#else
+			  	HAL_SPI_Receive(&hspi3, input_slave + offset, 1, 0xFF);
+				#endif /* SPI_SIMULATION */
+
 		  }
 
 		  /* --- Sending ACK --- */
 		  output_slave[0] = 0xFF;
 		  output_slave[1] = 0xFE;
+		#ifndef SPI_SIMULATION
 		  HAL_SPI_Transmit(&hspi3, output_slave, 2, 0xFF);
+		#endif /* SPI_SIMULATION */
 
 		  state = 2;
 		  break;
 
 	  case 2: /* --- Read PDU--- */
-
-		  /*
-		  HAL_SPI_Receive(&hspi3, input_slave, 1, 0xFF);
-		  uint16_t pos = 1;
-		  while(input_slave[pos-1] != 0x00) //Reading until '0x00' is received (COBS - boundary), ToDo: Timeout when '0x00' is never received
-		  {
-			  HAL_SPI_Receive(&hspi3, input_slave + pos, 1, 0xFF); //Read Byte for Byte until '0x00'
-			  pos++;
-		  }
-		  COBS_len = pos; //Store number of received Bytes for COBS decoding
-
-		  state = 3;
-		  break;
-
-		   */
-		  // --- Alternative Read if 'HAL_SPI_Receive(&hspi3, input_slave + pos, 1, 0xFF)' isn't working by higher transfer speeds ---
-
-		  HAL_SPI_Receive(&hspi3, input_slave, num_sum+2, 0xFF); //Read complete PDU
+		#ifdef SPI_SIMULATION
+		  for(int i = 0; i < num_sum+2; i++)
+			  input_slave[i] = input_slave_simulated[i];
+		#else
+		  HAL_SPI_Receive(&hspi3, input_slave, num_sum+2, 0xFF); //Read complete PDU (fastest method)
+		#endif /* SPI_SIMULATION */
 
 		  //Check for '0x00' position (COBS - boundary)
 		  uint16_t pos = 0;
 		  while(input_slave[pos++] != 0x00);
 		  pos--;
 
-		  //Check if Position of '0x00' is how expected
-			  COBS_len = pos; //Store number of received Bytes for COBS decoding
-			  //ToDo: Reaction when COBS's Zero is found at wrong position
+		  COBS_len = pos; //Store number of received Bytes for COBS decoding
 
 		  state = 3;
 		  break;
 
+	  case 3: /* --- Decode the input (COBS), check for expected length and for correct checksum--- */
 
-
-
-
-
-
-
-	  case 3: /* --- Decode the input (COBS) --- */
-		  if(num_sum == decode_COBS(input_slave, COBS_len, protocolstream.bytestream))
+		  if(num_sum == decode_COBS(input_slave, COBS_len, protocolstream.bytestream)) //Decode COBS-Bytestream and check if length is how expected
 		  {
-			  changeMSB_LSB(&protocolstream);
+			  /* --- COBS - FORMAT passed --- */
+			  changeMSB_LSB(&protocolstream); //Change MSB and LSB because of different representations on HLP and Nucleo
 			  if(checkChecksum(&protocolstream))
 			  {
-				  if(checkCorrect(&protocolstream))
-					  successful_protocol_real++;
-				  else
-					  successful_protocol_unreal++;
-			  } else
+				  /* --- Checksum is correct -> Received Data seems to be correct --- */
+					#ifdef BENCHMARKING
+				  	  addTransfer(&protocolstream,PROTOCOL_ACCEPT);
+					#endif /* BENCHMARKING */
+
+				  	//ToDo: Reaction, when Bytestream is successfully tested and no errors occur
+
+
+			  }else
 			  {
-				unsuccessful_checksum++;
+				  /* --- COBS is correct, Checksum is INCORRECT -> Received Data seems to be corrupted --- */
+					#ifdef BENCHMARKING
+				  	  addTransfer(&protocolstream,PROTOCOL_ERROR_DETECTED_CHECKSUM);
+					#endif /* BENCHMARKING */
+
+				  	  //ToDo: Reaction, when error is detected in received Bytestream
 			  }
 		  } else
-			unsuccessful_COBS++;
+		  {
+			  /* --- COBS is correct, Checksum is INCORRECT -> Received Data seems to be corrupted --- */
+				#ifdef BENCHMARKING
+				  addTransfer(&protocolstream,PROTOCOL_ERROR_DETECTED_COBS);
+				#endif /* BENCHMARKING */
 
-		  //Check for real successful_real (ToDo: Use Hexa Code)
-//			if(protocolstream.protocol_s.startByte == 0x01 && protocolstream.protocol_s.test_int_1 == 1000 && protocolstream.protocol_s.angle_yaw == -300 && protocolstream.protocol_s.test_int_11 == 11000)
+				  //ToDo: Reaction, when error is detected in received Bytestream
+		  }
 
-			if(checkCorrect(&protocolstream))
-				successful_real++;
-			else
-				unsuccessful_real++;
 
-			  //Sensor data is now transmitted and successfully stored in protocolstream struct for easy access like 'protocolstream.protocolstream.protocol_s.angle_pitch'
+			  //Sensor data is now transmitted and successfully stored in protocolstream struct for easy access like 'protocolstream.protocol_s.angle_pitch'
 			  state = 1;
 		  break;
 

@@ -5,6 +5,7 @@
  *      Author: Malte
  */
 
+#include <stdint.h>
 #include "COBS.h"
 
 #define StartBlock()	(code_ptr = dst++, code = 1) //Shift leading count, reset 'code'
