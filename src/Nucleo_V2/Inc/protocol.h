@@ -8,23 +8,34 @@
 #include <stdint.h>
 
 /*	--- Protocol Parameter --- */
-#define num_8b 0
-#define num_16b 2
-#define num_32b 16
-#define num_64b 0
+#define num_8b 1	//Number of 8 Bit - variables in protocol (for example: char, uint8_t, int8_t, ...) | Default: 1
+#define num_16b 2	//Number of 16 Bit - variables in protocol (for example: uint16_t, int16_t, ...) | Default: 0
+#define num_32b 16	//Number of 32 Bit - variables in protocol (for example: (unsigned) int, float*, uint32_t, int32_t, ...) | Default: 1
+#define num_64b 0	//Number of 64 Bit - variables in protocol (for example: long*, double*, uint64_t*, int64_t*, ...) | Default: 0
+					// (*) not tested, yet!
 
-#define num_sum ( num_8b + 2 * num_16b + 4 * num_32b + 8 * num_64b + 1)
+#define num_sum ( num_8b + 2 * num_16b + 4 * num_32b + 8 * num_64b)
 
-#pragma pack(push,1)
+#pragma pack(push,1) //Isn't working on HLP
 typedef union {
 	struct {
-		/*	--- Protocol head --- */
+		/***	--- Protocol head --- ***/
 		uint8_t startByte; //Status Flags; 0: Valid, 1: ...
 
+		/*** 	--- Sensory Data --- ***/
+
+		/* --- 8Bit data --- */
+		/*  Example for adding a new variable: */
+		// uint8_t newVariable;
+		// Increase in '#define num_8b X'  X by one
+
+
+
+		/* --- 16Bit data --- */
 		uint16_t test_u16_1;
 		uint16_t test_u16_2;
 
-		/*	--- Sensory data --- */
+		/* --- 32Bit data --- */
 		int angle_pitch;
 		int angle_roll;
 		int angle_yaw;
@@ -41,7 +52,9 @@ typedef union {
 		int test_int_11;
 		int test_int_12;
 
-		/*	--- Protocol end --- */
+		/* --- 64Bit data --- */
+
+		/***	--- Protocol end --- ***/
 		uint32_t checksum;
 	} protocol_s;
 

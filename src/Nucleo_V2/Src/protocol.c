@@ -10,7 +10,7 @@
  */
 void refreshProtocolStream(protocol_u *proStream)
 {
-	/*
+	/* --- Refresh the protocol struct with the latest sensory data---
 	proStream->protocol_s.angle_pitch = RO_ALL_Data.angle_pitch;
 	proStream->protocol_s.angle_roll = RO_ALL_Data.angle_roll;
 	proStream->protocol_s.angle_yaw = RO_ALL_Data.angle_yaw;
@@ -64,7 +64,7 @@ void changeMSB_LSB(protocol_u *proStream)
 	/* --- 16Bit --- */
 	for(int i = 0; i < num_16b; i++)
 	{
-		uint8_t nextPosition = (1+num_8b+(i*2));
+		uint8_t nextPosition = (num_8b+(i*2));
 		//swap
 		uint8_t tmp = proStream->bytestream[nextPosition];
 		proStream->bytestream[nextPosition] = proStream->bytestream[nextPosition+1];
@@ -74,7 +74,7 @@ void changeMSB_LSB(protocol_u *proStream)
 	/* --- 32Bit --- */
 	for(int i = 0; i < num_32b; i++)
 	{
-		uint8_t nextPosition = (1+num_8b+2*num_16b+(i*4));
+		uint8_t nextPosition = (num_8b+2*num_16b+(i*4));
 		//swap
 		uint8_t tmp = proStream->bytestream[nextPosition];
 		proStream->bytestream[nextPosition] = proStream->bytestream[nextPosition+3];
@@ -87,7 +87,7 @@ void changeMSB_LSB(protocol_u *proStream)
 	/* --- 64Bit --- */
 	for(int i = 0; i < num_64b; i++)
 	{
-		uint8_t nextPosition = (1+num_8b+2*num_16b+4*num_32b+(i*8));
+		uint8_t nextPosition = (num_8b+2*num_16b+4*num_32b+(i*8));
 		//swap
 		uint8_t tmp = proStream->bytestream[nextPosition];
 		proStream->bytestream[nextPosition] = proStream->bytestream[nextPosition+7];
