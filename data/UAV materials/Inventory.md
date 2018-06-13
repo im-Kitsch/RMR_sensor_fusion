@@ -2,8 +2,9 @@
 
 | Item | Description | Quantity | Special |
 | ---- | ----------- | :------: | ---- |
+| miniUSB wire |For connection between PC and Nucleo | 1 |  |
 | PX4FLOW Kit |  | 1 |  |
-|STM32 Nucleo-144 |For STM32F67 high-performance MCUs |2|One in Xianglun, One in Malte|
+|STM32 Nucleo-144 |For STM32F67 high-performance MCUs |3||
 |Lipo AP03 batteries| |  3|  |
 |Lipo Safety bag |Bag |2||
 |Futaba R/C |FUTABA T8J remote controller| 1| |
