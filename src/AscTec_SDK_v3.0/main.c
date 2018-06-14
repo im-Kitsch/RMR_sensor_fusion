@@ -52,7 +52,6 @@ DAMAGE.
 #include "declination.h"
 #include "asctecCommIntfOnboard.h"
 #include "lpc_aci_eeprom.h"
-#include "spi0.h"
 
 #ifdef MATLAB
 #include "..\custom_mdl\onboard_matlab_ert_rtw\onboard_matlab.h"
@@ -133,9 +132,7 @@ int	main (void) {
   ACISDK();	//AscTec Communication Interface: publish variables, set callbacks, etc.
 
   //update parameters stored by ACI:
-
-
-  SPI0_Master_Init();
+  //...
 
   PTU_init();	//initialize camera PanTiltUnit
 #ifdef MATLAB

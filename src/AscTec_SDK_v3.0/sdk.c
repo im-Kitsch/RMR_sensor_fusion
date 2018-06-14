@@ -44,6 +44,8 @@ DAMAGE.
 #include "spi0.h"
 #include "COBS.h"
 #include "protocol.h"
+#include "LPC214x.h"
+
 
 struct WO_SDK_STRUCT WO_SDK;
 struct WO_CTRL_INPUT WO_CTRL_Input;
@@ -181,20 +183,29 @@ void SDK_mainloop(void)
 
 #else //write your own C-code within this function
 	/* USER CODE BEGINS HERE */
+	unsigned int tick_start, ticks_refresh;
+
+
+	tick_start = T1TC;
 
 	/* --- Refreshing the sensor data --- */
 	refreshProtocolStream(&protocolStream);
-	
+
+	ticks_refresh = T1TC - tick_start;
+
 	/* --- Generate checksum --- */
 	generateChecksum(&protocolStream);
 
 	/* --- Generate COBS Byte stream out of sensor data --- */
 	uint8_t cobsByteStream[num_sum+2]; //for <256 Bytes to encode
 	uint8_t cobs_len = encode_COBS(protocolStream.bytestream, num_sum, cobsByteStream);
+	cobsByteStream[70] = 0x00;
 
 	/* --- Polling for Nucleo's answer | Two-Way-Handshake --- */
 	uint8_t startingSeq[] = {0x00, 0x01};
 	uint8_t startingReceive[2];
+	
+	volatile uint32_t cnt = 0;
 	char offset = 0;
 	while(!((startingReceive[0] == 0xFE && startingReceive[1] == 0xFF)||(startingReceive[0] == 0xFF && startingReceive[1] == 0xFE))) //Wait for right answer
 	{
@@ -203,12 +214,15 @@ void SDK_mainloop(void)
 		else
 			offset = 1;
 		SPI_Master_WriteRead(startingSeq + offset, startingReceive + offset, 1); //Send Starting Sequence, receive answer
+		cnt++;
 	}
 
-	delay(1000); //ToDo: Decrease
+
+	delay(100); //ToDo: Decrease
 	
 	/* ---  Slave is now listening!  --- */
 	SPI_Master_Write(cobsByteStream ,cobs_len+1); //transferring encoded sensor data to Slave; ToDo: Check alignment (cobs_len+1)
+
 	//TODO: Check for successful transmission (answer, direct reply, checksum, ...)
 
 	/* ---  Slave is now calculating (Sensor Fusion) control signals  --- */

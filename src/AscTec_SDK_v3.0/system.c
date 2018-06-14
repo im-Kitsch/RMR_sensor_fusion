@@ -36,6 +36,7 @@ DAMAGE.
 #include "i2c.h"
 #include "ssp.h"
 #include "adc.h"
+#include "spi0.h"
 
 void init(void)
 {
@@ -54,6 +55,8 @@ void init(void)
   init_spi();
   init_spi1();
   init_timer0();
+  init_timer1();
+  SPI0_Master_Init();
 //  I2CInit(I2CMASTER);
   PWM_Init();
   ADCInit(ADC_CLK);
@@ -189,6 +192,17 @@ void init_timer0(void)
   T0PC=0;     //Prescale Counter = 0
   T0MR0=peripheralClockFrequency()/ControllerCyclesPerSecond; // /200 => 200 Hz Period
   T0TCR=0x1;   //Set timer0
+}
+
+void init_timer1(void)
+{
+  T1TC=0;
+  T1TCR=0x0;    //Reset timer1
+  T1MCR=0x2;    //On match MR0 reset counter
+  T1PR=0xFFFF;
+  T1PC=0;     //Prescale Counter = 0
+  T1MR0=0xFFFFFFFF; //
+  T1TCR=0x00000001;   //Set timer0
 }
 
 void PWM_Init( void )
