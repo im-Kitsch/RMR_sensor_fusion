@@ -196,13 +196,13 @@ void init_timer0(void)
 
 void init_timer1(void)
 {
-  T1TC=0;
+  T1TC=0;	//Timer counter to 0 at the start
   T1TCR=0x0;    //Reset timer1
-  T1MCR=0x2;    //On match MR0 reset counter
-  T1PR=0xFFFF;
-  T1PC=0;     //Prescale Counter = 0
-  T1MR0=0xFFFFFFFF; //
-  T1TCR=0x1;   //Set timer1
+  T1MCR=0x2;    //Reset counter on match MR0 
+  T1PR=0xFFFF; 	//Prescaler to 65.535
+  T1PC=0;     	//Prescale Counter to 0 at the start
+  T1MR0=0xFFFFFFFF; //Reset Counter when reaching this number
+  T1TCR=0x1;   	//Enable timer1
 }
 
 void PWM_Init( void )
