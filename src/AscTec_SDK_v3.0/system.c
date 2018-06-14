@@ -202,7 +202,7 @@ void init_timer1(void)
   T1PR=0xFFFF;
   T1PC=0;     //Prescale Counter = 0
   T1MR0=0xFFFFFFFF; //
-  T1TCR=0x00000001;   //Set timer0
+  T1TCR=0x1;   //Set timer0
 }
 
 void PWM_Init( void )
