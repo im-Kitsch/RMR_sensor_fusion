@@ -17,9 +17,8 @@
 
 #define num_sum ( num_8b + 2 * num_16b + 4 * num_32b + 8 * num_64b)
 
-#pragma pack(push,1)
 typedef union {
-	struct {
+	struct{
 		/***	--- Protocol head --- ***/
 		uint8_t startByte; //Status Flags; 0: Valid, 1: ...
 
@@ -33,8 +32,6 @@ typedef union {
 
 
 		/* --- 16Bit data --- */
-		uint16_t test_u16_1;
-		uint16_t test_u16_2;
 
 		/* --- 32Bit data --- */
 		int angle_pitch;
@@ -53,13 +50,15 @@ typedef union {
 		int test_int_11;
 		int test_int_12;
 
+		uint16_t test_u16_1;
+		uint16_t test_u16_2;
+
 		/***	--- Protocol end --- ***/
 		uint32_t checksum;
-	} protocol_s;
+	}__attribute__ ((__packed__))protocol_s;
 
 	uint8_t bytestream[num_sum];
 }protocol_u;
-#pragma pack(pop)
 
 void refreshProtocolStream(protocol_u *proStream);
 void generateChecksum(protocol_u *proStream);
