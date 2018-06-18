@@ -35,11 +35,14 @@
 #include "stm32f7xx.h"
 #include "stm32f7xx_it.h"
 
+#include "ringBuffer.h"
+
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern SPI_HandleTypeDef hspi3;
 
 /******************************************************************************/
 /*            Cortex-M7 Processor Interruption and Exception Handlers         */ 
@@ -190,6 +193,86 @@ void SysTick_Handler(void)
 /* For the available peripheral interrupt handler names,                      */
 /* please refer to the startup file (startup_stm32f7xx.s).                    */
 /******************************************************************************/
+
+extern uint16_t pWrite_buf_transmit;
+extern uint8_t buf_transmit[];
+/**
+* @brief This function handles SPI3 global interrupt.
+*/
+void SPI3_IRQHandler(void)
+{
+
+  /* USER CODE BEGIN SPI3_IRQn 0 */
+
+	if ((hspi3.Instance->SR & SPI_SR_RXNE) != 0 && (hspi3.Instance->SR & SPI_SR_OVR) == 0 && (hspi3.Instance->CR2 & SPI_CR2_RXNEIE) != 0) //Receive buffer not empty
+	{
+			//Receive data from FIFO
+		if (pWrite_buf_receive >= RECEIVE_BUFFER_SIZE)
+		{
+			//Reset Read Pointer because of overflow
+			pWrite_buf_receive = 0;
+		}
+			buf_receive[pWrite_buf_receive++] = (*(__IO uint8_t *)&(hspi3.Instance->DR));
+			return;
+	}
+
+	if ((hspi3.Instance->SR & SPI_SR_TXE) != 0 && (hspi3.Instance->CR2 & SPI_CR2_TXEIE) != 0) //Transmit buffer empty
+	{
+	    //Send data from ringbuffer
+		uint16_t nextShort;
+		if(pRead_buf_transmit >= TRANSMIT_BUFFER_SIZE - 1)
+		{
+			//Reset Read Pointer because of overflow
+			pRead_buf_transmit = 0;
+		}
+		if(pRead_buf_transmit == pWrite_buf_transmit)
+		{
+			//No transfer (no more data)
+			//ToDo: Disable Interrupt
+			*((__IO uint8_t *)&hspi3.Instance->DR) = (uint8_t)0xFF; //Flush the FIFO
+			//hspi3.Instance->CR2 &= !(SPI_IT_TXE); //Disable TX-Interrupt
+		}
+		else if((pRead_buf_transmit + 1)%TRANSMIT_BUFFER_SIZE== pWrite_buf_transmit)
+		{
+			//Just one more Byte to transfer (no more data)
+			*((__IO uint8_t *)&hspi3.Instance->DR) = buf_transmit[pRead_buf_transmit++];
+			*((__IO uint8_t *)&hspi3.Instance->DR) = (uint8_t)0xFF; //Flush the FIFO
+			//ToDo: Disable Interrupt
+			//hspi3.Instance->CR2 &= !(SPI_IT_TXE); //Disable TX-Interrupt
+		}
+		else if(pRead_buf_transmit >= TRANSMIT_BUFFER_SIZE - 1)
+		{
+			nextShort = (uint16_t)(buf_transmit[TRANSMIT_BUFFER_SIZE-1] +((uint16_t)buf_transmit[0]<<8));
+			*((__IO uint16_t *)&hspi3.Instance->DR) = nextShort;
+			pRead_buf_transmit = 1;
+		}else
+		{
+			nextShort = (uint16_t)(buf_transmit[pRead_buf_transmit] +((uint16_t)buf_transmit[pRead_buf_transmit+1]<<8));
+			*((__IO uint16_t *)&hspi3.Instance->DR) = nextShort;
+			pRead_buf_transmit += 2;
+		}
+		return;
+
+	 }
+
+
+
+
+	if (hspi3.Instance->SR & SPI_SR_UDR ) //Interrupt Error Flag
+	{
+		volatile int i = 0;
+	} else if(hspi3.Instance->SR &SPI_SR_OVR)
+	{
+		volatile int i = 0;
+	}
+
+
+  /* USER CODE END SPI3_IRQn 0 */
+  //HAL_SPI_IRQHandler(&hspi3); //Disable HAL IRQ, because we will use our own Driver
+  /* USER CODE BEGIN SPI3_IRQn 1 */
+
+  /* USER CODE END SPI3_IRQn 1 */
+}
 
 /* USER CODE BEGIN 1 */
 

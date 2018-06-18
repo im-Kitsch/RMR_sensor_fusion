@@ -36,17 +36,12 @@
   *
   ******************************************************************************
   */
-/* Defines ------------------------------------------------------------------*/
-#define BENCHMARKING
-//#define SPI_SIMULATION
-
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f7xx_hal.h"
-#include "COBS.h"
-#include "protocol.h"
-#include "benchmark.h"
-#include <stdint.h>
+
+/* Own Includes ------------------------------------------------------------------*/
+#include "ringBuffer.h"
 
 /* USER CODE BEGIN Includes */
 
@@ -56,6 +51,8 @@
 
 SPI_HandleTypeDef hspi1;
 SPI_HandleTypeDef hspi3;
+SPI_TypeDef spi3;
+
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -67,16 +64,16 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_SPI1_Init(void);
 static void MX_SPI3_Init(void);
-char checkReceivedData(uint8_t *arr);
 
-int checkCorrect(protocol_u *pro)
-{
-	protocol_u protocolstream = *pro;
-	if(protocolstream.protocol_s.startByte == 0x01 && protocolstream.protocol_s.angle_pitch == 1 && protocolstream.protocol_s.test_int_5 == 8 && protocolstream.protocol_s.test_int_12 == 15 && protocolstream.protocol_s.test_u16_1 == 16 && protocolstream.protocol_s.test_u16_2 == 17)
-		return 1;
-	else
-		return 0;
-}
+/* USER CODE BEGIN PFP */
+/* Private function prototypes -----------------------------------------------*/
+void ini_SPI_interrrupt(void);
+
+/* USER CODE END PFP */
+
+/* USER CODE BEGIN 0 */
+
+/* USER CODE END 0 */
 
 /**
   * @brief  The application entry point.
@@ -107,143 +104,56 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_SPI1_Init(); //Master
-  MX_SPI3_Init(); //Slave
+  MX_SPI1_Init();
+  MX_SPI3_Init();
+  /* USER CODE BEGIN 2 */
 
+  	uint8_t m_output[100];
+  	uint8_t s_input[100];
+  	uint8_t m_input[100];
+  	uint8_t s_output[100];
 
+  /* USER CODE END 2 */
 
-  /* --- Variables used in while loop --- */
-  char state = 0;
-  uint8_t input_slave[num_sum+2];	//Received Bytes (SPI) are stored in here
-  uint8_t output_slave[4];			//Bytes to be sent via SPI are stored in here
-  uint8_t COBS_len = 0;				//Length of the COBS Bytestream is stored in here
-  protocol_u protocolstream;		//Current received sensory data is stored in here
-
-
-
-
-	#ifdef BENCHMARKING
-  	  newBenchmark(0x0E); //Enter transfer speed here
-	#endif /* BENCHMARKING */
-
-	#ifdef SPI_SIMULATION
-  	  /* --- Generate your simulated input here to test the protocol at home --- */
-  	  protocol_u proto_sim = { 1,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17 };
-  	  generateChecksum(&proto_sim);
-  	  uint8_t input_slave_simulated[num_sum+2];
-  	  //Wrong Checksum simulated:
-  	  //proto_sim.protocol_s.checksum = 12;
-  	  changeMSB_LSB(&proto_sim);
-  	  encode_COBS(proto_sim.bytestream, num_sum, input_slave_simulated); //Generate simulated received message
-  	  input_slave_simulated[num_sum+1] = 0; //ToDo: '0' is added manually for now, maybe change COBS algorithm on Nucleo.
-
-	#endif /* SPI_SIMULATION */
-
-
-
+  /* Infinite loop */
+  /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  switch(state)
-	  {
-	  case 0: /* --- Start / Initializaiton --- */
-		  state = 1;
-		  //HAL_SPI_Receive(&hspi3, input_slave, 4, 0xFF); //Clean Input FIFO
-		  //HAL_SPI_Transmit(&hspi3, output_slave, 4, 0xFF); //Clean Output FIFO
-		  break;
 
-	  case 1: /* ---Two-Way-Handshake --- */
+  /* USER CODE END WHILE */
+  /* USER CODE BEGIN 3 */
 
-		  /* --- Waiting for request --- */
-		  input_slave[0] = 0xFF; // Default Values
-		  input_slave[1] = 0xFF; // Default Values
-		  char offset = 0;
-		  while(!((input_slave[0] == 0x00 && input_slave[1] == 0x01) || (input_slave[0] == 0x01 && input_slave[1] == 0x00)))
-		  {
-			  if(offset == 0) //Switching Offset between '0' and '1' to receive starting sequence immediately
-				  offset = 1;
-			  else
-				  offset = 0;
-
-				#ifdef SPI_SIMULATION
-			  	  input_slave[0] = 0x00;
-			  	  input_slave[1] = 0x01;
-				#else
-			  	HAL_SPI_Receive(&hspi3, input_slave + offset, 1, 0xFF);
-				#endif /* SPI_SIMULATION */
-
-		  }
-
-		  /* --- Sending ACK --- */
-		  output_slave[0] = 0xFF;
-		  output_slave[1] = 0xFE;
-		#ifndef SPI_SIMULATION
-		  HAL_SPI_Transmit(&hspi3, output_slave, 2, 0xFF);
-		#endif /* SPI_SIMULATION */
-
-		  state = 2;
-		  break;
-
-	  case 2: /* --- Read PDU--- */
-		#ifdef SPI_SIMULATION
-		  for(int i = 0; i < num_sum+2; i++)
-			  input_slave[i] = input_slave_simulated[i];
-		#else
-		  HAL_SPI_Receive(&hspi3, input_slave, num_sum+2, 0xFF); //Read complete PDU (fastest method)
-		#endif /* SPI_SIMULATION */
-
-		  //Check for '0x00' position (COBS - boundary)
-		  uint16_t pos = 0;
-		  while(input_slave[pos++] != 0x00);
-		  pos--;
-
-		  COBS_len = pos; //Store number of received Bytes for COBS decoding
-
-		  state = 3;
-		  break;
-
-	  case 3: /* --- Decode the input (COBS), check for expected length and for correct checksum--- */
-
-		  if(num_sum == decode_COBS(input_slave, COBS_len, protocolstream.bytestream)) //Decode COBS-Bytestream and check if length is how expected
-		  {
-			  /* --- COBS - FORMAT passed --- */
-			  changeMSB_LSB(&protocolstream); //Change MSB and LSB because of different representations on HLP and Nucleo
-			  if(checkChecksum(&protocolstream))
+		for(int i = 0; i < 100; i++) //Generate some testValues
 			  {
-				  /* --- Checksum is correct -> Received Data seems to be correct --- */
-					#ifdef BENCHMARKING
-				  	  addTransfer(&protocolstream,PROTOCOL_ACCEPT);
-					#endif /* BENCHMARKING */
-
-				  	//ToDo: Reaction, when Bytestream is successfully tested and no errors occur
-
-
-			  }else
-			  {
-				  /* --- COBS is correct, Checksum is INCORRECT -> Received Data seems to be corrupted --- */
-					#ifdef BENCHMARKING
-				  	  addTransfer(&protocolstream,PROTOCOL_ERROR_DETECTED_CHECKSUM);
-					#endif /* BENCHMARKING */
-
-				  	  //ToDo: Reaction, when error is detected in received Bytestream
+				  s_input[i] = 0xFF;
+				  m_input[i] = 0xFF;
+				  s_output[i] = 0xFF;
+				  m_output[i] = 0xFF;
 			  }
-		  } else
-		  {
-			  /* --- COBS is correct, Checksum is INCORRECT -> Received Data seems to be corrupted --- */
-				#ifdef BENCHMARKING
-				  addTransfer(&protocolstream,PROTOCOL_ERROR_DETECTED_COBS);
-				#endif /* BENCHMARKING */
 
-				  //ToDo: Reaction, when error is detected in received Bytestream
-		  }
+			  for(int i = 0; i < 100; i++) //Generate some testValues
+			  {
+				  s_output[i] = (i);
+				  m_output[i] = (100+i);
+			  }
 
+			  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4,GPIO_PIN_SET); //SS to '1' (inactive)
 
-			  //Sensor data is now transmitted and successfully stored in protocolstream struct for easy access like 'protocolstream.protocol_s.angle_pitch'
-			  state = 1;
-		  break;
+			  pushToTXBuffer(s_output, 50); //Fill the outgoing ringbuffer (0 ... 49)
+			  ini_SPI_interrrupt(); //Initialize Interrupts now
 
-	  }
+			  while(1)
+			  {
+				  //Enable SS
+				  HAL_Delay(1000);
+				  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4,GPIO_PIN_RESET); 			//Enable GPIO Pin for slave select
+				  HAL_SPI_TransmitReceive(&hspi1, m_output, m_input, 99,0xFF); 	//Send test message (100 ... 198)
+				  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4,GPIO_PIN_SET); 			//Disable GPIO Pin for slave select
+				  pushToTXBuffer(s_output, 21); 								//Refill the outgoing ringbuffer (0 ... 20)
 
+			  }
   }
+  /* USER CODE END 3 */
 
 }
 
@@ -268,8 +178,20 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSICalibrationValue = 16;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
+  RCC_OscInitStruct.PLL.PLLM = 16;
+  RCC_OscInitStruct.PLL.PLLN = 192;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+  RCC_OscInitStruct.PLL.PLLQ = 2;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+    /**Activate the Over-Drive mode 
+    */
+  if (HAL_PWREx_EnableOverDrive() != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
@@ -278,12 +200,12 @@ void SystemClock_Config(void)
     */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
@@ -312,7 +234,7 @@ static void MX_SPI1_Init(void)
   hspi1.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi1.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi1.Init.NSS = SPI_NSS_SOFT;
-  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+  hspi1.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_256;
   hspi1.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi1.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi1.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -369,57 +291,53 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOC_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
 
-  /*Configure GPIO pin : SPI1 Pins (MASTER) */
-  GPIO_InitStruct.Pin       = GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7; //SCK | MISO | MOSI
-  GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull      = GPIO_PULLUP;
-  GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
-  GPIO_InitStruct.Alternate = GPIO_AF5_SPI1;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    /*Configure GPIO pin : SPI1 Pins (MASTER) */
+    GPIO_InitStruct.Pin       = GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7; //SCK | MISO | MOSI
+    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull      = GPIO_PULLUP;
+    GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF5_SPI1;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PA4 */
-  GPIO_InitStruct.Pin  = GPIO_PIN_4; //NSS
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    /*Configure GPIO pin : PA4 */
+    GPIO_InitStruct.Pin  = GPIO_PIN_4; //NSS
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : SPI3 Pins (SLAVE) */
-  GPIO_InitStruct.Pin       = GPIO_PIN_11; //MISO
-  GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-  GPIO_InitStruct.Pull      = GPIO_PULLUP;
-  GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
-  GPIO_InitStruct.Alternate = GPIO_AF5_SPI3;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+    /*Configure GPIO pin : SPI3 Pins (SLAVE) */
+    GPIO_InitStruct.Pin       = GPIO_PIN_11; //MISO
+    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull      = GPIO_PULLUP;
+    GPIO_InitStruct.Speed     = GPIO_SPEED_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF5_SPI3;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  GPIO_InitStruct.Pin  = GPIO_PIN_10; //SCK
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+    GPIO_InitStruct.Pin  = GPIO_PIN_10; //SCK
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  GPIO_InitStruct.Pin  = GPIO_PIN_2; //MOSI
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    GPIO_InitStruct.Pin  = GPIO_PIN_2; //MOSI
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  GPIO_InitStruct.Pin  = GPIO_PIN_15; //NSS
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    GPIO_InitStruct.Pin  = GPIO_PIN_15; //NSS
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
 }
 
 /* USER CODE BEGIN 4 */
 
-/** Check for expected result of received Data.
- * @return Array as expected (0: false)
-*/
-char checkReceivedData(uint8_t *arr)
+void ini_SPI_interrrupt()
 {
-	for(int i = 0; i < 4; i++)
-	{
-		if(arr[i] != 2*(i+1))
-			return 0;
-	}
-	return 1;
+	//Enable Interrupt:
+	  hspi3.Instance->CR2 |= SPI_RXFIFO_THRESHOLD; //Enable RXFIFO THRESHOLD
+	  hspi3.Instance->CR2 |= (SPI_IT_TXE| SPI_IT_RXNE | SPI_IT_ERR); //Enable Interrupt
+	  hspi3.Instance->CR1 |= SPI_CR1_SPE; //Enable SPI
 }
+
 /* USER CODE END 4 */
 
 /**
