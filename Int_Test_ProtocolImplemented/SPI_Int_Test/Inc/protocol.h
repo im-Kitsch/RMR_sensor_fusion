@@ -10,7 +10,7 @@
 /*	--- Protocol Parameter --- */
 #define num_8b 1	//Number of 8 Bit - variables in protocol (for example: char, uint8_t, int8_t, ...) | Default: 1
 #define num_16b 2	//Number of 16 Bit - variables in protocol (for example: uint16_t, int16_t, ...) | Default: 0
-#define num_32b 16	//Number of 32 Bit - variables in protocol (for example: (unsigned) int, float*, uint32_t, int32_t, ...) | Default: 1
+#define num_32b 18	//Number of 32 Bit - variables in protocol (for example: (unsigned) int, float*, uint32_t, int32_t, ...) | Default: 1
 #define num_64b 0	//Number of 64 Bit - variables in protocol (for example: long*, double*, uint64_t*, int64_t*, ...) | Default: 0
 					// (*) not tested, yet!
 
@@ -46,6 +46,9 @@ typedef union {
 
 		uint16_t test_u16_1;
 		uint16_t test_u16_2;
+
+		float f1;
+		float d1;
 
 
 		/***	--- Protocol end --- ***/

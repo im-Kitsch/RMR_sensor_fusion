@@ -51,7 +51,7 @@
 /* USER CODE END Includes */
 
 #define BENCHMARKING
-#define SPI_SOURCE_SPI1
+//#define SPI_SOURCE_SPI1
 
 /* Private variables ---------------------------------------------------------*/
 
