@@ -249,7 +249,8 @@ void SPI3_IRQHandler(void)
 			nextShort = (uint16_t)(buf_transmit[TRANSMIT_BUFFER_SIZE-1] +((uint16_t)buf_transmit[0]<<8));
 			*((__IO uint16_t *)&hspi3.Instance->DR) = nextShort;
 			pRead_buf_transmit = 1;
-		}else
+		}
+		else
 		{
 			nextShort = (uint16_t)(buf_transmit[pRead_buf_transmit] +((uint16_t)buf_transmit[pRead_buf_transmit+1]<<8));
 			*((__IO uint16_t *)&hspi3.Instance->DR) = nextShort;
@@ -267,7 +268,10 @@ void SPI3_IRQHandler(void)
 		volatile int i = 0;
 	} else if(hspi3.Instance->SR &SPI_SR_OVR)
 	{
-		volatile int i = 0;
+		//Read Operation on the Data Register
+		uint8_t clearDR = (*(__IO uint8_t *)&(hspi3.Instance->DR));
+		uint32_t clearSR = hspi3.Instance->SR;
+
 	}
 
 

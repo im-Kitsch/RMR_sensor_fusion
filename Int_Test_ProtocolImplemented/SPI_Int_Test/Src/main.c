@@ -128,6 +128,13 @@ int main(void)
   	//Receive structure
   	protocol_u receive_u;
 
+  	//Transmit structure
+	Cprotocol_u transmit_u = {1,10,11,12,13,14,15,16,17};
+	uint8_t transmit_bytestream_COBS[Cnum_sum+2];
+		//Generate transmit MSG (fake Control Data):
+		generateChecksum_C(&transmit_u);
+		encode_COBS(transmit_u.bytestream, Cnum_sum, transmit_bytestream_COBS);
+
 	#ifdef BENCHMARKING
   	//Initialize Benchmarking
   	newBenchmark(0x0E);
@@ -168,6 +175,11 @@ int main(void)
 				  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4,GPIO_PIN_SET);
 				#else
 				  /* --- Wait for new message --- */
+				  receive_u.protocol_s.test_int_10 = 100;
+				  for(int i = 0; i < num_sum+2; i++)
+				  {
+					  latest_message[i] = 0xff;
+				  }
 				  while(!zeroDetected);
 				  zeroDetected = 0;
 				#endif
@@ -175,12 +187,13 @@ int main(void)
 				  uint8_t found = ReadLastMessageFromRXBuffer(latest_message, num_sum+2);
 
 				  /* --- If message was found -> Decode (COBS) --- */
+				  uint16_t length_COBS = 0;
 				  if(found) //If message is available
 				  {
-					  decode_COBS(latest_message, num_sum+2, receive_u.bytestream);
+					  length_COBS = decode_COBS(latest_message, num_sum+2, receive_u.bytestream);
 				  }
 
-				  if(found != 0) //Decode COBS-Bytestream and check if length is how expected
+				  if(found != 0 && length_COBS == num_sum+1 ) //Decode COBS-Bytestream and check if length is how expected
 				  {
 					  /* --- COBS - FORMAT passed --- */
 					  if(checkChecksum(&receive_u))
@@ -191,6 +204,10 @@ int main(void)
 							#endif /* BENCHMARKING */
 
 							//ToDo: Reaction, when Bytestream is successfully tested and no errors occur
+
+							  //Here SensorFusion is taking place -> Generating Control Signals
+							  pushToTXBuffer(transmit_bytestream_COBS, Cnum_sum+2); //Push test message to TX Buffer
+
 
 
 					  }else
