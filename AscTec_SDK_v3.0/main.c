@@ -52,7 +52,7 @@ DAMAGE.
 #include "declination.h"
 #include "asctecCommIntfOnboard.h"
 #include "lpc_aci_eeprom.h"
-#include "spi0.h"
+#include <stdint.h>
 
 #ifdef MATLAB
 #include "..\custom_mdl\onboard_matlab_ert_rtw\onboard_matlab.h"
@@ -86,6 +86,8 @@ unsigned char fireflyLedEnabled=0;
 unsigned char PTU_cam_option_4_version=2;
 unsigned short mainloop_overflows=0;
 
+uint32_t cntINT = 0;
+
 void timer0ISR(void) __irq
 {
   T0IR = 0x01;      //Clear the timer 0 interrupt
@@ -101,9 +103,10 @@ void timer0ISR(void) __irq
   }
 
   if(mainloop_trigger<10) mainloop_trigger++;
-
   IDISABLE;
+  cntINT++;
   VICVectAddr = 0;		// Acknowledge Interrupt
+
 }
 
 /**********************************************************
@@ -133,9 +136,7 @@ int	main (void) {
   ACISDK();	//AscTec Communication Interface: publish variables, set callbacks, etc.
 
   //update parameters stored by ACI:
-
-
-  SPI0_Master_Init();
+  //...
 
   PTU_init();	//initialize camera PanTiltUnit
 #ifdef MATLAB

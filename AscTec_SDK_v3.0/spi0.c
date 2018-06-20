@@ -5,16 +5,58 @@
  *      Author: Malte
  */
 
-#include <stdint.h>
 #include "LPC214x.h"			/* LPC21XX Peripheral Registers	*/
 #include "type.h"
 #include "irq.h"
-#include "ssp.h"
+#include "spi0.h"
 #include "main.h"
 #include "system.h"
-#include "LL_HL_comm.h"
-#include "spi0.h"
+#include "sdk.h"
+#include <stdint.h>
+#include "ringbuffer.h"
 
+void SPI0Handler (void) __irq
+{
+
+	IENABLE;				/* handles nested interrupt */
+
+	/* Check for pointer Overruns */
+	if(pRead_buf_transmit >= TRANSMIT_BUFFER_SIZE)
+		pRead_buf_transmit = 0;
+	if(pWrite_buf_receive >= RECEIVE_BUFFER_SIZE)
+		pWrite_buf_receive = 0;
+
+	/* Check for nothing more to transmit */
+	if(pRead_buf_transmit == pWrite_buf_transmit)
+	{
+		//Disable Interrupt, because there is nothing to transmit at this moment.
+		S0SPCR &= !(1<<7); //Reset SPIE - Bit
+		S0SPINT = 0x01;	/* clear interrupt Flag */
+		return;
+	}
+
+
+    uint16_t statusReg = S0SPSR;
+    switch(statusReg)
+    {
+		case (1<<4): //MODE FAULT FLAG
+			//Do Nothing
+			break;
+		case (1<<6): //WRITE COLLISION FLAG
+			//Do Nothing
+			break;
+		case (1<<7): //SPI TRANSFER COMPLETE FLAG
+			//Read the last received Value
+			buf_receive[pWrite_buf_receive++] = S0SPDR;
+			//Write new Data into data register
+			S0SPDR = buf_transmit[pRead_buf_transmit++];
+			break;
+    }
+
+    IDISABLE;
+    VICVectAddr = 0;	/* Acknowledge Interrupt */
+    S0SPINT = 0x01;	/* clear interrupt Flag */
+}
 
 /**
  * Initialize SPI periphery as master in default configuration.
@@ -22,8 +64,8 @@
 void SPI0_Master_Init(void)
 {
 	PINSEL0 = PINSEL0 | 0x00001500; /* Select P0.4 -> SCK0, P0.5 -> MISO0, P0.6 -> MOSI0, P0.7 -> GPIO(SS)*/
-	S0SPCR = 0x0020; /* Master mode, 8-bit frames, SPI0 mode */
-	S0SPCCR = 0x08; /* Even number, minimum value 8, pre scalar for SPI Clock */
+	S0SPCR = 0x0020 | (1<<7); /* Master mode, 8-bit frames, SPI0 mode, Interrupt enable */
+	S0SPCCR = 0x0E; /* Even number, minimum value 8, pre scalar for SPI Clock */
 }
 
 /**

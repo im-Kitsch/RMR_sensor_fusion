@@ -37,6 +37,8 @@ void refreshProtocolStream(protocol_u *proStream)
 
 	proStream->protocol_s.test_u16_1 = 16;
 	proStream->protocol_s.test_u16_2 = 17;
+	proStream->protocol_s.f1 = 20.1;
+	proStream->protocol_s.d1 = 55.6;
 
 
 }
@@ -74,6 +76,40 @@ char checkChecksum(protocol_u *proStream)
 	
 	//Check if the calculated checksum equals the received checksum
 	if(checksum == proStream->protocol_s.checksum)
+		return 1;
+	else
+		return 0;
+}
+
+void generateChecksum_C(Cprotocol_u *proStream)
+{
+	//ToDo: Implement a CRC or a Fletchers's Checksum
+
+	//Now used: Simple Additional Checksum
+	uint32_t checksum = 0;
+	for(uint8_t i = 0; i < Cnum_sum-4; i++)
+		checksum += proStream->bytestream[i]; //Overflow is accepted
+
+	//Store checksum in protocolByteStream
+	proStream->Cprotocol_s.checksum = checksum;
+}
+
+/**
+ * Generate a checksum calculated from sensory data, stored at the end of protocol's stream.
+ * @param proStream 	protocol stream to be checked for correct checksum
+ * @return '1' for correct checksum, '0' for incorrect checksum
+ */
+char checkChecksum_C(Cprotocol_u *proStream)
+{
+	//ToDo: Implement a CRC or a Fletchers's Checksum
+
+	//Now used: Simple Additional Checksum
+	uint32_t checksum = 0;
+	for(uint8_t i = 0; i < Cnum_sum-4; i++)
+		checksum += proStream->bytestream[i]; //Overflow is accepted
+
+	//Check if the calculated checksum equals the received checksum
+	if(checksum == proStream->Cprotocol_s.checksum)
 		return 1;
 	else
 		return 0;

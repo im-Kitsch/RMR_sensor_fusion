@@ -36,6 +36,7 @@ extern void init(void);
 extern void pll_init(void);
 extern void pll_feed(void);
 extern void init_timer0(void);
+extern void init_timer1(void);
 extern void init_interrupts(void);
 extern void init_ports(void);
 extern void init_spi(void);

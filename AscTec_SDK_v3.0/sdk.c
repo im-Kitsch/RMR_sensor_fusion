@@ -44,6 +44,11 @@ DAMAGE.
 #include "spi0.h"
 #include "COBS.h"
 #include "protocol.h"
+#include "LPC214x.h"
+
+//Own Defines
+//#define CODEPROFILER
+
 
 struct WO_SDK_STRUCT WO_SDK;
 struct WO_CTRL_INPUT WO_CTRL_Input;
@@ -62,6 +67,7 @@ unsigned char emergencyModeUpdate=0;
 
 //Own local variables
 protocol_u protocolStream;
+uint8_t receive_stream[num_sum+2];
 
 
 #ifdef MATLAB
@@ -170,6 +176,9 @@ int SDK_EXAMPLE_turn_motors_off(void);
  * look at the AscTec Wiki. Please set an emergency mode according to the flight path of your flight mission
  * with SDK_SetEmergencyMode(). If non was set, Direct Landing is activated.
  */
+#ifdef CODEPROFILER
+	unsigned int tick_start, ticks_refresh;
+#endif
 
 void SDK_mainloop(void)
 {
@@ -182,42 +191,25 @@ void SDK_mainloop(void)
 #else //write your own C-code within this function
 	/* USER CODE BEGINS HERE */
 
+	/* --- Extract last Message from RxBuffer --- */
+	volatile uint8_t latestMessage[Cnum_sum+2];
+	volatile uint8_t found = ReadLastMessageFromRXBuffer(latestMessage, Cnum_sum+2);
+
+
 	/* --- Refreshing the sensor data --- */
 	refreshProtocolStream(&protocolStream);
-	
+
 	/* --- Generate checksum --- */
 	generateChecksum(&protocolStream);
 
 	/* --- Generate COBS Byte stream out of sensor data --- */
 	uint8_t cobsByteStream[num_sum+2]; //for <256 Bytes to encode
 	uint8_t cobs_len = encode_COBS(protocolStream.bytestream, num_sum, cobsByteStream);
+	cobsByteStream[num_sum+1] = 0x00;
 
-	/* --- Polling for Nucleo's answer | Two-Way-Handshake --- */
-	uint8_t startingSeq[] = {0x00, 0x01};
-	uint8_t startingReceive[2];
-	char offset = 0;
-	while(!((startingReceive[0] == 0xFE && startingReceive[1] == 0xFF)||(startingReceive[0] == 0xFF && startingReceive[1] == 0xFE))) //Wait for right answer
-	{
-		if(offset)
-			offset = 0;
-		else
-			offset = 1;
-		SPI_Master_WriteRead(startingSeq + offset, startingReceive + offset, 1); //Send Starting Sequence, receive answer
-	}
-
-	delay(1000); //ToDo: Decrease
 	
-	/* ---  Slave is now listening!  --- */
-	SPI_Master_Write(cobsByteStream ,cobs_len+1); //transferring encoded sensor data to Slave; ToDo: Check alignment (cobs_len+1)
-	//TODO: Check for successful transmission (answer, direct reply, checksum, ...)
-
-	/* ---  Slave is now calculating (Sensor Fusion) control signals  --- */
-
-	/* --- Polling for Nucleo's answer | Two-Way-Handshake --- */
-	//Continue
-
-	/* --- Nucleo is now sending control signals to HLP --- */
-	//To be continued...
+	//volatile uint8_t RW_OR = SPI_Master_WriteRead(cobsByteStream , receive_stream, cobs_len+1); //transferring encoded sensor data to Slave; ToDo: Check alignment (cobs_len+1)
+	pushToTXBuffer(cobsByteStream, cobs_len+1);
 
 
 
