@@ -67,7 +67,8 @@ unsigned char emergencyModeUpdate=0;
 
 //Own local variables
 protocol_u protocolStream;
-uint8_t receive_stream[num_sum+2];
+uint8_t latestMessage_received[num_sum+2];
+Cprotocol_u protocol_received;
 
 
 #ifdef MATLAB
@@ -192,9 +193,9 @@ void SDK_mainloop(void)
 	/* USER CODE BEGINS HERE */
 
 	/* --- Extract last Message from RxBuffer --- */
-	volatile uint8_t latestMessage[Cnum_sum+2];
-	volatile uint8_t found = ReadLastMessageFromRXBuffer(latestMessage, Cnum_sum+2);
-
+	uint8_t found = ReadLastMessageFromRXBuffer(latestMessage_received, Cnum_sum+2);
+	if(found)
+		decode_COBS(latestMessage_received, Cnum_sum+2, protocol_received.bytestream);
 
 	/* --- Refreshing the sensor data --- */
 	refreshProtocolStream(&protocolStream);
@@ -210,19 +211,6 @@ void SDK_mainloop(void)
 	
 	//volatile uint8_t RW_OR = SPI_Master_WriteRead(cobsByteStream , receive_stream, cobs_len+1); //transferring encoded sensor data to Slave; ToDo: Check alignment (cobs_len+1)
 	pushToTXBuffer(cobsByteStream, cobs_len+1);
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 	//example to turn motors on and off every 2 seconds
@@ -241,10 +229,10 @@ void SDK_mainloop(void)
 	//SDK_EXAMPLE_gps_waypoint_control();
 
 	//jeti telemetry can always be activated. You may deactivate this call if you don't use the AscTec Telemetry package.
-	SDK_jetiAscTecExampleRun(); //ToDo: Check if that function is necessary
+	//SDK_jetiAscTecExampleRun(); //ToDo: Check if that function is necessary
 
-	if (wpExampleActive) //this is used to activate the waypoint example via the jeti telemetry display
-		SDK_EXAMPLE_gps_waypoint_control();
+	//if (wpExampleActive) //this is used to activate the waypoint example via the jeti telemetry display
+		//SDK_EXAMPLE_gps_waypoint_control();
 
 #endif
 }

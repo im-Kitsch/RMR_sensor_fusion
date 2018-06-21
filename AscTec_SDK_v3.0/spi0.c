@@ -31,26 +31,33 @@ void SPI0Handler (void) __irq
 	{
 		//Disable Interrupt, because there is nothing to transmit at this moment.
 		S0SPCR &= !(1<<7); //Reset SPIE - Bit
+		IDISABLE;
+		VICVectAddr = 0;	/* Acknowledge Interrupt */
 		S0SPINT = 0x01;	/* clear interrupt Flag */
+		IOSET0 = (1<<7);  /* SS(GPIO) to '1', disable SPI communication */
 		return;
 	}
 
 
-    uint16_t statusReg = S0SPSR;
-    switch(statusReg)
+    unsigned short statusReg = S0SPSR;
+    if(statusReg & (1<<4)) //MODE FAULT FLAG
     {
-		case (1<<4): //MODE FAULT FLAG
-			//Do Nothing
-			break;
-		case (1<<6): //WRITE COLLISION FLAG
-			//Do Nothing
-			break;
-		case (1<<7): //SPI TRANSFER COMPLETE FLAG
+		//Do Nothing
+    }
+    if(statusReg & (1<<6)) //WRITE COLLISION FLAG
+    {
+    	//Do Nothing
+    }
+    if(statusReg & (1<<7)) //SPI TRANSFER COMPLETE FLAG
+    {
+
 			//Read the last received Value
 			buf_receive[pWrite_buf_receive++] = S0SPDR;
+
 			//Write new Data into data register
 			S0SPDR = buf_transmit[pRead_buf_transmit++];
-			break;
+
+
     }
 
     IDISABLE;
@@ -64,7 +71,7 @@ void SPI0Handler (void) __irq
 void SPI0_Master_Init(void)
 {
 	PINSEL0 = PINSEL0 | 0x00001500; /* Select P0.4 -> SCK0, P0.5 -> MISO0, P0.6 -> MOSI0, P0.7 -> GPIO(SS)*/
-	S0SPCR = 0x0020 | (1<<7); /* Master mode, 8-bit frames, SPI0 mode, Interrupt enable */
+	S0SPCR = 0x0020; /* Master mode, 8-bit frames, SPI0 mode, Interrupt enable */
 	S0SPCCR = 0x0E; /* Even number, minimum value 8, pre scalar for SPI Clock */
 }
 
