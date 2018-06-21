@@ -10,7 +10,7 @@
 /*	--- Protocol Parameter --- */
 #define num_8b 1	//Number of 8 Bit - variables in protocol (for example: char, uint8_t, int8_t, ...) | Default: 1
 #define num_16b 2	//Number of 16 Bit - variables in protocol (for example: uint16_t, int16_t, ...) | Default: 0
-#define num_32b 18	//Number of 32 Bit - variables in protocol (for example: (unsigned) int, float*, uint32_t, int32_t, ...) | Default: 1
+#define num_32b 19	//Number of 32 Bit - variables in protocol (for example: (unsigned) int, float*, uint32_t, int32_t, ...) | Default: 1
 #define num_64b 0	//Number of 64 Bit - variables in protocol (for example: long*, double*, uint64_t*, int64_t*, ...) | Default: 0
 					// (*) not tested, yet!
 
@@ -21,6 +21,7 @@ typedef union {
 	struct {
 		/***	--- Protocol head --- ***/
 		uint8_t startByte; //Status Flags; 0: Valid, 1: ...
+		uint32_t timeStamp ;
 
 		/*** 	--- Sensory Data --- ***/
 
@@ -66,7 +67,7 @@ typedef union {
 /*	--- Protocol Parameter --- */
 #define Cnum_8b 9	//Number of 8 Bit - variables in protocol (for example: char, uint8_t, int8_t, ...) | Default: 1
 #define Cnum_16b 0	//Number of 16 Bit - variables in protocol (for example: uint16_t, int16_t, ...) | Default: 0
-#define Cnum_32b 1	//Number of 32 Bit - variables in protocol (for example: (unsigned) int, float*, uint32_t, int32_t, ...) | Default: 1
+#define Cnum_32b 2	//Number of 32 Bit - variables in protocol (for example: (unsigned) int, float*, uint32_t, int32_t, ...) | Default: 1
 #define Cnum_64b 0	//Number of 64 Bit - variables in protocol (for example: long*, double*, uint64_t*, int64_t*, ...) | Default: 0
 					// (*) not tested, yet!
 
@@ -77,6 +78,7 @@ typedef union {
 	struct {
 		/***	--- Protocol head --- ***/
 		uint8_t startByte; //Status Flags; 0: Valid, 1: ...
+		uint32_t timeStamp ;
 
 		/*** 	--- Control Data --- ***/
 

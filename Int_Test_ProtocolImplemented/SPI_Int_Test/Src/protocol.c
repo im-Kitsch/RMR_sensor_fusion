@@ -28,7 +28,7 @@ void generateChecksum(protocol_u *proStream)
 	
 	//Now used: Simple Additional Checksum
 	uint32_t checksum = 0;
-	for(uint8_t i = 0; i < num_sum-4; i++)
+	for(uint8_t i = 5; i < num_sum-4; i++)
 		checksum += proStream->bytestream[i]; //Overflow is accepted
 	
 	//Store checksum in protocolByteStream
@@ -46,7 +46,7 @@ char checkChecksum(protocol_u *proStream)
 	
 	//Now used: Simple Additional Checksum
 	uint32_t checksum = 0;
-	for(uint8_t i = 0; i < num_sum-4; i++)
+	for(uint8_t i = 5; i < num_sum-4; i++)
 		checksum += proStream->bytestream[i]; //Overflow is accepted
 	
 	//Check if the calculated checksum equals the received checksum
@@ -62,7 +62,7 @@ void generateChecksum_C(Cprotocol_u *proStream)
 
 	//Now used: Simple Additional Checksum
 	uint32_t checksum = 0;
-	for(uint8_t i = 0; i < Cnum_sum-4; i++)
+	for(uint8_t i = 5; i < Cnum_sum-4; i++)
 		checksum += proStream->bytestream[i]; //Overflow is accepted
 
 	//Store checksum in protocolByteStream
@@ -80,7 +80,7 @@ char checkChecksum_C(Cprotocol_u *proStream)
 
 	//Now used: Simple Additional Checksum
 	uint32_t checksum = 0;
-	for(uint8_t i = 0; i < Cnum_sum-4; i++)
+	for(uint8_t i = 5; i < Cnum_sum-4; i++)
 		checksum += proStream->bytestream[i]; //Overflow is accepted
 
 	//Check if the calculated checksum equals the received checksum

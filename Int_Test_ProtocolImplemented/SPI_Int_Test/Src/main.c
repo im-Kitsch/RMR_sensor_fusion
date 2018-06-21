@@ -129,11 +129,12 @@ int main(void)
   	protocol_u receive_u;
 
   	//Transmit structure
-	Cprotocol_u transmit_u = {1,10,11,12,13,14,15,16,17};
+	Cprotocol_u transmit_u = {1,0,10,11,12,13,14,15,16,17};
 	uint8_t transmit_bytestream_COBS[Cnum_sum+2];
 		//Generate transmit MSG (fake Control Data):
 		generateChecksum_C(&transmit_u);
 		encode_COBS(transmit_u.bytestream, Cnum_sum, transmit_bytestream_COBS);
+		transmit_bytestream_COBS[Cnum_sum+1] = 0x00;
 
 	#ifdef BENCHMARKING
   	//Initialize Benchmarking
@@ -150,19 +151,6 @@ int main(void)
   /* USER CODE END WHILE */
   /* USER CODE BEGIN 3 */
 
-		for(int i = 0; i < 100; i++)
-			  {
-				  m_input[i] = 0xFF;
-				  s_output[i] = 0xFF;
-			  }
-
-			  for(int i = 0; i < 100; i++)
-			  	  {
-				  	  s_output[i] = (i);
-			  	  }
-
-			  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4,GPIO_PIN_SET);
-			  pushToTXBuffer(s_output, 50);
 			  ini_SPI_interrrupt();
 
 			  while(1)
@@ -206,6 +194,9 @@ int main(void)
 							//ToDo: Reaction, when Bytestream is successfully tested and no errors occur
 
 							  //Here SensorFusion is taking place -> Generating Control Signals
+							  transmit_u.Cprotocol_s.timeStamp = receive_u.protocol_s.timeStamp;
+							  encode_COBS(transmit_u.bytestream, Cnum_sum, transmit_bytestream_COBS);
+							  	transmit_bytestream_COBS[Cnum_sum+1] = 0x00;
 							  pushToTXBuffer(transmit_bytestream_COBS, Cnum_sum+2); //Push test message to TX Buffer
 
 
@@ -217,7 +208,10 @@ int main(void)
 							  addTransfer(&receive_u,PROTOCOL_ERROR_DETECTED_CHECKSUM);
 							#endif /* BENCHMARKING */
 
+
+
 							  //ToDo: Reaction, when error is detected in received Bytestream
+							  pushToTXBuffer(transmit_bytestream_COBS, Cnum_sum+2); //Push test message to TX Buffer
 					  }
 				  } else
 				  {
@@ -227,6 +221,7 @@ int main(void)
 						#endif /* BENCHMARKING */
 
 						  //ToDo: Reaction, when error is detected in received Bytestream
+						  pushToTXBuffer(transmit_bytestream_COBS, Cnum_sum+2); //Push test message to TX Buffer
 				  }
 
 
@@ -253,7 +248,7 @@ void SystemClock_Config(void)
     */
   __HAL_RCC_PWR_CLK_ENABLE();
 
-  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE3);
+  __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
 
     /**Initializes the CPU, AHB and APB busses clocks 
     */
@@ -262,7 +257,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.HSICalibrationValue = 16;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSI;
-  RCC_OscInitStruct.PLL.PLLM = 16;
+  RCC_OscInitStruct.PLL.PLLM = 8;
   RCC_OscInitStruct.PLL.PLLN = 192;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
   RCC_OscInitStruct.PLL.PLLQ = 2;
@@ -284,10 +279,10 @@ void SystemClock_Config(void)
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
   RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
-  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV4;
+  RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_6) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
