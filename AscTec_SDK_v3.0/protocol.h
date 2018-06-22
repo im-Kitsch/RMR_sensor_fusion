@@ -56,7 +56,14 @@ typedef union {
 
 		float f1;
 		float d1;
-
+		/*
+		uint32_t protocol_falseCOBS_reality_false;		//Protocol detects error in COBS (and there is an error in reality)
+		uint32_t protocol_falseCHECKSUM_reality_false;	//Protocol detects error in CHECKSUM (and there is an error in reality)
+		uint32_t protocol_falseCOBS_reality_true;		//Protocol detects error in COBS, but the values are like expected (FAIL)
+		uint32_t protocol_falseCHECKSUM_reality_true;	//Protocol detects error in CHECKSUM, but the values are like expected (FAIL)
+		uint32_t protocol_true_reality_false;			//Protocol says yes, but there is an error in reality
+		uint32_t protocol_true_reality_true;			//Protocol says yes and in reality it's true (That's what we want!)
+		*/
 		/***	--- Protocol end --- ***/
 		uint32_t checksum;
 	}__attribute__ ((__packed__))protocol_s;

@@ -45,9 +45,11 @@ DAMAGE.
 #include "COBS.h"
 #include "protocol.h"
 #include "LPC214x.h"
+#include "benchmark.h"
 
 //Own Defines
 //#define CODEPROFILER
+#define BENCHMARKING
 
 
 struct WO_SDK_STRUCT WO_SDK;
@@ -69,6 +71,10 @@ unsigned char emergencyModeUpdate=0;
 protocol_u protocolStream;
 uint8_t latestMessage_received[num_sum+2];
 Cprotocol_u protocol_received;
+
+#ifdef BENCHMARKING
+uint8_t static benchmark_running = 0;
+#endif /* BENCHMARKING */
 
 
 #ifdef MATLAB
@@ -192,10 +198,47 @@ void SDK_mainloop(void)
 #else //write your own C-code within this function
 	/* USER CODE BEGINS HERE */
 
+#ifdef BENCHMARKING
+	if(!benchmark_running)
+	{
+		newBenchmark(0x0E);
+		benchmark_running = 1;
+	}
+#endif /* BENCHMARKING */
+
+
 	/* --- Extract last Message from RxBuffer --- */
-	uint8_t found = ReadLastMessageFromRXBuffer(latestMessage_received, Cnum_sum+2);
-	if(found)
-		decode_COBS(latestMessage_received, Cnum_sum+2, protocol_received.bytestream);
+	uint8_t found = ReadLastMessageFromRXBuffer(latestMessage_received,
+			Cnum_sum + 2);
+	if (found != 0) //Decode COBS-Bytestream and check if length is how expected
+	{
+		decode_COBS(latestMessage_received, Cnum_sum + 2, protocol_received.bytestream);
+		/* --- COBS - FORMAT passed --- */
+		if (checkChecksum_C(&protocol_received)) {
+			/* --- Checksum is correct -> Received Data seems to be correct --- */
+#ifdef BENCHMARKING
+			addTransfer(&protocol_received,PROTOCOL_ACCEPT);
+#endif /* BENCHMARKING */
+
+			//ToDo: Reaction, when Bytestream is successfully tested and no errors occur
+
+
+		} else {
+			/* --- COBS is correct, Checksum is INCORRECT -> Received Data seems to be corrupted --- */
+#ifdef BENCHMARKING
+			addTransfer(&protocol_received,PROTOCOL_ERROR_DETECTED_CHECKSUM);
+#endif /* BENCHMARKING */
+
+			//ToDo: Reaction, when error is detected in received Bytestream
+		}
+	} else {
+		/* --- COBS is correct, Checksum is INCORRECT -> Received Data seems to be corrupted --- */
+#ifdef BENCHMARKING
+		addTransfer(&protocol_received,PROTOCOL_ERROR_DETECTED_COBS);
+#endif /* BENCHMARKING */
+
+		//ToDo: Reaction, when error is detected in received Bytestream
+	}
 
 	/* --- Refreshing the sensor data --- */
 	refreshProtocolStream(&protocolStream);

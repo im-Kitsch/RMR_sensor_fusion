@@ -86,6 +86,7 @@ SRCARM += buildInfoSetup.c
 SRCARM += COBS.c
 SRCARM += protocol.c
 SRCARM += ringBuffer.c
+SRCARM += benchmark.c
 
 #Sources with interrupt routines in them
 SRCARMINT = $(TARGET).c

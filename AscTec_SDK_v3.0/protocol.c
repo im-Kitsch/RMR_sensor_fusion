@@ -5,6 +5,7 @@
 #include "sdk.h"
 #include "protocol.h"
 #include "LPC214x.h"
+#include "benchmark.h"
 
 /**
  * Refresh protocolStream with current sensor data.
@@ -41,7 +42,14 @@ void refreshProtocolStream(protocol_u *proStream)
 	proStream->protocol_s.test_u16_2 = 17;
 	proStream->protocol_s.f1 = 20.1;
 	proStream->protocol_s.d1 = 55.6;
-
+/*
+	proStream->protocol_s.protocol_falseCHECKSUM_reality_false = testSeries[0].protocol_falseCHECKSUM_reality_false;
+	proStream->protocol_s.protocol_falseCOBS_reality_false = testSeries[0].protocol_falseCOBS_reality_false;
+	proStream->protocol_s.protocol_falseCHECKSUM_reality_true = testSeries[0].protocol_falseCHECKSUM_reality_true;
+	proStream->protocol_s.protocol_falseCOBS_reality_true = testSeries[0].protocol_falseCOBS_reality_true;
+	proStream->protocol_s.protocol_true_reality_false = testSeries[0].protocol_true_reality_false;
+	proStream->protocol_s.protocol_true_reality_true = testSeries[0].protocol_falseCOBS_reality_true;
+*/
 
 }
 
@@ -55,7 +63,7 @@ void generateChecksum(protocol_u *proStream)
 	
 	//Now used: Simple Additional Checksum
 	uint32_t checksum = 0;
-	for(uint8_t i = 5; i < num_sum-4; i++)
+	for(uint8_t i = 0; i < num_sum-4; i++)
 		checksum += proStream->bytestream[i]; //Overflow is accepted
 	
 	//Store checksum in protocolByteStream
@@ -73,7 +81,7 @@ char checkChecksum(protocol_u *proStream)
 	
 	//Now used: Simple Additional Checksum
 	uint8_t checksum = 0;
-	for(uint8_t i = 5; i < num_sum-4; i++)
+	for(uint8_t i = 0; i < num_sum-4; i++)
 		checksum += proStream->bytestream[i]; //Overflow is accepted
 	
 	//Check if the calculated checksum equals the received checksum
@@ -89,7 +97,7 @@ void generateChecksum_C(Cprotocol_u *proStream)
 
 	//Now used: Simple Additional Checksum
 	uint32_t checksum = 0;
-	for(uint8_t i = 5; i < Cnum_sum-4; i++)
+	for(uint8_t i = 0; i < Cnum_sum-4; i++)
 		checksum += proStream->bytestream[i]; //Overflow is accepted
 
 	//Store checksum in protocolByteStream
@@ -107,7 +115,7 @@ char checkChecksum_C(Cprotocol_u *proStream)
 
 	//Now used: Simple Additional Checksum
 	uint32_t checksum = 0;
-	for(uint8_t i = 5; i < Cnum_sum-4; i++)
+	for(uint8_t i = 0; i < Cnum_sum-4; i++)
 		checksum += proStream->bytestream[i]; //Overflow is accepted
 
 	//Check if the calculated checksum equals the received checksum
