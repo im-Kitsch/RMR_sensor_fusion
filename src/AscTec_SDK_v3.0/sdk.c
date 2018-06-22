@@ -36,6 +36,7 @@ DAMAGE.
 #include "uart.h"
 #include "system.h"
 #include "lpc_aci_eeprom.h"
+#include "i2c.h"
 #ifdef MATLAB
 #include "..\custom_mdl\onboard_matlab_ert_rtw\onboard_matlab.h"
 #endif
@@ -70,6 +71,32 @@ void SDK_EXAMPLE_attitude_commands(void);
 void SDK_EXAMPLE_gps_waypoint_control(void);
 int SDK_EXAMPLE_turn_motors_on(void);
 int SDK_EXAMPLE_turn_motors_off(void);
+
+
+
+/* laser I2C */
+
+#include "stdio.h"
+#include "type.h"
+void laser_measurement(void);
+BYTE byte_read[1];
+BOOL last_bit;
+short laser_distance;
+
+//void read_laser(void);
+
+/* controller */
+/*
+#include "CmatrixLib.h"
+#include "firefly_KF_disturbance_observer.h"
+#include "aileronMpc.h"
+*/
+
+//extern kalmanHandler KalmanHandler;
+
+// #include "firefly_height_PD_control.h"
+
+
 
 /******** SDK in general ************
  *
@@ -176,12 +203,51 @@ void SDK_mainloop(void)
 	//CAUTION! Read the code of the examples before you test them on your UAV!
 
 	//example to turn motors on and off every 2 seconds
-	/*
+/*
  	static int timer=0;
 	if(++timer<1000) SDK_EXAMPLE_turn_motors_on();
 	else if(timer<2000) SDK_EXAMPLE_turn_motors_off();
 	else timer=0;
+*/
+
+
+
+
+	/* laser */
+	laser_measurement();
+//	read_laser();
+
+//	mpcHandler_t * aileronMpcHandler = initializeAileronMPC();
+
+	/* PD height controller */
+//	initialize();
+//	updateEstimator();
+
+//	WO_SDK.ctrl_mode=0x02;	//0x02: attitude and throttle control: commands are input for standard attitude controller
+
+//	WO_SDK.ctrl_enabled=1;  //1: enable control by HL processor
+
+//	WO_CTRL_Input.ctrl=0x08;	//0x08: enable throttle control by HL. Height control and GPS are deactivated!!
+								//pitch, roll and yaw are still commanded via the remote control
+
+//	WO_CTRL_Input.thrust= calculateThrust(1.5, RO_ALL_Data.fusion_height, RO_ALL_Data.fusion_dheight);
+
+
+
+
+
+
+	/* ACI */
+	/*
+	aciSyncVar();
+	aciSyncCmd();
+	aciSyncPar();
+	aciEngine();
 	*/
+
+
+
+
 
 
 	//examples which show the different control modes
@@ -692,3 +758,78 @@ void SDK_matlabMainLoop()
 
 
 #endif
+
+
+//extern unsigned int I2C0WriteByte(unsigned int registerAddress, unsigned char data);
+void laser_measurement(void){
+	// Write 0x04 to register 0x00 to initiate an acquisition with receiver bias correction
+	I2C0WriteByte(0x00, 0x04);
+
+	// Read register 0x01. Repeat until bit 0 (LSB) goes low
+	byte_read[0] = 1;
+	last_bit = (*byte_read) & 0x01;
+	while(last_bit){
+		I2C0ReadByte(0x01, byte_read);
+		last_bit = (*byte_read) & 0x01;
+	}
+    // Array to store high and low bytes of distance
+     unsigned char distanceArray[2];
+
+    // Read high byte from 0x0f
+     I2C0ReadByte(0x0f, &distanceArray[0]);
+
+    // Read low byte from 0x10
+     I2C0ReadByte(0x10, &distanceArray[1]);
+
+    // Shift high byte and add to low byte to obtain the 16-bit measured distance in centimeters
+     laser_distance = (distanceArray[0] << 8) + distanceArray[1];
+}
+
+
+void PX4FLOW_measurement(void){
+
+
+	I2C0WriteByte(0x42, 0x00);
+	byte_read[0] = 1;
+    // Array to store high and low bytes of distance
+     unsigned char distanceArray[2];
+
+    // Read high byte from 0x0f
+     I2C0ReadByte(0x0f, &distanceArray[0]);
+
+    // Read low byte from 0x10
+     I2C0ReadByte(0x10, &distanceArray[1]);
+
+    // Shift high byte and add to low byte to obtain the 16-bit measured distance in centimeters
+     laser_distance = (distanceArray[0] << 8) + distanceArray[1];
+}
+
+
+/*
+void read_laser(void){
+	// Write 0x04 to register 0x00 to initiate an acquisition with receiver bias correction
+	write_byte(0x62, 0x00, 0x04);
+
+	// Read register 0x01. Repeat until bit 0 (LSB) goes low
+	int last_bit = 1;
+	while(last_bit){
+		unsigned char byte_read = read_byte(0x62, 0x01);
+		last_bit = byte_read & 0x01;
+	}
+
+    // Array to store high and low bytes of distance
+     unsigned char distanceArray[2];
+
+    // Read high byte from 0x0f
+	distanceArray[0] = read_byte(0x62, 0x0f);
+
+    // Read low byte from 0x10
+	distanceArray[1] = read_byte(0x62, 0x10);
+
+    // Shift high byte and add to low byte to obtain the 16-bit measured distance in centimeters
+    int distance = (distanceArray[0] << 8) + distanceArray[1];
+    printf("distance=%d\n", distance);
+}
+*/
+
+

@@ -12,7 +12,7 @@
 #ifndef __I2C_H 
 #define __I2C_H
 
-#define BUFSIZE			0x20
+#define BUFSIZE			0x30  //Zhiyuan changed 20 original
 #define MAX_TIMEOUT		0x00FFFFFF
 
 #define I2CMASTER		0x01
@@ -58,6 +58,17 @@ extern unsigned int I2CStop( void );
 extern unsigned int I2CEngine( void );
 extern void I2C0_send_motordata(void);
 extern void I2C0MasterHandler(void);
+
+/* laser with I2C. by Xun */
+extern unsigned int I2C0WaitForSI(void);
+extern void I2C0SendStart(void);
+extern void I2C0SendStop(void);
+extern void I2C0TX_Byte(unsigned char data);
+extern unsigned char I2C0RX_Byte(void);
+extern unsigned int I2C0WriteByte(unsigned int registerAddress, unsigned char data);
+extern unsigned int I2C0ReadByte(unsigned int registerAddress, unsigned char *data);
+extern unsigned char read_byte(unsigned char slave_address, unsigned char register_address);
+extern void write_byte(unsigned char slave_address, unsigned char register_address, unsigned char data);
 
 #endif /* end __I2C_H */
 /****************************************************************************

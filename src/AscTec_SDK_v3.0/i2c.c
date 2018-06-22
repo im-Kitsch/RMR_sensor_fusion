@@ -29,6 +29,7 @@ DWORD I2CWriteLength;
 DWORD RdIndex = 0;
 DWORD WrIndex = 0;
 
+DWORD I2CSTAT;
 /* 
 From device to device, the I2C communication protocol may vary, 
 in the example below, the protocol uses repeated start to read data from or 
@@ -190,13 +191,13 @@ void I2C0_send_motordata(void)
 *****************************************************************************/
 unsigned int I2CStart( void )
 {
-    unsigned int timeout = 0;
-    unsigned int returnValue = FALSE;
- 
     /*--- Issue a start condition ---*/
     I20CONSET = I2CONSET_STA;	/* Set Start flag */
     
     /*--- Wait until START transmitted ---*/
+
+    unsigned int timeout = 0;
+    unsigned int returnValue = FALSE;
     while( 1 )
     {
 	if ( I2CMasterState == I2C_STARTED )
@@ -249,12 +250,23 @@ void I2CInit( unsigned int I2cMode )
     IODIR0|= 0x0C;	/* set port 0.2 and port 0.3 to output, high */
     IOSET0 = 0x0C;
 
+//    PINSEL0 |= (0<<7)|(1<<6)|(0<<5)|(1<<4); //Select SCL0 and SDA0
+
     /*--- Clear flags ---*/
-    I20CONCLR = I2CONCLR_AAC | I2CONCLR_SIC | I2CONCLR_STAC | I2CONCLR_I2ENC;    
+    I20CONCLR = I2CONCLR_AAC | I2CONCLR_SIC | I2CONCLR_STAC | I2CONCLR_I2ENC;
+    I20CONSET &= (~I2CONSET_STO);
 
     /*--- Reset registers ---*/
     I20SCLL   = I2SCLL_SCLL;
     I20SCLH   = I2SCLH_SCLH;
+
+// by Xun
+    /* set I2C rate to 400kHz, given PCLK = 15MHz. datasheet P.220 */
+//    I20SCLL = 19;
+ //   I20SCLH = 18;
+
+//    unsigned long flag_irq = install_irq(I2C0_INT, (void *) I2C0MasterHandler );
+    I20CONSET = I2CONSET_I2EN;
 }
 
 /*****************************************************************************
@@ -298,4 +310,233 @@ unsigned int I2CEngine( void )
 /******************************************************************************
 **                            End Of File
 ******************************************************************************/
+
+/* laser with I2C. by Xun */
+unsigned int I2C0WaitForSI(void) //Wait till I2C0 block sets SI
+{
+	int timeout = 0;
+	while ( !(I20CONSET & I2CONSET_SI) ) //Wait till SI bit is set. This is important!
+	{
+		timeout++;
+		if (timeout > 10000) return 0; //In case we have some error on bus
+	}
+	return 1; //SI has been set
+}
+void I2C0SendStart(void)
+{
+	unsigned int SI_flag = 0;
+	I20CONCLR = I2CONCLR_AAC | I2CONCLR_SIC | I2CONCLR_STAC; //Clear everything
+	I20CONSET = I2CONSET_STA;	/* Set Start flag */
+	SI_flag = I2C0WaitForSI(); //Wait till the SI bit is set
+}
+void I2C0SendStop(void)
+{
+	int timeout = 0;
+	I20CONSET = I2CONSET_STO; //Set stop bit to send a stop condition
+	I20CONCLR = I2CONCLR_SIC;  /* Clear SI flag */
+	while (I20CONSET & I2CONSET_STO) //Wait till STOP is send. This is important!
+	{
+		timeout++;
+		if (timeout > 10000) //In case we have some error on bus
+		{
+			printf("STOP timeout!\n");
+			return;
+		}
+	}
+	I20CONCLR = I2CONCLR_SIC;
+}
+void I2C0TX_Byte(unsigned char data)
+{
+	I20DAT = data;
+	I20CONCLR = I2CONCLR_SIC | I2CONCLR_STAC; //Clear These to TX data
+	I20CONSET &= (~I2CONSET_STO);
+	I2C0WaitForSI(); //wait till TX is finished
+}
+unsigned char I2C0RX_Byte(void)
+{
+	I20CONCLR = I2CONCLR_AAC; //Send NACK to stop; I2C block will send a STOP automatically, so no need to send STOP thereafter.
+	I20CONCLR = I2CONCLR_SIC; //Clear SI to Start RX
+	I2C0WaitForSI(); //wait till RX is finished
+	return I20DAT;
+}
+#define checkStatus(statusCode) \
+if(I20STAT!=statusCode) \
+{ \
+	printf("Failed for status code: %i(decimal), got status code: %i(decimal)\n",statusCode,I20STAT); \
+	I2C0SendStop(); return 0; \
+}
+
+
+unsigned int I2C0WriteByte(unsigned int registerAddress, unsigned char data)
+{
+		I2C0SendStart(); //Send START on the Bus to Enter Master Mode
+		checkStatus(0x08); //START sent
+
+		I2C0TX_Byte((0x62<<1) & 0xFE); //Send SlaveAddress + 0 to indicate a write.
+		checkStatus(0x18);//SLA+W sent and ack recevied
+
+		I2C0TX_Byte(registerAddress); //send the registerAddress
+		checkStatus(0x28); //byte has been sent and ACK recevied
+
+		I2C0TX_Byte(data); //Finally send the data byte.
+		checkStatus(0x28); //Data Byte has been sent and ACK recevied
+
+		I2C0SendStop(); //Send STOP since we are done.
+		return 1;
+}
+unsigned int I2C0ReadByte(unsigned int registerAddress, unsigned char *data)
+{
+	unsigned int RXData = 0;
+		I2C0SendStart(); //Send START on the Bus to Enter Master Mode
+		I2CSTAT = I20STAT;
+		checkStatus(0x08); //START sent
+
+		I2C0TX_Byte((0x62<<1) & 0xFE); //Send SlaveAddress + 0 to indicate a write.
+		I2CSTAT = I20STAT;
+		checkStatus(0x18);//SLA+W sent and ack recevied
+
+		I2C0TX_Byte(registerAddress);
+		I2CSTAT = I20STAT;
+		checkStatus(0x28);
+
+		I2C0SendStop();
+
+		I2C0SendStart(); //Send START on the Bus to Enter Master Mode
+		I2CSTAT = I20STAT;
+		checkStatus(0x08); //START sent
+
+		I2C0TX_Byte((0x62<<1) | 0x01); //This makes SLA-RW bit to 1 which indicates read.
+		I2CSTAT = I20STAT;
+		checkStatus(0x40); //SLA-R has been Transmitted and ACK received.
+
+		RXData = I2C0RX_Byte();
+
+		*data = (unsigned char)RXData; //Write recieved data to buffer
+		printf("Data='%c' ",RXData);
+		I2C0SendStop();
+	return 1;
+}
+
+
+/* with irq */
+void write_byte(unsigned char slave_address, unsigned char register_address, unsigned char data){
+	/* initialize Master Transmitter mode */
+//	I20CONSET = I2CONSET_I2EN;	// set I2EN bit, clear STA, STO and AA bit
+
+	WrIndex=0;
+	I2CWriteLength = 3;
+	I2CMasterBuffer[0] = (slave_address << 1) & 0xFE;	// laser address + write bit(0)
+    I2CMasterBuffer[1] = register_address;
+    I2CMasterBuffer[2] = data;
+
+	// enter Master Transmitter mode
+    unsigned int flag_start = I2CStart();
+
+	// Set Stop flag
+	while(1){
+		if( I2CMasterState == DATA_NACK ){
+			unsigned int flag_stop = I2CStop();
+			break;
+		}
+	}
+}
+
+unsigned char read_byte(unsigned char slave_address, unsigned char register_address){
+	/* initialize Master Receiver mode */
+//	I20CONSET = I2CONSET_I2EN;	// set I2EN bit, clear STA, STO and AA bit
+
+	/* write register address */
+	WrIndex=0;
+	I2CWriteLength = 2;
+	I2CMasterBuffer[0] = (slave_address << 1) & 0xFE;	// laser address + write bit(0)
+	I2CMasterBuffer[1] = register_address;	// register address
+
+	// enter Master Receiver mode
+    unsigned int flag_start = I2CStart();
+
+	// Set Stop flag
+	while(1){
+		if( I2CMasterState == DATA_NACK ){
+			unsigned int flag_stop = I2CStop();
+			break;
+		}
+	}
+
+	/* read one byte */
+	RdIndex=0;
+	I2CReadLength = 1;
+    I2CMasterBuffer[0] = (slave_address << 1) | 0x01;	// laser address + read bit(1)
+
+    flag_start = I2CStart();
+
+	unsigned char byte_read = I2CMasterBuffer[3];
+
+	// Set Stop flag
+	while(1){
+		if( I2CMasterState == DATA_NACK ){
+			unsigned int flag_stop = I2CStop();
+			break;
+		}
+	}
+
+	return byte_read;
+}
+
+
+unsigned char I2C0RX_Byte_4_array(unsigned char isLast)
+{
+	if(isLast) I20CONCLR = I2CONCLR_AAC; //Send NACK to stop; I2C block will send a STOP automatically, so no need to send STOP thereafter.
+	else I20CONSET = I2CONCLR_AAC;
+	I20CONCLR = I2CONCLR_SIC; //Clear SI to Start RX
+	I2C0WaitForSI(); //wait till RX is finished
+	return I20DAT;
+}
+
+
+unsigned int I2C0ReadArray(unsigned int registerAddress, unsigned char *data, unsigned char length)
+{
+	unsigned int RXData = 0;
+		I2C0SendStart(); //Send START on the Bus to Enter Master Mode
+		I2CSTAT = I20STAT;
+		checkStatus(0x08); //START sent
+
+		I2C0TX_Byte((0x62<<1) & 0xFE); //Send SlaveAddress + 0 to indicate a write.
+		I2CSTAT = I20STAT;
+		checkStatus(0x18);//SLA+W sent and ack recevied
+
+		I2C0TX_Byte(registerAddress);
+		I2CSTAT = I20STAT;
+		checkStatus(0x28);
+
+		I2C0SendStop();
+
+		I2C0SendStart(); //Send START on the Bus to Enter Master Mode
+		I2CSTAT = I20STAT;
+		checkStatus(0x08); //START sent
+
+		I2C0TX_Byte((0x62<<1) | 0x01); //This makes SLA-RW bit to 1 which indicates read.
+		I2CSTAT = I20STAT;
+		checkStatus(0x40); //SLA-R has been Transmitted and ACK received.
+
+
+		I2C0RX_Byte_4_array();
+		RXData = I2C0RX_Byte();
+
+		*data = (unsigned char)RXData; //Write recieved data to buffer
+		printf("Data='%c' ",RXData);
+		I2C0SendStop();
+
+//		if(i != length-1)	RXData = I2C0RX_Byte(false); //Send NACK for last byte to indicate we want to stop
+//				else RXData = I2C0RX_Byte(true); //Send ACK for byte other than last byte to indicate we want to continue.
+//
+//				data[count++] = RXData; //Write recieved data to buffer
+//				printf("Data='%c' ",RXData);
+
+
+
+
+	return 1;
+}
+
+
 
