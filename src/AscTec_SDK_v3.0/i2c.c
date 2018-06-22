@@ -339,7 +339,7 @@ void I2C0SendStop(void)
 		timeout++;
 		if (timeout > 10000) //In case we have some error on bus
 		{
-			printf("STOP timeout!\n");
+			//printf("STOP timeout!\n");
 			return;
 		}
 	}
@@ -359,10 +359,12 @@ unsigned char I2C0RX_Byte(void)
 	I2C0WaitForSI(); //wait till RX is finished
 	return I20DAT;
 }
+
+//printf("Failed for status code: %i(decimal), got status code: %i(decimal)\n",statusCode,I20STAT);
+
 #define checkStatus(statusCode) \
 if(I20STAT!=statusCode) \
 { \
-	printf("Failed for status code: %i(decimal), got status code: %i(decimal)\n",statusCode,I20STAT); \
 	I2C0SendStop(); return 0; \
 }
 
@@ -412,7 +414,7 @@ unsigned int I2C0ReadByte(unsigned int registerAddress, unsigned char *data)
 		RXData = I2C0RX_Byte();
 
 		*data = (unsigned char)RXData; //Write recieved data to buffer
-		printf("Data='%c' ",RXData);
+		//printf("Data='%c' ",RXData);
 		I2C0SendStop();
 	return 1;
 }
@@ -483,60 +485,81 @@ unsigned char read_byte(unsigned char slave_address, unsigned char register_addr
 }
 
 
-unsigned char I2C0RX_Byte_4_array(unsigned char isLast)
-{
-	if(isLast) I20CONCLR = I2CONCLR_AAC; //Send NACK to stop; I2C block will send a STOP automatically, so no need to send STOP thereafter.
-	else I20CONSET = I2CONCLR_AAC;
-	I20CONCLR = I2CONCLR_SIC; //Clear SI to Start RX
-	I2C0WaitForSI(); //wait till RX is finished
-	return I20DAT;
-}
-
-
-unsigned int I2C0ReadArray(unsigned int registerAddress, unsigned char *data, unsigned char length)
-{
-	unsigned int RXData = 0;
-		I2C0SendStart(); //Send START on the Bus to Enter Master Mode
-		I2CSTAT = I20STAT;
-		checkStatus(0x08); //START sent
-
-		I2C0TX_Byte((0x62<<1) & 0xFE); //Send SlaveAddress + 0 to indicate a write.
-		I2CSTAT = I20STAT;
-		checkStatus(0x18);//SLA+W sent and ack recevied
-
-		I2C0TX_Byte(registerAddress);
-		I2CSTAT = I20STAT;
-		checkStatus(0x28);
-
-		I2C0SendStop();
-
-		I2C0SendStart(); //Send START on the Bus to Enter Master Mode
-		I2CSTAT = I20STAT;
-		checkStatus(0x08); //START sent
-
-		I2C0TX_Byte((0x62<<1) | 0x01); //This makes SLA-RW bit to 1 which indicates read.
-		I2CSTAT = I20STAT;
-		checkStatus(0x40); //SLA-R has been Transmitted and ACK received.
-
-
-		I2C0RX_Byte_4_array();
-		RXData = I2C0RX_Byte();
-
-		*data = (unsigned char)RXData; //Write recieved data to buffer
-		printf("Data='%c' ",RXData);
-		I2C0SendStop();
-
-//		if(i != length-1)	RXData = I2C0RX_Byte(false); //Send NACK for last byte to indicate we want to stop
-//				else RXData = I2C0RX_Byte(true); //Send ACK for byte other than last byte to indicate we want to continue.
+//unsigned char I2C0RX_Byte_4_array(unsigned char isLast)
+//{
+//	if(isLast) I20CONCLR = I2CONCLR_AAC; //Send NACK to stop; I2C block will send a STOP automatically, so no need to send STOP thereafter.
+//	else I20CONSET = I2CONCLR_AAC;
+//	I20CONCLR = I2CONCLR_SIC; //Clear SI to Start RX
+//	I2C0WaitForSI(); //wait till RX is finished
+//	return I20DAT;
+//}
 //
-//				data[count++] = RXData; //Write recieved data to buffer
-//				printf("Data='%c' ",RXData);
-
-
-
-
-	return 1;
-}
+//
+//unsigned int I2C0ReadArray(unsigned int registerAddress, unsigned char *data, unsigned char length)
+//{
+//	unsigned int RXData = 0;
+//		I2C0SendStart(); //Send START on the Bus to Enter Master Mode
+//		I2CSTAT = I20STAT;
+//		checkStatus(0x08); //START sent
+//
+//		I2C0TX_Byte((0x62<<1) & 0xFE); //Send SlaveAddress + 0 to indicate a write.
+//		I2CSTAT = I20STAT;
+//		checkStatus(0x18);//SLA+W sent and ack recevied
+//
+//		I2C0TX_Byte(registerAddress);
+//		I2CSTAT = I20STAT;
+//		checkStatus(0x28);
+//
+//		I2C0SendStop();
+//
+//		I2C0SendStart(); //Send START on the Bus to Enter Master Mode
+//		I2CSTAT = I20STAT;
+//		checkStatus(0x08); //START sent
+//
+//		I2C0TX_Byte((0x62<<1) | 0x01); //This makes SLA-RW bit to 1 which indicates read.
+//		I2CSTAT = I20STAT;
+//		checkStatus(0x40); //SLA-R has been Transmitted and ACK received.
+//
+//
+//		if(length-- !=0) RXData
+//
+//		I2C0RX_Byte_4_array();
+//		RXData = I2C0RX_Byte();
+//
+//		*data = (unsigned char)RXData; //Write recieved data to buffer
+//		printf("Data='%c' ",RXData);
+//		I2C0SendStop();
+//
+//
+////		unsigned char RXData = 0;
+////		for(int i=0; i < length;i++) { I2C0SendStart(); //Send START on the Bus to Enter Master Mode checkStatus(0x08); //START sent I2C0TX_Byte(I2CSlaveAddr & 0xFE); //Send SlaveAddress + 0 to indicate a write. checkStatus(0x18);//SLA+W sent and ACK recevied I2C0TX_Byte((startDataAddress & 0xFF00)>>8); //Send Word Address High byte first. (24xx64 needs 2 word address bytes)
+////			checkStatus(0x28); //High byte has been sent and ACK recevied
+////
+////			I2C0TX_Byte(startDataAddress & 0xFF); //Now send the Low byte of word Address
+////			checkStatus(0x28); //Low byte has been sent and ACK recevied
+////
+////			startDataAddress++; //Increment to next address
+////
+////			I2C0SendStart(); //Send Repeat START, since we are already in Master mode
+////			checkStatus(0x10); //Repeat START sent
+////
+////			I2C0TX_Byte(I2CSlaveAddr | 0x01); //This makes SLA-RW bit to 1 which indicates read.
+////			checkStatus(0x40); //SLA-R has been Transmitted and ACK received.
+////
+////			if(i != length-1)	RXData = I2C0RX_Byte(false); //Send NACK for last byte to indicate we want to stop
+////			else RXData = I2C0RX_Byte(true); //Send ACK for byte other than last byte to indicate we want to continue.
+////
+////			data[count++] = RXData; //Write recieved data to buffer
+////			printf("Data='%c' ",RXData);
+////
+////		}
+////		return true;
+//
+//
+//
+//
+//	return 1;
+//}
 
 
 

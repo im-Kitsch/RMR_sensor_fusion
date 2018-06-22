@@ -802,6 +802,10 @@ void PX4FLOW_measurement(void){
 
     // Shift high byte and add to low byte to obtain the 16-bit measured distance in centimeters
      laser_distance = (distanceArray[0] << 8) + distanceArray[1];
+     if(laser_distance < 0)
+     {
+    	 laser_distance = 0;
+     }
 }
 
 

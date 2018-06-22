@@ -12,7 +12,7 @@
 #ifndef __I2C_H 
 #define __I2C_H
 
-#define BUFSIZE			0x30  //Zhiyuan changed 20 original
+#define BUFSIZE			0x20  //Zhiyuan changed 20 original
 #define MAX_TIMEOUT		0x00FFFFFF
 
 #define I2CMASTER		0x01
