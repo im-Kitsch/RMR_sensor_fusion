@@ -82,6 +82,8 @@ int main(void)
   /* USER CODE BEGIN 1 */
 
 	 uint8_t send[20] = {0x00};
+	 uint8_t ResetLidar[1] = {0x00};
+	 uint8_t BeginLidar[1] = {0x04};
 	 uint8_t receive[20] = {0x16};
 
   /* MCU Configuration----------------------------------------------------------*/
@@ -110,16 +112,32 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
+  while ( HAL_I2C_Master_Transmit(&hi2c2, 0x00, ResetLidar, 1, 0xff) != HAL_OK );
+
   while (1)
   {
 	volatile int i = 65535;
 	uint8_t *I2C_Receive = I2C_Info.arr;
-    while ( HAL_I2C_Master_Transmit(&hi2c2, 0x84, send, 1, 0xff) != HAL_OK );
-    while ( HAL_I2C_Master_Receive(&hi2c2, 0x84, I2C_Receive, 22,  0xfff) !=HAL_OK  );
-    I2C_Receive = I2C_Integral_Info.arr;
-    while ( HAL_I2C_Master_Transmit(&hi2c2, 0x84, receive, 1, 0xff) != HAL_OK );
-    while ( HAL_I2C_Master_Receive(&hi2c2, 0x84, I2C_Receive, 25,  0xfff) !=HAL_OK  );
+	int distance;
+//    while ( HAL_I2C_Master_Transmit(&hi2c2, 0x84, send, 1, 0xff) != HAL_OK );
+//    while ( HAL_I2C_Master_Receive(&hi2c2, 0x84, I2C_Receive, 22,  0xfff) !=HAL_OK  );
+//    I2C_Receive = I2C_Integral_Info.arr;
+//    while ( HAL_I2C_Master_Transmit(&hi2c2, 0x84, receive, 1, 0xff) != HAL_OK );
+//    while ( HAL_I2C_Master_Receive(&hi2c2, 0x84, I2C_Receive, 25,  0xfff) !=HAL_OK  );
+	while ( HAL_I2C_Master_Transmit(&hi2c2, 0x00, BeginLidar, 1, 0xff) != HAL_OK );
+	receive[0] = 0x01;
+	while( ( HAL_I2C_Master_Receive(&hi2c2, 0x01 << 1, receive, 1,  0xfff) !=HAL_OK  ) ||  ( receive[0]&&0x01 != 0x00 )  )  ;
+	while ( HAL_I2C_Master_Receive(&hi2c2, 0x0f << 1, receive, 1,  0xfff) !=HAL_OK  )   ;
+	receive[1] = receive[0];
+	while ( HAL_I2C_Master_Receive(&hi2c2, 0x10 << 1, receive, 1,  0xfff) !=HAL_OK  )     ;
+	distance = receive[1] ;
+	distance = distance << 8 ;
+	distance = + receive[0];
     while(i--);
+
+
+
   }
   /* USER CODE END 3 */
 
