@@ -195,8 +195,9 @@ int main(void)
 
 							  //Here SensorFusion is taking place -> Generating Control Signals
 							  transmit_u.Cprotocol_s.timeStamp = receive_u.protocol_s.timeStamp;
+							  generateChecksum_C(&transmit_u);
 							  encode_COBS(transmit_u.bytestream, Cnum_sum, transmit_bytestream_COBS);
-							  	transmit_bytestream_COBS[Cnum_sum+1] = 0x00;
+							  transmit_bytestream_COBS[Cnum_sum+1] = 0x00;
 							  pushToTXBuffer(transmit_bytestream_COBS, Cnum_sum+2); //Push test message to TX Buffer
 
 

@@ -13,7 +13,7 @@
 
 /* --- DEFINES --- */
 #define TRANSMIT_BUFFER_SIZE	100
-#define RECEIVE_BUFFER_SIZE		100
+#define RECEIVE_BUFFER_SIZE		200
 
 /* --- EXTERN VARIABLES --- */
 uint8_t buf_transmit[TRANSMIT_BUFFER_SIZE]; //Ringbuffer Transmit
