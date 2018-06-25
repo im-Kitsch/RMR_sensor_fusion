@@ -26,11 +26,11 @@ void newBenchmark(uint8_t speed)
 void addTransfer(protocol_u *input, feedback feedback)
 {
 	//Expected protocol_u
-	static protocol_u expected_protocolValues = {1,1,1, 2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,20.1,55.6};
+	static protocol_u expected_protocolValues = {1,1, 2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,20.1,55.6};
 	generateChecksum(&expected_protocolValues);
 	/* --- Check Byte for Byte if protocol stream is correct for real --- */
 	char RealErrorFlag = 0;
-	for(int i = 5; i < num_sum-4; i++)
+	for(int i = 0; i < num_sum-4; i++)
 	{
 		if(input->bytestream[i] != expected_protocolValues.bytestream[i])
 		{
