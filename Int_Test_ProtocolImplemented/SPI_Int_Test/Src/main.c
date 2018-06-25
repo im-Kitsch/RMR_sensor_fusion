@@ -129,7 +129,7 @@ int main(void)
   	protocol_u receive_u;
 
   	//Transmit structure
-	Cprotocol_u transmit_u = {1,0,10,11,12,13,14,15,16,17};
+	Cprotocol_u transmit_u = {1,10,11,12,13,14,15,16,17};
 	uint8_t transmit_bytestream_COBS[Cnum_sum+2];
 		//Generate transmit MSG (fake Control Data):
 		generateChecksum_C(&transmit_u);
