@@ -66,6 +66,9 @@ void init(void)
 void init_interrupts(void)
 {
   init_VIC();
+  
+  /* SPI0 Interrupt Enabled */
+  install_irq( SPI0_INT, (void *) SPI0Handler );
 
   //Timer0 interrupt
   install_irq( TIMER0_INT, (void *) timer0ISR );
@@ -90,9 +93,6 @@ void init_interrupts(void)
   SSPIMSC = SSPIMSC_TXIM | SSPIMSC_RXIM | SSPIMSC_RORIM;// | SSPIMSC_RTIM;
   /* SSP Enabled */
   SSPCR1 |= SSPCR1_SSE;
-
-  /* SPI0 Interrupt Enabled */
-  install_irq( SPI0_INT, (void *) SPI0Handler );
 
 }
 
