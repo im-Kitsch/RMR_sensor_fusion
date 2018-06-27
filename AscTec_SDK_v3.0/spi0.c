@@ -35,6 +35,11 @@ void SPI0Handler (void) __irq
 		VICVectAddr = 0;	/* Acknowledge Interrupt */
 		S0SPINT = 0x01;	/* clear interrupt Flag */
 		IOSET0 = (1<<7);  /* SS(GPIO) to '1', disable SPI communication */
+		
+		/*Alternative
+			buf_receive[pWrite_buf_receive++] = S0SPDR;
+			//remove all code up
+		*/
 		return;
 	}
 
@@ -58,11 +63,16 @@ void SPI0Handler (void) __irq
 			S0SPDR = buf_transmit[pRead_buf_transmit++];
 
 
-    }
+    }else
+	{
+			uint8_t dummyRead = S0SPDR; //Error Occures, Clear Flags
+	}
+		
+		
 
     IDISABLE;
-    VICVectAddr = 0;	/* Acknowledge Interrupt */
     S0SPINT = 0x01;	/* clear interrupt Flag */
+	VICVectAddr = 0;	/* Acknowledge Interrupt */
 }
 
 /**

@@ -19,7 +19,7 @@ void pushToTXBuffer(uint8_t *data, uint16_t length)
 {
 	for(uint16_t index_data = 0; index_data < length; index_data++)
 	{
-		if(pWrite_buf_transmit == pRead_buf_transmit)
+		if(pWrite_buf_transmit == pRead_buf_transmit-1)
 			OVR_transmit++;
 		buf_transmit[pWrite_buf_transmit++] = data[index_data];
 		if(pWrite_buf_transmit >= TRANSMIT_BUFFER_SIZE)
@@ -42,12 +42,12 @@ void pushToTXBuffer(uint8_t *data, uint16_t length)
 	uint32_t timeout = 0;
 	while ( ((S0SPSR & 0x80) == 0) && (timeout++ < (1<<16)));  /* Wait till data transmission is completed, SPIF = 1? */
 	flush = S0SPDR;
-	//IOSET0 = (1<<7);  /* SS(GPIO) to '1', disable SPI communication */
-	//IOCLR0 = (1<<7); /* SS(GPIO) to '0', enable SPI communication */
-	//Read the last received Value
-	//buf_receive[pWrite_buf_receive++] = S0SPDR;
-	//Write new Data into data register
-	//S0SPDR = buf_transmit[pRead_buf_transmit++];
+	
+	
+	/* Alternative
+		//Remove all code downside the for-loop (SS on TOP!)
+		S0SPDR = 0xFF; //Force new interrupt
+	*/
 }
 
 /**
