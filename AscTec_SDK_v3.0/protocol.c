@@ -21,7 +21,7 @@ void refreshProtocolStream(protocol_u *proStream)
 
 	//TETSTING SEQUENCE
 	proStream->protocol_s.startByte = 0x01;
-	proStream->protocol_s.timeStamp = T1TC;
+	//proStream->protocol_s.timeStamp = T1TC;
 	proStream->protocol_s.angle_pitch = 1;
 	proStream->protocol_s.angle_roll = 2;
 	proStream->protocol_s.angle_yaw = 3;
@@ -80,7 +80,7 @@ char checkChecksum(protocol_u *proStream)
 	//ToDo: Implement a CRC or a Fletchers's Checksum
 	
 	//Now used: Simple Additional Checksum
-	uint8_t checksum = 0;
+	uint32_t checksum = 0;
 	for(uint8_t i = 0; i < num_sum-4; i++)
 		checksum += proStream->bytestream[i]; //Overflow is accepted
 	
