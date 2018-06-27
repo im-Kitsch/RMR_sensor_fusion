@@ -19,12 +19,14 @@ void pushToTXBuffer(uint8_t *data, uint16_t length)
 {
 	for(uint16_t index_data = 0; index_data < length; index_data++)
 	{
+		if(pWrite_buf_transmit == pRead_buf_transmit)
+			OVR_transmit++;
 		buf_transmit[pWrite_buf_transmit++] = data[index_data];
 		if(pWrite_buf_transmit >= TRANSMIT_BUFFER_SIZE)
 		{
 			pWrite_buf_transmit = 0;
 		}
-	} //Todo: Mark Overrun (Write > Read)
+	}
 
 	//Enable TX Interrupt & Activate SPI Master again
 	S0SPCR |= (1<<5); //Returning to Master mode

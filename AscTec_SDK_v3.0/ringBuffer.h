@@ -23,6 +23,8 @@ uint16_t pWrite_buf_transmit;
 uint16_t pRead_buf_receive;
 uint16_t pWrite_buf_receive;
 
+uint32_t OVR_transmit;
+
 void pushToTXBuffer(uint8_t *data, uint16_t length);
 
 
