@@ -30,7 +30,7 @@ void addTransfer(protocol_u *input, feedback feedback)
 	generateChecksum(&expected_protocolValues);
 	/* --- Check Byte for Byte if protocol stream is correct for real --- */
 	char RealErrorFlag = 0;
-	for(int i = 0; i < num_sum-4; i++)
+	for(int i = 0; i < num_sum-28; i++)
 	{
 		if(input->bytestream[i] != expected_protocolValues.bytestream[i])
 		{

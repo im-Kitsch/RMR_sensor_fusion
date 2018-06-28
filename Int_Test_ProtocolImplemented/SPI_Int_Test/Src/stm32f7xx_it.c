@@ -233,14 +233,16 @@ void SPI3_IRQHandler(void)
 		{
 			//No transfer (no more data)
 			//ToDo: Disable Interrupt
-			*((__IO uint8_t *)&hspi3.Instance->DR) = (uint8_t)0xFFFF; //Flush the FIFO
+			*((__IO uint16_t *)&hspi3.Instance->DR) = (uint16_t)0xFFFF; //Flush the FIFO
 			//hspi3.Instance->CR2 &= !(SPI_IT_TXE); //Disable TX-Interrupt
 		}
 		else if((pRead_buf_transmit + 1)%TRANSMIT_BUFFER_SIZE== pWrite_buf_transmit)
 		{
 			//Just one more Byte to transfer (no more data)
-			*((__IO uint8_t *)&hspi3.Instance->DR) = buf_transmit[pRead_buf_transmit++];
-			*((__IO uint8_t *)&hspi3.Instance->DR) = (uint8_t)0xFF; //Flush the FIFO
+			//*((__IO uint8_t *)&hspi3.Instance->DR) = buf_transmit[pRead_buf_transmit++];
+			//*((__IO uint8_t *)&hspi3.Instance->DR) = (uint8_t)0xFF; //Flush the FIFO
+			nextShort =  (uint16_t)(buf_transmit[pRead_buf_transmit++] +(((uint16_t)0xFF)<<8));
+			*((__IO uint16_t *)&hspi3.Instance->DR) = nextShort;
 			//ToDo: Disable Interrupt
 			//hspi3.Instance->CR2 &= !(SPI_IT_TXE); //Disable TX-Interrupt
 		}

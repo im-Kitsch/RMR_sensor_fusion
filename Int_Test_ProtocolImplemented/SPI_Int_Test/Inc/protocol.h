@@ -10,7 +10,7 @@
 /*	--- Protocol Parameter --- */
 #define num_8b 1	//Number of 8 Bit - variables in protocol (for example: char, uint8_t, int8_t, ...) | Default: 1
 #define num_16b 2	//Number of 16 Bit - variables in protocol (for example: uint16_t, int16_t, ...) | Default: 0
-#define num_32b 18	//Number of 32 Bit - variables in protocol (for example: (unsigned) int, float*, uint32_t, int32_t, ...) | Default: 1
+#define num_32b 24	//Number of 32 Bit - variables in protocol (for example: (unsigned) int, float*, uint32_t, int32_t, ...) | Default: 1
 #define num_64b 0	//Number of 64 Bit - variables in protocol (for example: long*, double*, uint64_t*, int64_t*, ...) | Default: 0
 					// (*) not tested, yet!
 
@@ -21,13 +21,6 @@ typedef union {
 	struct {
 		/***	--- Protocol head --- ***/
 		uint8_t startByte; //Status Flags; 0: Valid, 1: ...
-		//uint32_t timeStamp ;
-
-		/*** 	--- Sensory Data --- ***/
-
-		/*  Example for adding a new variable: */
-		// uint8_t newVariable;
-		// Increase in '#define num_8b X'  X by one
 
 		int angle_pitch;
 		int angle_roll;
@@ -50,14 +43,13 @@ typedef union {
 
 		float f1;
 		float d1;
-/*
+
 		uint32_t protocol_falseCOBS_reality_false;		//Protocol detects error in COBS (and there is an error in reality)
 		uint32_t protocol_falseCHECKSUM_reality_false;	//Protocol detects error in CHECKSUM (and there is an error in reality)
 		uint32_t protocol_falseCOBS_reality_true;		//Protocol detects error in COBS, but the values are like expected (FAIL)
 		uint32_t protocol_falseCHECKSUM_reality_true;	//Protocol detects error in CHECKSUM, but the values are like expected (FAIL)
 		uint32_t protocol_true_reality_false;			//Protocol says yes, but there is an error in reality
-		uint32_t protocol_true_reality_true;			//Protocol says yes and in reality it's true (That's what we want!)
-*/
+		uint32_t protocol_true_reality_true;
 
 		/***	--- Protocol end --- ***/
 		uint32_t checksum;

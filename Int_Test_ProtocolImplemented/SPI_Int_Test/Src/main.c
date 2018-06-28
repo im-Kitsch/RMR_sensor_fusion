@@ -127,7 +127,6 @@ int main(void)
 
   	//Receive structure
   	protocol_u receive_u;
-
   	//Transmit structure
 	Cprotocol_u transmit_u = {1,10,11,12,13,14,15,16,17};
 	uint8_t transmit_bytestream_COBS[Cnum_sum+2];
@@ -135,6 +134,7 @@ int main(void)
 		generateChecksum_C(&transmit_u);
 		encode_COBS(transmit_u.bytestream, Cnum_sum, transmit_bytestream_COBS);
 		transmit_bytestream_COBS[Cnum_sum+1] = 0x00;
+		uint8_t empty[] = {0xFF, 0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};
 
 	#ifdef BENCHMARKING
   	//Initialize Benchmarking
@@ -152,7 +152,6 @@ int main(void)
   /* USER CODE BEGIN 3 */
 
 			  ini_SPI_interrrupt();
-
 			  while(1)
 			  {
 				#ifdef SPI_SOURCE_SPI1
@@ -190,28 +189,19 @@ int main(void)
 							#ifdef BENCHMARKING
 							  addTransfer(&receive_u,PROTOCOL_ACCEPT);
 							#endif /* BENCHMARKING */
+							  //generateChecksum_C(&transmit_u);
+							  //encode_COBS(transmit_u.bytestream, Cnum_sum, transmit_bytestream_COBS);
+							  //transmit_bytestream_COBS[Cnum_sum+1] = 0x00;
 
-							//ToDo: Reaction, when Bytestream is successfully tested and no errors occur
-
-							  //Here SensorFusion is taking place -> Generating Control Signals
-							  transmit_u.Cprotocol_s.timeStamp = receive_u.protocol_s.timeStamp;
-							  generateChecksum_C(&transmit_u);
-							  encode_COBS(transmit_u.bytestream, Cnum_sum, transmit_bytestream_COBS);
-							  transmit_bytestream_COBS[Cnum_sum+1] = 0x00;
+							  pushToTXBuffer(empty, 6); //Push empty to TX Buffer
 							  pushToTXBuffer(transmit_bytestream_COBS, Cnum_sum+2); //Push test message to TX Buffer
-
-
-
 					  }else
 					  {
 						  /* --- COBS is correct, Checksum is INCORRECT -> Received Data seems to be corrupted --- */
 							#ifdef BENCHMARKING
 							  addTransfer(&receive_u,PROTOCOL_ERROR_DETECTED_CHECKSUM);
 							#endif /* BENCHMARKING */
-
-
-
-							  //ToDo: Reaction, when error is detected in received Bytestream
+							  pushToTXBuffer(empty, 6); //Push empty to TX Buffer
 							  pushToTXBuffer(transmit_bytestream_COBS, Cnum_sum+2); //Push test message to TX Buffer
 					  }
 				  } else
@@ -220,19 +210,13 @@ int main(void)
 						#ifdef BENCHMARKING
 						  addTransfer(&receive_u,PROTOCOL_ERROR_DETECTED_COBS);
 						#endif /* BENCHMARKING */
-
 						  //ToDo: Reaction, when error is detected in received Bytestream
+						  pushToTXBuffer(empty, 6); //Push empty to TX Buffer
 						  pushToTXBuffer(transmit_bytestream_COBS, Cnum_sum+2); //Push test message to TX Buffer
 				  }
-
-
-
-
-
 			  }
   }
   /* USER CODE END 3 */
-
 }
 
 /**
