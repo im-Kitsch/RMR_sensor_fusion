@@ -10,7 +10,7 @@
 /*	--- Protocol Parameter --- */
 #define num_8b 1	//Number of 8 Bit - variables in protocol (for example: char, uint8_t, int8_t, ...) | Default: 1
 #define num_16b 2	//Number of 16 Bit - variables in protocol (for example: uint16_t, int16_t, ...) | Default: 0
-#define num_32b 24	//Number of 32 Bit - variables in protocol (for example: (unsigned) int, float*, uint32_t, int32_t, ...) | Default: 1
+#define num_32b 25	//Number of 32 Bit - variables in protocol (for example: (unsigned) int, float*, uint32_t, int32_t, ...) | Default: 1
 #define num_64b 0	//Number of 64 Bit - variables in protocol (for example: long*, double*, uint64_t*, int64_t*, ...) | Default: 0
 					// (*) not tested, yet!
 
@@ -50,6 +50,7 @@ typedef union {
 		uint32_t protocol_falseCHECKSUM_reality_true;	//Protocol detects error in CHECKSUM, but the values are like expected (FAIL)
 		uint32_t protocol_true_reality_false;			//Protocol says yes, but there is an error in reality
 		uint32_t protocol_true_reality_true;
+		uint32_t transfer_OVR;
 
 		/***	--- Protocol end --- ***/
 		uint32_t checksum;

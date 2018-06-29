@@ -333,6 +333,8 @@ static void MX_SPI3_Init(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
+  HAL_SPI_MspInit(&hspi3);
+
 }
 
 /** Configure pins as 

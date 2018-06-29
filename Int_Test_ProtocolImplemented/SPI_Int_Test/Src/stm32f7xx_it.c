@@ -34,6 +34,7 @@
 #include "stm32f7xx_hal.h"
 #include "stm32f7xx.h"
 #include "stm32f7xx_it.h"
+#include "stm32f7xx_hal_spi.h"
 
 #include "ringBuffer.h"
 
@@ -267,13 +268,24 @@ void SPI3_IRQHandler(void)
 
 	if (hspi3.Instance->SR & SPI_SR_UDR ) //Interrupt Error Flag
 	{
-		volatile int i = 0;
-	} else if(hspi3.Instance->SR &SPI_SR_OVR)
+		//do nothing
+	}
+	if(hspi3.Instance->SR &SPI_SR_OVR)
 	{
 		//Read Operation on the Data Register
-		uint8_t clearDR = (*(__IO uint8_t *)&(hspi3.Instance->DR));
-		uint32_t clearSR = hspi3.Instance->SR;
-
+		__HAL_SPI_CLEAR_OVRFLAG(&hspi3);
+		//__HAL_SPI_CLEAR_FREFLAG(&hspi3);
+		//__HAL_SPI_CLEAR_MODFFLAG(&hspi3);
+	}
+	if(hspi3.Instance->SR &SPI_SR_FRE)
+	{
+		//Read Operation on the Data Register
+		__HAL_SPI_CLEAR_FREFLAG(&hspi3);
+	}
+	if(hspi3.Instance->SR &SPI_SR_MODF)
+	{
+		//Read Operation on the Data Register
+		__HAL_SPI_CLEAR_MODFFLAG(&hspi3);
 	}
 
 
