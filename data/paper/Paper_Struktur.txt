@@ -1,0 +1,39 @@
+Deutsch
+I) Einleitung (Motivation) [1p]
+II) Grundlagen
+	a) Systembeschreigung (Firefly(C), Nucleo(H), etc...) [1,5p]
+	b) SPI [0,5p]
+	c) Protokolle [0,5p]
+III) Entwicklung und Vorstellung des Protokolls
+	a) Vorgehensweise / Entwicklung (Wasserfallmodell) [0,5p]
+	b) Anforderungsanalyse [0,5p]
+	c) Protokollentwurf [2p]
+		c1) 
+	d) Implementierung [1,5p]
+	e) Protkolltest [1p]
+
+IV) Zusammenfassung [0,5p]
+
+V) Literatur & Autorbiographie [1p]
+
+
+
+
+English
+I) Introduction (Motivation) [1p]
+II) Basics
+	a) Systemdescription(Firefly, Nucleo, etc...) [1,5p]
+	b) SPI [0,5p]
+	c) Protocols [0,5p]
+III) Development and Presentation of the protocol
+	a) Method / Development (Waterfall model)[0,5p]
+	b) Requirements analysis[0,5p]
+	c) Protocol development[2p]
+		c1) 
+	d) Implementation[1,5p]
+	e) Benchmarks / Tests[1p]
+
+IV) Summary [0,5p]
+
+V) Literature & Biography of the authors [1p]
+
