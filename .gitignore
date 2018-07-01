@@ -26,3 +26,17 @@
 *-blx.aux
 *-blx.bib
 *.run.xml
+
+*.metadata
+*.o
+*.lst
+*.o.d
+\src
+*.lss
+*.elf
+*.bin
+*.map
+*.list
+*.sym
+*.hex
+arm-elf-gdb.exe
