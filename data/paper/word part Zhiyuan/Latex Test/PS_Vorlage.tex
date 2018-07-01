@@ -1,0 +1,235 @@
+\documentclass[journal,final,a4paper,twoside]{PS}
+
+%%% Dieser Block ist dem Betreuer des Projektseminars vorbehalten
+\usepackage{PS}             % Alle Definitionen über den Seitenstil (auf keinen Fall editieren!!)
+\usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}
+
+\def\lehrveranstaltung{PROJEKTSEMINAR ROBOTIK UND COMPUTATIONAL INTELLIGENCE}
+\def\ausgabe{Vol.18,~SS~2018}
+\setcounter{page}{1}        % Hier die Seitennummer der Startseite für Gesamtdokument festlegen
+
+%%% Ab hier können Einträge von den Teilnehmern des Projektseminars gemacht werden
+%%% Wenn neben den LaTeX-Paketen aus der Datei PS.sty noch weitere gebraucht werden,
+%%% so ist dies dringend mit dem Betreuer abzuklären!
+
+\begin{document}
+\newcommand{\euertitel}{Arbeitstitel: Eingliederung einer zusätzlichen Hardwarekomponetene in ein bestehendes Hexacopter System zur Leistungssteigerung}   % Titel hier eintragen!
+\newcommand{\betreuer}{M.Sc. Raúl Acuña Godoy, Dipl.-Ing. Dinu Mihailescu-Stoica }  % Betreuerdaten hier eintragen (mit einem Leerzeichen am Ende)!
+
+\headsep 40pt
+\title{\euertitel}
+% Autorennamen in der Form "Vorname Nachname" angeben, alphabetisch nach Nachname sortieren,
+% nach dem letzen Autor kein Komma setzen, sondern mit \thanks abschließen
+\author{Malte Markus Breitenbach,
+        Autor~B,
+        Autor~C
+\thanks{Diese Arbeit wurde von \betreuer unterstützt.}}
+
+\maketitle
+
+
+\begin{Zusammenfassung}
+Hierhin kommt eine kurze (5-6 Sätze) Zusammenfassung der Arbeit. In diesem Fall beschreibt das Dokument die \LaTeX -Vorlage für die Erstellung der Ausarbeitungen eines Projektseminars.
+\end{Zusammenfassung}
+\vspace{6pt}
+
+\begin{abstract}
+This is the english translation of your \glqq Zusammenfassung \grqq.
+\end{abstract}
+
+\section{Einführung}
+Ein Hexacopter stellt mit seinen zahlreichen Mess- und Stellgrößen und dynamischem Verhalten eine zugleich komplexe als auch herausfordernde Regelaufgabe dar.
+
+Der digital ausgeführte Regler als solcher erfordert somit ein hohes Maß an Rechenleistung. Es ist daher erforderlich eine ausreichend leistungsfähige Rechenhardware zur Verfügung zu haben, was durch den im Firefly zur Verfügung stehenden High-Level-Prozessor nur bedingt gegeben ist. Sowohl der kleine Programmspeicher als auch die fehlende Rechengeschwindigkeit insbesondere bei Gleitkommaoperationen schränken den Regelungstechniker bei der Lösungsfindung stark ein. So muss beispielsweise durch den limitierten Programmspeicher auf lange Codesequenzen verzichtet werden und durch die fehlende Rechengeschwindigkeit zeitintensive Rechenoperatoren nur sparsam Anwendung finden. Abhilfe schaffen soll der in jeder Hinsicht performantere Microcontroller \glqq Nucleo STM32F767ZI\grqq  (im Folgenden als Nucleo abgekürzt), der dem System als weiterer Rechenprozessor hinzugefügt werden soll. Um den neuen Prozessor sinnvoll in die Berechnungen miteinzubeziehen muss jedoch zunächst eine Schnittstelle zwischen dem zu leistungsschwachen High-Level-Prozessor und dem Nucleo hergestellt werden. Dabei gelten besondere Anforderungen an die Schnittstelle wie hohe Transferraten, ein hohes Maß an Robustheit als auch Echtzeitfähigkeit. Nur wenn diese Anforderungen auch ausreichend erfüllt werden, können später die Berechnungen praktisch auf dem Nucleo durchgeführt werden und der Hexacopter entsprechend geregelt werden.
+
+Somit soll durch diese Arbeit eine solide Grundlage geschaffen werden, um darauf aufbauend eine Regelung für den Hexacopter entwerfen zu können.
+
+
+\section{Grundlagen}
+\label{sec:grundlangen}
+
+\subsection{Systembeschreigung}
+Subsection text.
+\subsubsection{UAV} Text\\
+Text
+\subsubsection{Nucleo} STM32F767 Nucleo-144 
+
+Wie oben erwähnt, die Sensorfusion Algorithmus wird implementiert und überprüft in hinzugefügte Hochleistungsprozessor -- \glqq Nucleo STM32F767ZIT6\grqq, die von STMicroelectronics entwickelt wird und wegen hoher Leistung heutzutage weit benutzt wird. Mikrocontroller enthaltet Prozessor und zugleich auch Peripheriefunktion, d.h. nicht nur Arbeits- und Programmspeicher sondern auch komplexe Peripheriefunktionen wie z.B. PWM-Ausgänge, CAN-, USB-, I2C, SPI (angewendet in unserem Protokoll) usw.  werden komplett und kompakt auf demselben Chip integriert, was eine kostengünstige und flexible Möglichkeit für Benutzer bietet, neue Konzepte auszuprobieren und Prototypen zu erstellen. 
+
+Dank der kompletten Entwicklungswerkzeugen erleichtert man sehr die Entwicklungsarbeit. Einerseits, mit zahlreiche verpackte Bibliotheksfunktionen ermöglicht man schnelle Entwicklung verstärkt sehr die Lesbarkeit der Code, was ein wichtiger Grund die Popularität des STM32-Familien ist. Andererseits, mit GUI-Werkzeug wie CubeMX darf man einfach und sicher das System wie z.B.  Konfiguration von dem ganzen Uhrbaum initialisieren.  
+
+Mikrokontrolle STM32767 in unsere Nucleo besitzt ARM Cortex-M7 Kern, der im maximal 216 MHZ arbeiten könnte. Zudem erhält er 2 MByte Flash-Speicher, 512Kbytes SRAM und 144 Pins, während der Stromverbrauch aber sehr gering -- c.a. 250mA (Alle Peripheriegeräte aktiviert wird. TODO BibReference reference datasheet P124!!!) ist. Und Debugger/Programmierer-Werkzeug ST-LinkV2 ist schon implementiert. Ausreichende Peripheriegeräte werden implementiert, z.B. insgesamt vier I2C Schnittstellen sechs SPI Schnittstellen.  SPI3, die von uns benutzt wird, könnte maximal als 25 Mbit/s Kommunikation Geschwindigkeit erreichen. Diese Geschwindigkeit ist schon viel größer als die Geschwindigkeit, welche HLP erreichen könnte.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.7\linewidth]{pics/Nucleo.jpg}
+	\caption{Nucleo}
+	\label{fig:comickopf-eps-converted-to}
+\end{figure}
+
+\subsubsection{Sensor Data} \
+
+Unsere Daten zur Protokoll und Sensorfusion basiert aus zwei Teilen:die integriert in UAV Sensoren, äußere Sensoren. Firefly besitzt wie normale UAV das Gyro, Kompass, GPS. etc. Sie sind genug für normale Regelung in normaler Situationen aber nicht gut wie z.B. Indoor-Situation. Außerdem ist Druckmesser nicht sehr präzise in Höhe Bestimmung.  Um besser zu positionieren und Attitüde zu schätzen, wir werden noch wie z.B.  Optischer Fluss,  Kamera, usw. hinzufügen.
+Die innere Sensoren von UAV sind im folgende:
+\begin{itemize}
+	\item 
+	Gyro: Die zeige die lineare Beschleunigung und Winkelgeschwindigkeit.
+	
+	\item  Kompass: Es messt das Magnetfeld der Erde.
+	
+	\item  GPS: Durch GPS wird z.B. globale Position, Geschwindigkeit und Zeit.
+	
+	\item  Pressuresensor: Die Höhe könnte im Natur damit bestimmen.
+\end{itemize}
+Die äußere Sensoren von UAV sind im folgende:
+\begin{itemize}
+	\item 
+	Optischer Fluss: GPS könnte nicht innerhalb des Gebäudes arbeiten, während optische Fluss ist eine gute Ersetzung. Wir benutzen PX4FLOW, die erfolgreich als Position System GPS ersetzt hat. (Ref) % An Open Source and Open Hardware Embedded Metric Optical Flow 	CMOS Camera for Indoor and Outdoor Applications	Dominik Honegger, Lorenz Meier, Petri Tanskanen and Marc Pollefeys ETH Zurich, Switzerland 
+	\item 
+	LIDAR-Lite v3. Für Indoor-Höhe-Bestimmung drinnen. Es ist viel schneller als Ultraschall und robust, zuverlässig.
+\end{itemize}
+
+Außerdem werden noch die anderen Sensoren spät hinzugefügt. z.B. Kamera, Microsoft Kinect, usw. um besser die verschiedenen Situationen anzupassen.  Die Kapazität unseres Protokolls ist noch ausreichend für die Hinzufügung.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.4\linewidth]{pics/PX4FLOW.jpg}
+	\includegraphics[width=0.4\linewidth]{pics/Lidar.jpg}
+	\caption{äußere Sensoren}
+	\label{fig:otherSensor}
+\end{figure}
+
+
+
+\subsection{Serial Peripheral Interface (SPI)}
+Das Serial Peripheral Interface (kurz SPI) ist ein im Jahr 1987 von Susan C. Hill Et al., damals bei dem Halbleiterhersteller Motorola (heute NXP Semiconductors), entwickeltes Bus-System und stellt einen \glqq lockeren \grqq Standard für einen synchronen seriellen Datenbus (Synchrones Serial Port) dar, mit den digitalen Schaltungen nach dem Master-Slave-Prinzip miteinander verbunden werden können(BibReference.) 
+% Patent US4816996: Queued serial peripheral interface for use in a data processing system. Angemeldet am 24. Juli 1987, veröffentlicht am 28. März 1989, Anmelder: Motorola (heute: NXP USA Inc.), Erfinder: Susan C. Hill, Joseph Jelemensky, Mark R. Heene.).
+
+SPI benutzt nicht Adresse zum Slave Auswahl aber einfach einen Stift als \glqq Chip Select \grqq. SPI ist ein wirklich vollduplexfähiger Bus und hat hohe Kommunikationsgeschwindigkeit im Vergleich andere häufige angewendete serielle Bus wie USART, I2C.  Die typische Verbindung von SPI ist wie Bild \ref{fig:spi-verbindung} gezeigt(Sternverbindung). Auch ist es gezeigt, dass jede Master-Slave Kommunikation im General vier Leitungen angefordert. Sind jeweils:
+\begin{itemize}
+	\item SCLK ( Serial Clock) auch SCK, wird vom Master zur Synchronisation ausgegeben
+	\item MOSI ( Master Output, Slave Input) oder SIMO (Slave Input, Master Output)
+	\item MISO ( Master Input, Slave Output) oder SOMI (Slave Output, Master Input)
+	\item ${\overline{SS}}$ (Slave Select), oder $\overline{CS}$ (Chip Select).
+\end{itemize}
+
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.9\linewidth]{pics/SPIVerbindung.png}
+	\caption{SPI-Verbindung durch Kaskadierung der Slaves}
+	\label{fig:spi-verbindung}
+\end{figure}
+
+Der Protokollablauf ist wie Bild \ref{fig:spiablauf} gezeigt. Legt Master mit der Leitung \glqq Slave Select \grqq fest, mit welchem Slave er kommunizieren will, ist der jeweilige Slave aktiv. Es wird ein Wort vom Master zum Slave und gleichzeitig ein anderes Wort vom Slave zum Master transportiert.
+
+Die Polarität von Clock und Datenübertragung sind nicht bei Motorola definiert. Sie werden durch \glqq CPHA\grqq, der Clock Idle definiert, und \glqq CPOL\grqq, der definiert, in welche Flanken der Chip Daten übernommen, festgelegt.
+
+Mit jeder Taktperiode wird ein Bit übertragen. Beim üblichen Bytetransfer sind also acht Taktperioden für eine vollständige Übertragung nötig. Master verschiebe durch MOSI ein Bit aus dem Register und übernimmt durch MISO ein Bit ins diese Register. Slave benutzt aber MISO und MOSI. Eine vollständige Übertragung ist den Austausch zwischen den Registern von Master und Slave.   Es können auch mehrere Worte hintereinander übertragen werden. Eine Übertragung ist beendet, wenn das Slave-Select-Signal endgültig auf High gesetzt wird.
+\begin{figure}
+	\centering
+	\includegraphics[width=0.9\linewidth]{pics/SPIAblauf}
+	\caption{}
+	\label{fig:spiablauf}
+\end{figure}
+
+
+
+
+
+\subsection{Serial Peripheral Interface (SPI)}
+Subsubsection text.
+\subsection{Protokolltheorie}
+Um eine Kommunikation zwischen den zuvor erwähnten Microcontrollern zu ermöglichen, bedarf es eines gut geplaneten sowie gut umgesetzen Kommunikationsprotokolls.
+
+Ein Kommunikationsprotokol ist nach \cite{protocol_eng} nichts anderes als eine Verhaltenskonvention zwischen zwei Kommunikationspartern (oft auch als Instanzen bezeichnet).
+Durch diese Verhaltenskonvention wird einerseits der zeitliche Ablauf der Kommunikationsaktionen zwischen den Partnern definiert. Andererseits wird auch die Form der zu übermittelnden Nachrichten eindeutig festgelegt. 
+Diese Nachrichten werden auch als PDUs (protocol data units) bezeichnet und ihre Struktur muss bei beiden Kommunikationspartnern bekannt sein, damit sie identisch interpretiert werden.
+Damit ein Protokoll erfolgreich zwischen zwei Partnern ausgeführt werden kann, müssen besagte Partner über bestimmte Protokollfunktionen verfügen. Dazu zählt bspw. die PDU-Codierung oder Fehlerkontrolle.
+
+Einen wichtiger Begriff in der Protokolltheorie stellen die sogenannten Schichten dar, durch die sich die Funktionalität eines Protokolls veranschaulichen lässt.
+Eine Schicht umfasst dabei vereinfacht ausgedrückt alle Teilfunktionalitäten, die zur Erfüllung einer bestimmten Zielstellung herangezogen werden.
+Während der Protokollausführung interagieren besagte Schichten miteinander, wobei jede Schicht (N) die Funktionalitäten der nächsttieferen Schicht (N-1) verwendet.
+Dabei ist für die höhere Schicht irrelevant, wie die benötigte Funktionalität genau realisiert wird. Als Beispiel für eine Schicht wäre die \textit{physikalische Bitübertragungsschicht} als unterste Schicht oder die darüberliegende Datensicherungsschicht anzusehen. Auf beide Schichten wird später noch genauer eingegangen.
+Die nachfolgende Abbildung veranschaulicht die Generierung einer PDU über mehrere Schichten.\\
+
+\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{./pics/ComicKopf.eps}
+
+
+
+
+
+\section{Zusammenfassung}
+\label{sec:zus}
+Hier die wichtigsten Ergebnisse der Arbeit in 5-10 Sätzen zusammenfassen. Dies sollte keine Wiederholung des Abstracts oder der Einführung sein. Insbesondere kann hier ein Ausblick auf zukünftige Arbeiten gegeben werden.
+
+
+\appendices
+\section{Optionaler Titel}
+Anhang eins.
+\section{}
+Anhang zwei.
+
+\section{Richtlinien für das Verfassen wissenschaftlicher Arbeiten}
+\label{sec:richtlinien}
+Im Folgenden werden einige wichtige Richtlinien zusammengefasst. Die Aufzählung ist allerdings nicht erschöpfend.
+
+\begin{itemize}
+ \item Klare Darstellung, was der Eigenanteil ist und was schon vorhanden war.
+ \item Vorsicht vor Plagiaten: vollständige Quellenangaben, auch bei Bildern. Es sollte immer klar ersichtlich sein, was der Eigenanteil ist und was aus Quellen entnommen wurde.
+ \item Bilder nicht 1:1 aus Quellen kopieren.
+ \item Diskussion der Ergebnisse (Simulationen, Messungen, Rechnungen): Wurde das Ergebnis so erwartet? Wenn nein, was sind mögliche Gründe?
+ \item Autoren: Als Autor sollte jede Person in Betracht gezogen werden, die wesentlich zur Arbeit beigetragen hat (siehe auch die Empfehlungen der DFG diesbezüglich, vgl.~\cite{wissPraxis:DFG}). Alle Personen mit kleinerem Beitrag (fachliche Hinweise, Beteiligung an Datensammlung etc.) können in der Danksagung oder einer Fußnote erwähnt werden.
+\item Formeln in den Satz einbetten und alle Variablen bei der ersten Verwendung im Text einführen. Beispiel:
+ Für die Temperatur ergibt sich damit
+ \begin{align*}
+  T(h) = K h^2,
+ \end{align*}
+ sie hängt quadratisch von der Höhe $h$ ab.
+\end{itemize}
+
+\section{Hinweise zur Notation}
+\label{sec:notation}
+\begin{itemize}
+ \item Abkürzungen bei der ersten Verwendung erklären, z.B.: ``DFG (Deutsche Forschungsgemeinschaft)''.
+ \item Formelzeichen konsistent benennen, nicht zwischen den Abschnitten umbenennen. Formelzeichen kursiv schreiben, z.B. Variable $a$.
+ \item Auf korrekte Dimensionen und Einheiten achten. Für Einheiten das SI-System verwenden, z.B. das LaTeX-Paket \emph{units} oder \emph{SIunits}.
+ \item Zahlen: Im Deutschen Komma als Dezimaltrennzeichen, im Englischen Punkt.
+ \item Tabellen haben Überschriften, Diagramme haben Unterschriften.
+ \item Diagramme: Achsenbeschriftungen hinreichend groß (insbesondere die Zahlen).
+ \item Diagrammunterschriften sollen im Wesentlichen ausreichen, um das Diagramm zu verstehen.
+ \item Indizes werden \emph{kursiv} gesetzt, wenn sie die Bedeutung von Variablen haben, ansonsten \textbf{normal}. Beispiele: $V_k, \ k=1,2,\ldots$ und $V_\mathrm{input}$.
+\end{itemize}
+
+
+
+
+\section*{Danksagung}
+Wenn ihr jemanden danken wollt, der Euch bei der Arbeit besonders
+unterstützt hat (Korrekturlesen, fachliche Hinweise,...), dann ist hier der dafür vorgesehene Platz.
+
+\begin{thebibliography}{1}
+\bibitem{protocol_eng}
+H.~König, \emph{Protocol Engineering}, 1st~ed. Wiesbaden, Deutschland: Teubner, 2003.
+\bibitem{wissPraxis:DFG}
+Deutsche Forschungsgemeinschaft, \emph{Vorschläge zur Sicherung guter wissenschaftlicher Praxis}, Denkschrift, Weinheim: Wiley-VCH, 1998.
+\end{thebibliography}
+
+\begin{biography}
+[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{./pics/ComicKopf.eps}}] % hier ein Foto einbinden
+{Autor A}
+Biographie Autor A.
+\end{biography}
+\begin{biography}
+[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{./pics/ComicKopf.eps}}] % hier ein Foto einbinden
+{Autor B}
+Biographie Autor B.
+\end{biography}
+\begin{biography}
+[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{./pics/ComicKopf.eps}}] % hier ein Foto einbinden
+{Autor C}
+Biographie Autor C.
+\end{biography}
+
+\end{document}
