@@ -73,7 +73,27 @@ typedef union {
 	 *
 	 */
 	    unsigned char motor_rpm[6];
-
+	
+	//PX4FLOW Data, optical flow measurement
+		int16_t flow_comp_m_x;// x velocity*1000 [meters/sec]
+		int16_t flow_comp_m_y;// y velocity*1000 [meters/sec]
+		int16_t qual;// Optical flow quality / confidence [0: bad, 255: maximum quality]
+	
+	//Lidar Lite V3
+		int16_t distance_lidar; // Distance to the ground, cm
+	
+	//sensorData from Camera(via Mastermind)
+		double cam_x;
+		double cam_y;
+		double cam_z;
+		
+		double cam_quanternion_l;
+		double cam_quanternion_i;
+		double cam_quanternion_j;
+		double cam_quanternion_k;
+		
+		uint64_t cam_timestamp;
+	
 		/***	--- Protocol end --- ***/
 		uint32_t checksum;
 	}__attribute__ ((__packed__))protocol_s;
