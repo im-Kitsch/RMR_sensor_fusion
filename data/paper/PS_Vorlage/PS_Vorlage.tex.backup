@@ -4,7 +4,7 @@
 \usepackage{PS}             % Alle Definitionen über den Seitenstil (auf keinen Fall editieren!!)
 \usepackage[T1]{fontenc}
 \usepackage[latin1]{inputenc}
-\usepackage{svg}
+\usepackage{listings}
 
 \def\lehrveranstaltung{PROJEKTSEMINAR ROBOTIK UND COMPUTATIONAL INTELLIGENCE}
 \def\ausgabe{Vol.18,~SS~2018}
@@ -225,11 +225,68 @@ Für die Implementierung muss nun der entstandene Protokollentwurf auf die Zielsy
 Beide Microcontroller unterscheiden sich hauptsächlich in dem Aufbau ihrer SPI Peripherie. Der erste Schritt besteht daher aus der Implementierung von Treiberfunktionen.
 Es wurde sowohl eine Treibervariante auf Blocking-Basis als auch auf Interrupt-basis und Ringspeicher entwickelt.
 Während die erste Variante den regulären Programmablauf blockiert während Daten gesendet oder empfangen werden, ist bei der zweiten Variante der Programmablauf weiterhin möglich und wird nur zu notwendigen Zeitpunkten kurz unterbrochen.
-Aus Gründen von Performance und der gewünschten Unabhängigkeit zwischen beiden Prozessoren, kommt die zweite Variante zur Anwendung. Diese ist Ringspeicher-basiert, daher interagiert das Hauptprogramm nur über diese Puffer  mit der Peripherie.
+Aus Gründen von Performance und der gewünschten Unabhängigkeit zwischen beiden Prozessoren, kommt die zweite Variante zur Anwendung. Diese ist Ringspeicher-basiert, daher interagiert das Hauptprogramm nur indirekt durch Auslesen und Beschreiben der Puffer mit der Peripherie.
+
+Für den Anwender des Protokolls ist zunächst wichtig, wie man neue Pakete (PDUs) generiert und fertigstellt. Um die Schnittstelle zum Anwender möglichst konfortabel zu gestalten, kommt ein \emph{c-struct} bzw. ein \emph{c-union} zur Anwendung.
+In Code-Darstellung sieht die Umsetzung folgendermaßen aus:
+\begin{lstlisting}[language=C,basicstyle=\scriptsize\ttfamily, numbers=left, stepnumber=1, numberstyle = \tiny]
+typedef union {
+  struct{
+    /*** --- Protocol Header --- ***/
+    uint8_t startByte; //Status Flags
+    uint64_t timeStamp_IMU_Sensory;
+
+    /*** --- Sensory Data --- ***/
+
+    int angle_pitch;
+    int angle_roll;
+    int angle_yaw;
+
+    //[...]
+
+    /*** --- Protocol Footer --- ***/
+    uint16_t checksum;
+  }__attribute__ ((__packed__))protocol_s;
+
+  uint8_t bytestream[num_sum];
+}protocol_u;
+\end{lstlisting}
+
+Der Anwender greift in diesem \lstinline[language=C,basicstyle=\scriptsize\ttfamily]{union} über den \lstinline[language=C,basicstyle=\scriptsize\ttfamily]{struct protocol_u} auf die einzelnen Datenfelder zu und kann das nächste zu sendende Paket somit manipulieren. 
+Die Protokollfunktionen greifen über das Bytearray \lstinline[language=C,basicstyle=\scriptsize\ttfamily]{bytestream} auf die PDU zu, interpretieren die Sensordaten also als Bytefolge.
+Ein Beispiel für eine solche Protokollfunktion ist die \lstinline[language=C,basicstyle=\scriptsize\ttfamily]{generate_Checksum}-Funktion, die auf alle Bytes zugreift und schließlich die errechnete Checksum in \lstinline[language=C,basicstyle=\scriptsize\ttfamily]{checksum} (siehe Z. 16) abspeichert.
+Das Union sorgt dafür, dass \lstinline[language=C,basicstyle=\scriptsize\ttfamily]{struct} und Bytearray auf den gleichen Speicherbereich zugreifen.
+Dabei ist unbedingt zu berücksichtigen, dass Compileroptimierungen zu einer Inkostistenz zwischen \lstinline[language=C,basicstyle=\scriptsize\ttfamily]{struct} und Bytearray führen können.
+Um die physischen Speicherzugriffe zu beschleunigen, fügt der Compiler Leerräume in das \lstinline[language=C,basicstyle=\scriptsize\ttfamily]{struct} ein.
+Damit wird versucht, die Variablen so im Speicher auszurchten, dass die Ausrichtung mit der natürlichen Ausrichtung der pyhsischen Speicherzugriffe übereinstimmt und der Zugriff möglichst schnell ablaufen kann.
+Diese Optimierung wird als \emph{padding} bezeichnet und ist in \cite{padding} noch wesentlich genauer ausgeführt.
+Um dies zu verhindern existieren verschiedene Techniken, die den Compiler an besagter Optimierung hindern.
+Im vorangegangenen Code sorgt bspw. \lstinline[language=C,basicstyle=\scriptsize\ttfamily]{__attribute__ ((__packed__))} in Z. 17 für die Verhinderung der Optimierung.
+Eine Alternative stellt die Benutzung von \lstinline[language=C,basicstyle=\scriptsize\ttfamily]{#pragma push()} vor der \lstinline[language=C,basicstyle=\scriptsize\ttfamily]{struct}-Definition und \lstinline[language=C,basicstyle=\scriptsize\ttfamily]{#pragma pop()} nach der Definition dar.
+
+Nach der Fertigstellung der Nachricht (zu sendene Daten in struct geschrieben) kann nun über den Aufruf von \lstinline[language=C,basicstyle=\scriptsize\ttfamily]{pack_message()} dafür gesorgt werden, dass die Nachricht codiert und abgeschickt wird.
+Alle Änderungen am vorgestellten \lstinline[language=C,basicstyle=\scriptsize\ttfamily]{struct}, die nach dem Aufruf dieser Methode getätigt werden, können erst für die nächste Nachricht berücksichtigt werden. Zum Lesen der Nachricht existiert eine ähnliche Funktion namens \lstinline[language=C,basicstyle=\scriptsize\ttfamily]{unpack_message()}
+
+In der von Asctec bereitsgestellten Programmstruktur wird folgende Funktion in der angetrebten Frequenz von 1kHz aufgerufen:
+\begin{lstlisting}[language=C,basicstyle=\scriptsize\ttfamily, numbers=left, stepnumber=1, numberstyle = \tiny]
+
+void mainloopSDK()
+{
+  unpack_message(); //Reads messages from receive buffer (control data)
+  apply_message_to_UAV(); //Forwards the currently read control data to the LLP
+  
+  update_message_with_IMU_Sensory(); //Received Sensory from the IMU (like angle_pitch) is written into the next message
+  pack_message(); //Current version of message-struct gets packed and sent to the Nucleo
+}
+
+\end{lstlisting}
+
+
+
+
 
 
 -Verweis auf Git Repo
--SPI Treiber (Buffer)
 -Schwierigkeiten (pragma, etc.)
 -Besondere Funktionen
 
