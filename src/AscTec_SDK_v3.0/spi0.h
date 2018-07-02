@@ -18,6 +18,9 @@ void SPI_Master_Read(uint8_t *dst, uint8_t length);
 char SPI_Master_WriteRead(uint8_t *data ,uint8_t *dst, uint8_t length);
 char SPI_Master_WriteCheck(uint8_t *dst, uint8_t length);
 char SPI_Master_ReadCheck(uint8_t *dst, uint8_t length);
+extern void SPI0Handler (void);
+
+uint8_t transfer_inProgress;
 
 
 #endif /* SPI0_H_ */

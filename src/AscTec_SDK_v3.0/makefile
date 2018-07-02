@@ -83,9 +83,10 @@ SRCARM += $(wildcard ../custom_mdl/onboard_matlab_ert_rtw/*.c)
 endif
 SRCARM += asctecCommIntfOnboard.c
 SRCARM += buildInfoSetup.c
-SRCARM += spi0.c
 SRCARM += COBS.c
 SRCARM += protocol.c
+SRCARM += ringBuffer.c
+SRCARM += benchmark.c
 
 #Sources with interrupt routines in them
 SRCARMINT = $(TARGET).c
@@ -101,6 +102,8 @@ SRCARMINT += ssp.c
 SRCARMINT += pelican_ptu.c
 SRCARMINT += jetiTelemetry.c
 SRCARMINT += LPC2k_ee.c
+SRCARMINT += spi0.c
+SRCARMINT += timeStamp.c
 
 # List C++ source files here.
 # use file-extension cpp for C++-files (use extension .cpp)

@@ -5,16 +5,66 @@
  *      Author: Malte
  */
 
-#include <stdint.h>
 #include "LPC214x.h"			/* LPC21XX Peripheral Registers	*/
 #include "type.h"
 #include "irq.h"
-#include "ssp.h"
+#include "spi0.h"
 #include "main.h"
 #include "system.h"
-#include "LL_HL_comm.h"
-#include "spi0.h"
+#include "sdk.h"
+#include <stdint.h>
+#include "ringbuffer.h"
 
+void SPI0Handler (void) __irq
+{
+
+	IENABLE;				/* handles nested interrupt */
+	transfer_inProgress = 1;
+
+	/* Check for pointer Overruns */
+	if(pRead_buf_transmit >= TRANSMIT_BUFFER_SIZE)
+		pRead_buf_transmit = 0;
+	if(pWrite_buf_receive >= RECEIVE_BUFFER_SIZE)
+		pWrite_buf_receive = 0;
+
+	/* Check for nothing more to transmit */
+	if(pRead_buf_transmit == pWrite_buf_transmit)
+	{
+		//Read last received Value
+		buf_receive[pWrite_buf_receive] = S0SPDR;
+		pWrite_buf_receive = (pWrite_buf_receive + 1)%100;
+		transfer_inProgress = 0;
+
+		//Disable Interrupt, because there is nothing to transmit at this moment.
+		//S0SPCR &= !(1<<7); //Reset SPIE - Bit
+		IDISABLE;
+		VICVectAddr = 0;	/* Acknowledge Interrupt */
+		S0SPINT = 0x01;	/* clear interrupt Flag */
+		//IOSET0 = (1<<7);  /* SS(GPIO) to '1', disable SPI communication */
+		return;
+	}
+
+
+    unsigned short statusReg = S0SPSR;
+    if(statusReg & (1<<7)) //SPI TRANSFER COMPLETE FLAG
+    {
+
+			//Read the last received Value
+			buf_receive[pWrite_buf_receive++] = S0SPDR;
+
+			//Write new Data into data register
+			S0SPDR = buf_transmit[pRead_buf_transmit++];
+
+
+    }else //Mode or write collision Flag
+    {
+    	uint8_t dummy = S0SPDR; // dummy read to clear flags
+    }
+
+    IDISABLE;
+    VICVectAddr = 0;	/* Acknowledge Interrupt */
+    S0SPINT = 0x01;	/* clear interrupt Flag */
+}
 
 /**
  * Initialize SPI periphery as master in default configuration.
@@ -22,8 +72,10 @@
 void SPI0_Master_Init(void)
 {
 	PINSEL0 = PINSEL0 | 0x00001500; /* Select P0.4 -> SCK0, P0.5 -> MISO0, P0.6 -> MOSI0, P0.7 -> GPIO(SS)*/
-	S0SPCR = 0x0020; /* Master mode, 8-bit frames, SPI0 mode */
-	S0SPCCR = 0x08; /* Even number, minimum value 8, pre scalar for SPI Clock */
+	S0SPCR = 0x00A0; /* Master mode, 8-bit frames, SPI0 mode, Interrupt enable */
+	S0SPCCR = 0x1E; /* Even number, minimum value 8, pre scalar for SPI Clock */
+
+	OverrunC = 0;
 }
 
 /**

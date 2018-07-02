@@ -30,7 +30,7 @@ DAMAGE.
 #define PELICAN_PTU_H_
 
 
-//#define HUMMINGBIRD_ROLL_SERVO	//generate roll servo output and use HL serial 0 TX for PWM 1
+#define HUMMINGBIRD_ROLL_SERVO	//generate roll servo output and use HL serial 0 TX for PWM 1
 #define HUMMINGBIRD_ROLL_SERVO_ON_SSEL0	//SSEL0 is used for Roll servo, serial 0 TX stays TX pin!
 #define CAMMOUNT_XCONFIG // turn roll/pitch commands for camera compensation by 45°
 #define PELICAN_PTU //roll/nick servo offset and scales for standard Pelican camera mount, pitch dir -1, roll dir 1

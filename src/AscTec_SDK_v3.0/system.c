@@ -37,6 +37,7 @@ DAMAGE.
 #include "ssp.h"
 #include "adc.h"
 #include "spi0.h"
+#include "timeStamp.h"
 
 void init(void)
 {
@@ -90,6 +91,13 @@ void init_interrupts(void)
   SSPIMSC = SSPIMSC_TXIM | SSPIMSC_RXIM | SSPIMSC_RORIM;// | SSPIMSC_RTIM;
   /* SSP Enabled */
   SSPCR1 |= SSPCR1_SSE;
+
+  /* SPI0 Interrupt Enabled */
+    install_irq( SPI0_INT, (void *) SPI0Handler );
+
+  /* TIMER1 Interrupt Enabled */
+  install_irq( TIMER1_INT, (void *) timer1ISR );
+
 }
 
 
@@ -190,19 +198,19 @@ void init_timer0(void)
   T0MCR=0x3;    //Interrupt on match MR0 and reset counter
   T0PR=0;
   T0PC=0;     //Prescale Counter = 0
-  T0MR0=peripheralClockFrequency()/ControllerCyclesPerSecond; // /200 => 200 Hz Period
+  T0MR0=(peripheralClockFrequency()/ControllerCyclesPerSecond); // /200 => 200 Hz Period
   T0TCR=0x1;   //Set timer0
 }
 
 void init_timer1(void)
 {
-  T1TC=0;	//Timer counter to 0 at the start
+  T1TC=0;
   T1TCR=0x0;    //Reset timer1
-  T1MCR=0x2;    //Reset counter on match MR0 
-  T1PR=0xFFFF; 	//Prescaler to 65.535
-  T1PC=0;     	//Prescale Counter to 0 at the start
-  T1MR0=0xFFFFFFFF; //Reset Counter when reaching this number
-  T1TCR=0x1;   	//Enable timer1
+  T1MCR=0x3;    //Interrupt on match MR0 and reset counter
+  T1PR=15;
+  T1PC=0;     //Prescale Counter = 0
+  T1MR0=0xFFFFFFFF; //
+  T1TCR=0x00000001;   //Set timer0
 }
 
 void PWM_Init( void )

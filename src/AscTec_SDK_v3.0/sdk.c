@@ -45,6 +45,7 @@ DAMAGE.
 #include "COBS.h"
 #include "protocol.h"
 #include "LPC214x.h"
+#include "benchmark.h"
 
 
 struct WO_SDK_STRUCT WO_SDK;
@@ -64,6 +65,10 @@ unsigned char emergencyModeUpdate=0;
 
 //Own local variables
 protocol_u protocolStream;
+
+
+
+uint8_t CLoop = 0;
 
 
 #ifdef MATLAB
@@ -183,93 +188,37 @@ void SDK_mainloop(void)
 
 #else //write your own C-code within this function
 	/* USER CODE BEGINS HERE */
-	unsigned int tick_start, ticks_refresh;
+
+	//Reads messages from receive buffer (control data)
+	  unpack_message();
+
+	  //Forwards the currently read control data to the LLP
+	  apply_message_to_UAV();
 
 
-	tick_start = T1TC;
+	  //Received sensory from the IMU (like angle_pitch)
+	  // is written into the next message
+	  update_message_with_IMU_Sensory();
 
-	/* --- Refreshing the sensor data --- */
-	refreshProtocolStream(&protocolStream);
+	  //Current version of message-struct gets packed
+	  // and sent to the Nucleo
+	  pack_message();
 
-	ticks_refresh = T1TC - tick_start;
-
-	/* --- Generate checksum --- */
-	generateChecksum(&protocolStream);
-
-	/* --- Generate COBS Byte stream out of sensor data --- */
-	uint8_t cobsByteStream[num_sum+2]; //for <256 Bytes to encode
-	uint8_t cobs_len = encode_COBS(protocolStream.bytestream, num_sum, cobsByteStream);
-	cobsByteStream[70] = 0x00;
-
-	/* --- Polling for Nucleo's answer | Two-Way-Handshake --- */
-	uint8_t startingSeq[] = {0x00, 0x01};
-	uint8_t startingReceive[2];
-	
-	volatile uint32_t cnt = 0;
-	char offset = 0;
-	while(!((startingReceive[0] == 0xFE && startingReceive[1] == 0xFF)||(startingReceive[0] == 0xFF && startingReceive[1] == 0xFE))) //Wait for right answer
-	{
-		if(offset)
-			offset = 0;
-		else
-			offset = 1;
-		SPI_Master_WriteRead(startingSeq + offset, startingReceive + offset, 1); //Send Starting Sequence, receive answer
-		cnt++;
 	}
 
-
-	delay(100); //ToDo: Decrease
-	
-	/* ---  Slave is now listening!  --- */
-	SPI_Master_Write(cobsByteStream ,cobs_len+1); //transferring encoded sensor data to Slave; ToDo: Check alignment (cobs_len+1)
-
-	//TODO: Check for successful transmission (answer, direct reply, checksum, ...)
-
-	/* ---  Slave is now calculating (Sensor Fusion) control signals  --- */
-
-	/* --- Polling for Nucleo's answer | Two-Way-Handshake --- */
-	//Continue
-
-	/* --- Nucleo is now sending control signals to HLP --- */
-	//To be continued...
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	//example to turn motors on and off every 2 seconds
+	/* --- Sequence to activate Motor control --- */
 	/*
- 	static int timer=0;
-	if(++timer<1000) SDK_EXAMPLE_turn_motors_on();
-	else if(timer<2000) SDK_EXAMPLE_turn_motors_off();
-	else timer=0;
+	WO_SDK.ctrl_mode=0x01;	//0x00: direct individual motor control: individual commands for motors 0..3
+							//0x01: direct motor control using standard output mapping: commands are interpreted as pitch, roll, yaw and thrust inputs; no attitude controller active
+							//0x02: attitude and throttle control: commands are input for standard attitude controller
+							//0x03: GPS waypoint control
+
+	WO_SDK.ctrl_enabled=1;  //0: disable control by HL processor
+							//1: enable control by HL processor
 	*/
 
-
-	//examples which show the different control modes
-	//SDK_EXAMPLE_direct_individual_motor_commands();
-	//SDK_EXAMPLE_direct_motor_commands_with_standard_output_mapping();
-	//SDK_EXAMPLE_attitude_commands();
-	//SDK_EXAMPLE_gps_waypoint_control();
-
-	//jeti telemetry can always be activated. You may deactivate this call if you don't use the AscTec Telemetry package.
-	SDK_jetiAscTecExampleRun(); //ToDo: Check if that function is necessary
-
-	if (wpExampleActive) //this is used to activate the waypoint example via the jeti telemetry display
-		SDK_EXAMPLE_gps_waypoint_control();
-
 #endif
-}
+
 
 
 /*
