@@ -8,10 +8,8 @@ III) Entwicklung und Vorstellung des Protokolls
 	a) Vorgehensweise / Entwicklung (Wasserfallmodell) [0,5p]
 	b) Anforderungsanalyse [0,5p]
 	c) Protokollentwurf [2p]
-		c0) Vorgehensweise
-		c1) Anforderungsanalyse
-		c2) Implementierung [1,5p]
-		c3) Protkolltest [1p]
+	d) Implementierung
+	e) Protkolltest [1p]
 
 IV) Zusammenfassung [0,5p]
 
@@ -30,10 +28,8 @@ III) Development and Presentation of the protocol
 	a) Method / Development (Waterfall model)[0,5p]
 	b) Requirements analysis[0,5p]
 	c) Protocol development[2p]
-		c0) Method
-		c1) Requirements Analysis
-		c2) Implementation [1,5p]
-		c3) Test/Benchmark [1p]
+	d) Implementation [1,5p]
+	e) Test/Benchmark [1p]
 
 IV) Summary [0,5p]
 
