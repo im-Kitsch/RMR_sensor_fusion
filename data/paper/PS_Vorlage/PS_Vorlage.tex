@@ -5,6 +5,7 @@
 \usepackage[T1]{fontenc}
 \usepackage[latin1]{inputenc}
 \usepackage{listings}
+\usepackage{siunitx}
 
 \def\lehrveranstaltung{PROJEKTSEMINAR ROBOTIK UND COMPUTATIONAL INTELLIGENCE}
 \def\ausgabe{Vol.18,~SS~2018}
@@ -31,7 +32,13 @@
 
 
 \begin{Zusammenfassung}
-Hierhin kommt eine kurze (5-6 Sätze) Zusammenfassung der Arbeit. In diesem Fall beschreibt das Dokument die \LaTeX -Vorlage für die Erstellung der Ausarbeitungen eines Projektseminars.
+[Hierhin kommt eine kurze (5-6 Sätze) Zusammenfassung der Arbeit.]
+Anspruchsvolle Regelungen erfordern leistungsstarke Rechenhardware, die oft beispielsweise aus Kosten- oder Platzgründen in Multikoptersystemen nicht vorgesehen ist. 
+Um trotzdem von großer Rechenleistung zu profitieren, wird in Form dieser Arbeit eine Integration eines weiteren Mikrocontrollers zu einem bestehenden System vorgestellt.
+Dafür werden zunächst notwenige Grundlagen in Bussystemen und Protokolltheorie vermittelt.
+Es wurde ein Protokoll entwickelt, wobei gesondert auf die Vorgehensweise zur Entwicklung eingegangen wird.
+Dieses Protokoll basiert auf zahlreichen bestehenden Konzepten der Protokolltechnik, die sowohl vorgestellt als auch verlgichen und eingeordnet werden.
+Es wird anhand geeigneter Testmethoden die Leistungsfähigkeit und der Zielerfüllungsgrad getestet, wobei auch stets ein Augenmerk auf praktische Umsetzbarkeit und Implementierung gelegt wird.
 \end{Zusammenfassung}
 \vspace{6pt}
 
@@ -63,7 +70,7 @@ Das vorliegende Paper wird zunächst in die notwendigen Grundlagen einführen. Dar
 \subsection{Systembeschreibung}
 \subsubsection{UAV} Asctec Firefly \newline
 Im praktischen Mittelpunkt dieses Papers steht ein UAV (zu englisch \emph{unmanned aerial vehicle}). Genauer wird der Hexakopter \emph{Firefly} der Firma \emph{Ascending Technologies} verwendet, der sich mit zahlreicher Sensorik und Erweiterbarkeit an den Forschungsmarkt richtet. 
-Die Größe des \emph{Firefly} beträgt 60.5 x 66.5 x 16.5 cm und durch sechs 100 W Motoren kann es bis auf 12 m/s beschleunigt werden.
+Die Größe des \emph{Firefly} beträgt 60.5 x 66.5 x \SI{16.5}{cm} und durch sechs 100 W Motoren kann es bis auf 12 m/s beschleunigt werden.
 Die Steuerung bzw. Regelung des \emph{Firefly} wird durch zwei Microprozessoren realisiert, die auf dem sog. \emph{AscTec AutoPilot Board} platziert sind.
 Neben den Prozessoren sind darauf auch verschiedene Sensoren wie z.B. ein Gyroskop, Beschleunigungs- und Drucksensor integriert.
 Mit diesen Sensoren kann das UAV als inertiale Messeinheit (zu englisch \emph{inertial measurement unit} oder kurz \emph{IMU}) modelliert werden.
@@ -75,6 +82,12 @@ Neben dem unveränderlichen Code des \emph{LLP} kann der Benutzer eigene Algorith
 \emph{Ascending Technologies} stellt zu diesem Zweck mit dem \emph{AscTec SDK} ein Softwareentwicklungswerkzeug zur Verfügung, was die Programmierung vereinfacht. 
 Die Vorgehensweise zur Programmierung wird in [VERWEIS AUF TUTORIAL] genauer vorgestellt.
 Wie Bild \ref{fig:firefly} andeutet, kommunizieren \emph{HLP} und \emph{LLP} über eine SPI-Schnittstelle. 
+\begin{figure}[h]
+  \centering
+  \includegraphics[width = 250px]{./pics/HL_LL.pdf}
+  \caption{Aufbau des Firefly \emph{AutoPilot Board} (angelehnt an MANUAL)}
+  \label{fig:firefly}
+\end{figure}
 Somit werden Sensor- und Steuerungsdaten zwischen beiden ausgetauscht und dem jeweils anderen Partner bereitgestellt.
 
 \subsubsection{Sensorik} Ein Überblick\newline
@@ -108,7 +121,7 @@ Das in Form dieser Arbeit erstellte Protokoll soll zulassen, dass auch im Nachhi
 	\centering
 	\includegraphics[width=0.4\linewidth]{pics/PX4FLOW.jpg}
 	\includegraphics[width=0.4\linewidth]{pics/Lidar.jpg}
-	\caption{Äußere Sensoren}
+	\caption{Beispiele für äußere Sensoren (links: PX4FLOW, rechts: LIDAR)}
 	\label{fig:otherSensor}
 \end{figure}
 
@@ -170,7 +183,7 @@ Eine Übertragung ist beendet, wenn das Slave-Select-Signal endgültig wieder auf 
 \begin{figure}
 	\centering
 	\includegraphics[width=0.9\linewidth]{pics/SPIAblauf}
-	\caption{Testresultate bei varriierenden Einflussparamtern}
+	\caption{Ablauf eines SPI-Transfers}
 	\label{fig:spiablauf}
 \end{figure}
 
@@ -270,11 +283,10 @@ Die resultierende Byte-Folge ist dabei frei von einem fest gewählten Trennzeiche
 Um zu garantieren, dass sich das Trennzeichen nicht mehr innerhalb der Byte-Folge befindet, müssen zusätzliche Bytes hinzugefügt werden (zu engl. \emph{byte stuffing}).
 Der Algorithmus zeichnet sich dabei durch seine Effizienz und Zuverlässigkeit aus.
 Effizient ist er sowohl bezüglich des Rechenaufwands bei der En- und Decodierung als auch bei der Anzahl an zusätzlich hinzugefügten Bytes.
-
+\newline
 ---ToDo: Erklärung des Algorithmus ---
----ToDo: Alternativen ---
 \newline
-\newline
+Eine Alternative zu COBS stellt PPP dar. Point-to-Point Protocol [... Wird noch fortgesetzt]
 
 Um der Anforderung der Robustheit gerecht zu werden, muss das Protokoll eine \emph{Fehlerkontrolle} besitzen.
 Diese \emph{Fehlerkontrolle} prüft alle eingehenden PDUs hinsichtlich ihrer Integrität, wobei verschiedenste Verfahren zur Verfügung stehen (vlg. \cite{protocol_eng}).
@@ -306,11 +318,15 @@ Es existieren nach \cite{protocol_eng} zahlreiche Verfahren wie das Kredit-Verfa
 Da jede PDU jedoch identische Informationen (zu unterschiedlichen Messpunkten) enthält, kann man davon ausgehen, dass das zuerst empfangene Paket die ältesten Daten enthält. Dieses wird daher verworfen und durch das aktuelle Paket ersetzt.
 In einem gut ausgelegten System sollte diese Situation jedoch gar nicht erst auftreten, denn die Übertragungsrate der PDUs sollte immer im Verhältnis zur Verarbeitungsgeschwindigkeit stehen.
 
-Die Aufgabe \emph{Anpassen der PDU-Größen} wird im entwickelten Protokoll nicht unterstützt, da nur eine einzelne PDU-Definition existiert.
+Die Aufgabe \emph{Anpassen der PDU-Größen} wird im entwickelten Protokoll nicht unterstützt, da nur eine einzelne PDU-Definition (pro Transferrichtung) existiert.
 Jede gesendete PDU enthält somit die gleiche Art von Informationen.
-Im Bild XY ist der prinzipielle Aufbau einer PDU veranschaulicht.
-
-Text über den Aufbau den PDU. [GRAFIK MIT AUFBAU DER NACHRICHT]
+Im Bild \ref{fig:PDU} ist der prinzipielle Aufbau einer PDU veranschaulicht.
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.6\linewidth]{pics/PDU.pdf}
+	\caption{Aufbau einer PDU}
+	\label{fig:PDU}
+\end{figure}
 
 Bisher unbeachtet war die unterste Schicht, also die physischen Schnittstelle zwischen beiden Mikrocontrollern.
 Aus der minimalen Transfergeschwindigkeit von $\mathrm{1,2}\frac{\text{Mbit}}{\text{s}}$ in der Anforderungsspezifikation lässt sich schnell ableiten, dass weder UART (Universal asynchronous receiver-transmitter) noch I2C (Inter-Integrated Circuit) schnell genug für eine solche Verbindung sind.
@@ -452,7 +468,7 @@ Die Einschränkung der nicht verwendbaren Debugging Schnittstelle am \emph{HLP} s
 Einige Protokoll- und Übertragungsparameter sind zum Testzeitpunkt noch nicht final festgelegt und tauchen somit als variable Größe während der Tests auf. Dazu zählen
 \begin{itemize}
 \item SPI-Übertragungsgeschwindigkeit (in Bit/Sekunde),
-\item Nachrichtenrate (in Anzahl zu sendender Nachrichten pro Sekunde) und
+\item Paketrate (in Anzahl zu sendender Nachrichten (PDUs) pro Sekunde) und
 \item Paketgröße (in Bytes).
 \end{itemize}
 Die Testmethode sieht zunächst folgendermaßen aus: Sowohl \emph{HLP} als auch \emph{Nucleo} senden fest definierte Pakete. Die Testmethode wurde im späteren Verlauf noch insofern weiterentwickelt, dass sich die Antwortpakete aus den Daten der eingehenden Pakete errechnen. Jeder Empfang einer Nachricht wird auf beiden Seiten dokumentiert. Dabei können vier verschiedene Situationen eintreten:
@@ -466,25 +482,49 @@ Zur Bestimmung des Durchsatzes ist primär die erste Situation von Interesse. Sie
 Für die Bestimmung der Robustheit sind primär die übrigen drei Situation relevant. Als besonders kritisch wird der dritte Fall angesehen. Eine unentdeckte Fehlübertragung kann zum sofortigen Absturz führen, da fehlerhafte Daten weiterverarbeitet werden. Diese Situation tritt dann auf, wenn das Checksum-Verfahren versagt hat.
 
 Die erzielten Testresultate können Bild \ref{fig:test_graphs} entnommen werden.
-
-\begin{figure}
+\begin{figure}[ht]
     \centering
-    \includegraphics[width=1.1\linewidth]{pics/test_graphs.pdf}
-    \caption{}
+    \includegraphics[width=\linewidth]{pics/test_graphs2.pdf}
+    \caption{Testresultate bei varriierenden Einflussparamtern}
     \label{fig:test_graphs}
 \end{figure}
+Es zeigt sich, dass die Erfolgsübertragungsquote sowohl von niedrigeren Paketraten als auch von der höheren SPI Geschwindigkeit profitiert.
+Dies gilt sowohl auf Seiten des \emph{HLPs} als auch auf Seiten des \emph{Nucleo}. 
+Als erfolgreich zählt ein Transfer ausschließlich, wenn eine Nachricht zu \SI{100}{\%} korrekt übertragen wurde.
+Ein weiterer Test hast außerdem offenbart, dass durch die Deaktivierung der vordefinierten Interrupts auf dem \emph{HLP} die Erfolgsübertragungsrate auf annähernd \SI{100}{\%} gesteigert werden kann. 
+Dies ist für den Dauerbetrieb unbrauchbar, macht jedoch deutlich, dass die Übertragung unter der großen Interruptlast leidet.
+Die Kombination aus \SI{4}{MHz} SPI Geschwindigkeit und einer Paketrate von \SI{250}{Hz} bietet höchste die Erforgsübertragungsquote.
+Als \glqq Sweetspot\grqq stellt sich jedoch die nur leicht schwächere Paketrate von \SI{500}{Hz} heraus, die den doppelten Durchsatz bietet.
 
-ToDo: INTERPRETATION -> PARAMETERWAHL
+Eine Begründung, warum eine höhere SPI Geschwindigkeit bessere Resultate liefert kann nicht eindeutig gebeben werden. 
+Prinzipiell führen schnellere Übertragungsgeschwindigkeiten zu mehr Übertragungsfehlern.
+Dieses Verhalten hat sich auch in Vortests gezeigt, wobei der Unterschied in der Fehlerrate zwischen \SI{4}{MHz} und \SI{2}{MHz} kaum messbar ist.
+Erst ab \SI{5}{MHz} steigt die Fehlerrate stark an.
+Als Anhangspunkt kann jedoch festgehalten werden, dass die Dauer eines Nachrichtentransfers durch höhere Übertragungsgeschwindigkeiten verkürzt wird.
+Damit sinkt auch die Dauer, in der durch große Interruptlasten der Transfer beeinflusst werden kann.
 
-Ein weiterer Test wurde durchgeführt, um speziell die Robustheit des Protokolls zu testen. Ob korrekt auf Fehlübertragungen reagiert wird, wird bereits im vorherigen Test untersucht. Darüber hinaus muss nach \cite{protocol} jedoch noch auf sogenannte Deadlock- und Livelock-Freiheit getestet werden. Ein Deadlock beschreibt dabei einen Zustand, der sich nie wieder ändern wird. Das Programm wird demnach nicht mehr korrekt ausgeführt, was unbedingt vermieden werden muss. Als Livelock wird ein Zustand beschrieben, in dem ein endloser Zyklus ausgeführt wird, der keine produktiven Aktionen beinhaltet. 
-Um auf diese Freiheit zu testen, wird ein mehrstündiger regulärer Datenaustausch initiiert. Am Ende des Tests wird geprüft, ob nach wie vor ein funktionierender Datentransfer vorliegt, oder ob sich einer der beiden genannten Zustände eingestellt hat. Ein 5 stündiger Test lief dabei erfolgreich ab.
+Ein weiterer Test wurde durchgeführt, um speziell die Robustheit des Protokolls zu testen.
+Ob korrekt auf Fehlübertragungen reagiert wird, wird bereits im vorherigen Test untersucht.
+Darüber hinaus muss nach \cite{protocol} jedoch noch auf sogenannte Deadlock- und Livelock-Freiheit getestet werden.
+Ein Deadlock beschreibt dabei einen Zustand, der sich nie wieder ändern wird.
+Das Programm wird demnach nicht mehr korrekt ausgeführt, was unbedingt vermieden werden muss.
+Als Livelock wird ein Zustand beschrieben, in dem ein endloser Zyklus ausgeführt wird, der keine produktiven Aktionen beinhaltet. 
+Um auf diese Freiheit zu testen, wird ein mehrstündiger regulärer Datenaustausch initiiert.
+Am Ende des Tests wird geprüft, ob nach wie vor ein funktionierender Datentransfer vorliegt, oder ob sich einer der beiden genannten Zustände eingestellt hat.
+Ein fünfstündiger Test lief dabei erfolgreich ab.
 
 
 
 \section{Zusammenfassung}
 \label{sec:zus}
-Hier die wichtigsten Ergebnisse der Arbeit in 5-10 Sätzen zusammenfassen. Dies sollte keine Wiederholung des Abstracts oder der Einführung sein. Insbesondere kann hier ein Ausblick auf zukünftige Arbeiten gegeben werden.
--Ausblick: Sensor Fusion, Protokoll weiterentwickeln, Successrate steigern.
+[Hier die wichtigsten Ergebnisse der Arbeit in 5-10 Sätzen zusammenfassen. Dies sollte keine Wiederholung des Abstracts oder der Einführung sein.] 
+Wie angestrebt wurde eine Möglichkeit gefunden, die Leistungsdefizite des \emph{HLPs} zu kompensieren. 
+Durch ein erfolgreich getestetes Protokoll können nun Sensordaten zum leistungsstarken Nucleo exportiert werden und die berechneten Steuerungsdaten wieder zurück gesendet werden.
+Das Protokoll erfüllt einen Großteil der gestellten Anforderungen, ist jedoch definitv noch optimierbar und erweiterbar.
+Die angestrebte Paketrate wurde zugunsten der Robustheit leicht verfehlt, bewegt sich mit \SI{500}{Hz} jedoch im akzeptablen Bereich.
+Eine Regelung wurde jedoch nicht implementiert, daher kann die tatsächliche Funktionalität bisher nur unterstellt werden.
+Zukünftige Arbeiten werden diesen Beweis führen und komplexe Regelalgorithmen auf dem neu hinzugefügten Microcontroller implementieren.
+
 
 \appendices
 \section{Optionaler Titel}
@@ -493,16 +533,16 @@ Anhang eins.
 Anhang zwei.
 
 \section*{Danksagung}
-Wenn ihr jemanden danken wollt, der Euch bei der Arbeit besonders
-unterstützt hat (Korrekturlesen, fachliche Hinweise,...), dann ist hier der dafür vorgesehene Platz.
+Für die kompetente fachliche Unterstützung bedanken wir uns sehr bei M.Sc. Raúl Acuña Godoy und Dipl.-Ing. Dinu Mihailescu-Stoica.
+Ebenfalls Dank gebührt unseren Korrekturlesern Christina Ruh und Uwe Breitenbach.
 
 \begin{thebibliography}{1}
 \bibitem{protocol_eng}
 H.~König, \emph{Protocol Engineering}, 1st~ed. Wiesbaden, Deutschland: Teubner, 2003.
 \bibitem{echtzeitsys}
-Echtzeitsysteme
+H.~Wörn, \emph{Echtzeitsysteme}, 1st~ed. Springer-Verlag Berlin Heidelberg, 2005.
 \bibitem{checksum}
-The Effectiveness of Checksums for Embedded Control Networks
+Maxino, T.C.; Koopman, P.J.,\emph{The Effectiveness of Checksums for Embedded Control Networks}, IEEE Xplore Digital Library, 2009.
 \bibitem{COBS}
 COBS Paper
 \bibitem{padding}
@@ -511,9 +551,9 @@ padding Theroie
 \end{thebibliography}
 
 \begin{biography}
-[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{./pics/ComicKopf.eps}}] % hier ein Foto einbinden
+[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{./pics/Profilbild_Malte.pdf}}] % hier ein Foto einbinden
 {Malte Markus Breitenbach}
-Malte Markus Breitenbach (B.Sc.) wurde am am 23.07.95 in Gelnhausen geboren. Seinen Bachelortitel erlangte er 2018 an der Technischen Universität Darmstadt im Studiengang Mechatronik. 
+wurde am am 23.07.95 in Gelnhausen geboren. Seinen Bachelortitel erlangte er 2018 an der Technischen Universität Darmstadt im Studiengang Mechatronik. 
 \end{biography}
 \begin{biography}
 [{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{./pics/ComicKopf.eps}}] % hier ein Foto einbinden

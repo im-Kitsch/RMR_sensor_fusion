@@ -1,0 +1,447 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="174.18532mm"
+   height="264.35223mm"
+   viewBox="0 0 174.18532 264.35223"
+   version="1.1"
+   id="svg8"
+   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
+   sodipodi:docname="PDU.svg">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.98994949"
+     inkscape:cx="133.67025"
+     inkscape:cy="409.67506"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="true"
+     inkscape:snap-bbox="false"
+     inkscape:bbox-paths="true"
+     inkscape:bbox-nodes="true"
+     inkscape:snap-bbox-edge-midpoints="true"
+     inkscape:snap-bbox-midpoints="true"
+     inkscape:object-paths="false"
+     inkscape:snap-intersection-paths="true"
+     inkscape:snap-smooth-nodes="true"
+     inkscape:snap-midpoints="true"
+     inkscape:snap-object-midpoints="true"
+     inkscape:snap-center="true"
+     inkscape:snap-global="true"
+     inkscape:snap-nodes="true"
+     inkscape:object-nodes="true"
+     inkscape:window-width="3840"
+     inkscape:window-height="2083"
+     inkscape:window-x="1920"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Ebene 1"
+     inkscape:groupmode="layer"
+     id="layer1"
+     transform="translate(-10.765226,-10.949036)">
+    <rect
+       id="rect3699"
+       width="90.574738"
+       height="14.839422"
+       x="10.845533"
+       y="11.029325"
+       style="fill:#99c000;fill-opacity:1;stroke:#000000;stroke-width:0.16057754;stroke-opacity:1" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:Charter;-inkscape-font-specification:Charter;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="35.016922"
+       y="21.39012"
+       id="text4508"><tspan
+         sodipodi:role="line"
+         id="tspan4506"
+         x="35.016922"
+         y="21.39012"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Charter;-inkscape-font-specification:Charter;stroke-width:0.26458332">Startbyte</tspan></text>
+    <rect
+       id="rect3699-5"
+       width="90.574745"
+       height="14.839422"
+       x="10.845514"
+       y="25.968744"
+       style="fill:#000000;fill-opacity:0.00331128;stroke:#000000;stroke-width:0.16057754;stroke-opacity:1" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:Charter;-inkscape-font-specification:Charter;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="18.531965"
+       y="35.886124"
+       id="text4508-7"><tspan
+         sodipodi:role="line"
+         id="tspan4506-2"
+         x="18.531965"
+         y="35.886124"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Charter;-inkscape-font-specification:Charter;stroke-width:0.26458332">IMU_timeStamp</tspan></text>
+    <rect
+       id="rect3699-5-6"
+       width="90.574738"
+       height="14.839422"
+       x="10.845526"
+       y="40.808167"
+       style="fill:#000000;fill-opacity:0.00331128;stroke:#000000;stroke-width:0.16057754;stroke-opacity:1" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:Charter;-inkscape-font-specification:Charter;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="20.635321"
+       y="50.593254"
+       id="text4508-7-0"><tspan
+         sodipodi:role="line"
+         id="tspan4506-2-1"
+         x="20.635321"
+         y="50.593254"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Charter;-inkscape-font-specification:Charter;stroke-width:0.26458332">IMU_sensory_0</tspan></text>
+    <rect
+       id="rect3699-5-6-4"
+       width="90.574738"
+       height="14.839422"
+       x="10.845526"
+       y="55.647591"
+       style="fill:#000000;fill-opacity:0.00331128;stroke:#000000;stroke-width:0.16057754;stroke-opacity:1" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:Charter;-inkscape-font-specification:Charter;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="20.931654"
+       y="65.432678"
+       id="text4508-7-0-1"><tspan
+         sodipodi:role="line"
+         id="tspan4506-2-1-5"
+         x="20.931654"
+         y="65.432678"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Charter;-inkscape-font-specification:Charter;stroke-width:0.26458332">IMU_sensory_1</tspan></text>
+    <rect
+       id="rect3699-5-6-4-3"
+       width="90.574738"
+       height="14.839422"
+       x="10.84553"
+       y="89.233459"
+       style="fill:#000000;fill-opacity:0.00331128;stroke:#000000;stroke-width:0.16057754;stroke-opacity:1" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:Charter;-inkscape-font-specification:Charter;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="20.444822"
+       y="98.955048"
+       id="text4508-7-0-1-5"><tspan
+         sodipodi:role="line"
+         id="tspan4506-2-1-5-7"
+         x="20.444822"
+         y="98.955048"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Charter;-inkscape-font-specification:Charter;stroke-width:0.26458332">IMU_sensory_m</tspan></text>
+    <rect
+       id="rect3699-5-7"
+       width="90.574738"
+       height="14.839422"
+       x="10.845526"
+       y="104.17332"
+       style="fill:#000000;fill-opacity:0.00331128;stroke:#000000;stroke-width:0.16057754;stroke-opacity:1" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:Charter;-inkscape-font-specification:Charter;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="18.882376"
+       y="113.89027"
+       id="text4508-7-3"><tspan
+         sodipodi:role="line"
+         id="tspan4506-2-3"
+         x="18.882376"
+         y="113.89027"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Charter;-inkscape-font-specification:Charter;stroke-width:0.26458332">GPS_timeStamp</tspan></text>
+    <rect
+       id="rect3699-5-7-2"
+       width="90.574738"
+       height="14.839422"
+       x="10.845522"
+       y="119.01275"
+       style="fill:#000000;fill-opacity:0.00331128;stroke:#000000;stroke-width:0.16057754;stroke-opacity:1" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:Charter;-inkscape-font-specification:Charter;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="20.985723"
+       y="128.79782"
+       id="text4508-7-3-0"><tspan
+         sodipodi:role="line"
+         id="tspan4506-2-3-7"
+         x="20.985723"
+         y="128.79782"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Charter;-inkscape-font-specification:Charter;stroke-width:0.26458332">GPS_sensory_0</tspan></text>
+    <rect
+       id="rect3699-5-6-4-8"
+       width="90.574738"
+       height="14.839422"
+       x="10.845533"
+       y="182.27744"
+       style="fill:#000000;fill-opacity:0.00331128;stroke:#000000;stroke-width:0.16057754;stroke-opacity:1" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:Charter;-inkscape-font-specification:Charter;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="18.744467"
+       y="192.19481"
+       id="text4508-7-0-1-1"><tspan
+         sodipodi:role="line"
+         id="tspan4506-2-1-5-8"
+         x="18.744467"
+         y="192.19481"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Charter;-inkscape-font-specification:Charter;stroke-width:0.26458332">new_timeStamp</tspan></text>
+    <rect
+       id="rect3699-5-7-2-0"
+       width="90.574738"
+       height="14.839422"
+       x="10.845533"
+       y="167.43802"
+       style="fill:#000000;fill-opacity:0.00331128;stroke:#000000;stroke-width:0.16057754;stroke-opacity:1" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:Charter;-inkscape-font-specification:Charter;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="20.985739"
+       y="177.2231"
+       id="text4508-7-3-0-2"><tspan
+         sodipodi:role="line"
+         id="tspan4506-2-3-7-9"
+         x="20.985739"
+         y="177.2231"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Charter;-inkscape-font-specification:Charter;stroke-width:0.26458332">GPS_sensory_n</tspan></text>
+    <rect
+       id="rect3699-5-7-2-1"
+       width="90.574738"
+       height="14.839422"
+       x="10.845522"
+       y="133.85216"
+       style="fill:#000000;fill-opacity:0.00331128;stroke:#000000;stroke-width:0.16057754;stroke-opacity:1" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:Charter;-inkscape-font-specification:Charter;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="20.985723"
+       y="143.63724"
+       id="text4508-7-3-0-6"><tspan
+         sodipodi:role="line"
+         id="tspan4506-2-3-7-3"
+         x="20.985723"
+         y="143.63724"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Charter;-inkscape-font-specification:Charter;stroke-width:0.26458332">GPS_sensory_1</tspan></text>
+    <rect
+       id="rect3699-5-7-2-5"
+       width="90.574738"
+       height="14.839422"
+       x="10.845537"
+       y="197.11685"
+       style="fill:#000000;fill-opacity:0.00331128;stroke:#000000;stroke-width:0.16057754;stroke-opacity:1" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:Charter;-inkscape-font-specification:Charter;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="20.940847"
+       y="206.90193"
+       id="text4508-7-3-0-4"><tspan
+         sodipodi:role="line"
+         id="tspan4506-2-3-7-6"
+         x="20.940847"
+         y="206.90193"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Charter;-inkscape-font-specification:Charter;stroke-width:0.26458332">new_sensory_0</tspan></text>
+    <rect
+       id="rect3699-5-7-2-0-1"
+       width="90.574738"
+       height="14.839422"
+       x="10.845552"
+       y="245.54213"
+       style="fill:#000000;fill-opacity:0.00331128;stroke:#000000;stroke-width:0.16057754;stroke-opacity:1" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:Charter;-inkscape-font-specification:Charter;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="20.985754"
+       y="255.32719"
+       id="text4508-7-3-0-2-0"><tspan
+         sodipodi:role="line"
+         id="tspan4506-2-3-7-9-5"
+         x="20.985754"
+         y="255.32719"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Charter;-inkscape-font-specification:Charter;stroke-width:0.26458332">new_sensory_o</tspan></text>
+    <rect
+       id="rect3699-5-7-2-1-1"
+       width="90.574738"
+       height="14.839422"
+       x="10.845537"
+       y="211.95627"
+       style="fill:#000000;fill-opacity:0.00331128;stroke:#000000;stroke-width:0.16057754;stroke-opacity:1" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:Charter;-inkscape-font-specification:Charter;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="20.940847"
+       y="221.74135"
+       id="text4508-7-3-0-6-8"><tspan
+         sodipodi:role="line"
+         id="tspan4506-2-3-7-3-9"
+         x="20.940847"
+         y="221.74135"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Charter;-inkscape-font-specification:Charter;stroke-width:0.26458332">new_sensory_1</tspan></text>
+    <rect
+       id="rect3699-5-7-2-0-1-1"
+       width="90.574738"
+       height="14.839422"
+       x="10.845552"
+       y="260.38156"
+       style="fill:#99c000;fill-opacity:1;stroke:#000000;stroke-width:0.16057754;stroke-opacity:1" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:Charter;-inkscape-font-specification:Charter;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="33.412415"
+       y="271.64301"
+       id="text4508-7-3-0-2-0-8"><tspan
+         sodipodi:role="line"
+         id="tspan4506-2-3-7-9-5-1"
+         x="33.412415"
+         y="271.64301"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:Charter;-inkscape-font-specification:Charter;stroke-width:0.26458332">Checksum</tspan></text>
+    <path
+       style="fill:#99c000;fill-opacity:1;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 101.42027,22.693746 h 83.53025"
+       id="path4929"
+       inkscape:connector-curvature="0" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:9.87777805px;line-height:1.25;font-family:Charter;-inkscape-font-specification:Charter;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="117.06786"
+       y="21.547913"
+       id="text4508-0"><tspan
+         sodipodi:role="line"
+         id="tspan4506-9"
+         x="117.06786"
+         y="21.547913"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:9.87777805px;font-family:Charter;-inkscape-font-specification:Charter;stroke-width:0.26458332">Status-Flags</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 101.42027,115.83772 h 83.53025"
+       id="path4929-7"
+       inkscape:connector-curvature="0" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:9.87777805px;line-height:1.25;font-family:Charter;-inkscape-font-specification:Charter;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="117.96828"
+       y="114.6919"
+       id="text4508-0-3"><tspan
+         sodipodi:role="line"
+         x="117.96828"
+         y="114.6919"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:9.87777805px;font-family:Charter;-inkscape-font-specification:Charter;stroke-width:0.26458332"
+         id="tspan4986">Zeitstempel</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 101.42027,52.472589 h 83.53025"
+       id="path4929-7-1"
+       inkscape:connector-curvature="0" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:9.87777805px;line-height:1.25;font-family:Charter;-inkscape-font-specification:Charter;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="118.66366"
+       y="51.553238"
+       id="text4508-0-3-2"><tspan
+         sodipodi:role="line"
+         x="118.66366"
+         y="51.553238"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:9.87777805px;font-family:Charter;-inkscape-font-specification:Charter;stroke-width:0.26458332"
+         id="tspan5011">Sensorwert</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 101.42029,271.51679 h 83.53025"
+       id="path4929-7-2"
+       inkscape:connector-curvature="0" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:9.87777805px;line-height:1.25;font-family:Charter;-inkscape-font-specification:Charter;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="118.69184"
+       y="270.37936"
+       id="text4508-0-3-6"><tspan
+         sodipodi:role="line"
+         x="118.69184"
+         y="270.37936"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:9.87777805px;font-family:Charter;-inkscape-font-specification:Charter;stroke-width:0.26458332"
+         id="tspan4986-6">Prüfsumme</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       d="m 101.42027,193.94183 h 83.53025"
+       id="path4929-7-5"
+       inkscape:connector-curvature="0" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:9.87777805px;line-height:1.25;font-family:Charter;-inkscape-font-specification:Charter;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       x="104.06445"
+       y="191.34396"
+       id="text4508-0-3-0"><tspan
+         sodipodi:role="line"
+         x="104.06445"
+         y="191.34396"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:9.87777805px;font-family:Charter;-inkscape-font-specification:Charter;stroke-width:0.26458332"
+         id="tspan4986-5">Erweiterbar durch</tspan><tspan
+         sodipodi:role="line"
+         x="104.06445"
+         y="203.69119"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:9.87777805px;font-family:Charter;-inkscape-font-specification:Charter;stroke-width:0.26458332"
+         id="tspan5057"> neue Sensoren</tspan></text>
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.76499999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.76500003, 1.53000006;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 143.18539,207.17108 v 18.74644"
+       id="path4615-7-8-4"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.76499999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.76500001, 1.53000002;stroke-dashoffset:0;stroke-opacity:1"
+       d="M 10.84553,70.487017 V 89.233459"
+       id="path4615-6"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.76499999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.76500001, 1.53000002;stroke-dashoffset:0;stroke-opacity:1"
+       d="M 101.42027,70.487015 V 89.233453"
+       id="path4615-75"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.76499999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.76500001, 1.53000002;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 10.845522,148.69157 v 18.74644"
+       id="path4615-3"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.76499999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.76500001, 1.53000002;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 101.42026,148.69157 v 18.74644"
+       id="path4615-5"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.76499999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.76500001, 1.53000002;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 10.845537,226.79568 v 18.74644"
+       id="path4615-62"
+       inkscape:connector-curvature="0" />
+    <path
+       style="fill:none;stroke:#000000;stroke-width:0.76499999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:0.76500001, 1.53000002;stroke-dashoffset:0;stroke-opacity:1"
+       d="m 101.42027,226.79568 v 18.74644"
+       id="path4615-9"
+       inkscape:connector-curvature="0" />
+  </g>
+</svg>
