@@ -1,0 +1,654 @@
+\documentclass[journal,final,a4paper,twoside]{PS}
+
+%%% Dieser Block ist dem Betreuer des Projektseminars vorbehalten
+\usepackage{PS}             % Alle Definitionen über den Seitenstil (auf keinen Fall editieren!!)
+\usepackage[T1]{fontenc}
+\usepackage[latin1]{inputenc}
+\usepackage{listings}
+\usepackage{siunitx}
+\usepackage{lstautogobble}
+
+\lstset{
+autogobble=true,
+xleftmargin=5.0ex,
+language=C,
+basicstyle=\scriptsize\ttfamily,
+numbers=left,
+stepnumber=1,
+numberstyle = \tiny,
+}
+
+\def\lehrveranstaltung{PROJEKTSEMINAR ROBOTIK UND COMPUTATIONAL INTELLIGENCE}
+\def\ausgabe{Vol.18,~SS~2018}
+\setcounter{page}{1}        % Hier die Seitennummer der Startseite für Gesamtdokument festlegen
+
+%%% Ab hier können Einträge von den Teilnehmern des Projektseminars gemacht werden
+%%% Wenn neben den LaTeX-Paketen aus der Datei PS.sty noch weitere gebraucht werden,
+%%% so ist dies dringend mit dem Betreuer abzuklären!
+
+\begin{document}
+\newcommand{\euertitel}{Entwicklung eines Protokolls zur Eingliederung eines zusätzlichen Mikrocontrollers in ein Multicopter-System}   % Titel hier eintragen!
+\newcommand{\betreuer}{M.Sc. Raúl Acuña Godoy, Dipl.-Ing. Dinu Mihailescu-Stoica }  % Betreuerdaten hier eintragen (mit einem Leerzeichen am Ende)!
+
+\headsep 40pt
+\title{\euertitel}
+% Autorennamen in der Form "Vorname Nachname" angeben, alphabetisch nach Nachname sortieren,
+% nach dem letzen Autor kein Komma setzen, sondern mit \thanks abschließen
+\author{Malte Markus Breitenbach,
+        Xianglun Chen,
+        Zhiyuan Hu
+\thanks{Diese Arbeit wurde von \betreuer unterstützt.}}
+
+\maketitle
+
+
+\begin{Zusammenfassung}
+Um von der größeren Rechenleistung zu profitieren, wird in Form dieser Arbeit eine Integration eines weiteren Mikrocontrollers zu einem bestehenden System vorgestellt.
+Dafür werden zunächst notwendige Grundlagen in Bussystemen und Protokolltheorie vermittelt.
+Es wurde ein Protokoll entwickelt, wobei gesondert auf die Vorgehensweise zur Entwicklung eingegangen wird.
+Dieses Protokoll basiert auf zahlreichen bestehenden Konzepten der Protokolltechnik, die sowohl vorgestellt als auch verglichen und eingeordnet werden.
+Es wird anhand geeigneter Testmethoden die Leistungsfähigkeit und der Zielerfüllungsgrad getestet, wobei auch stets ein Augenmerk auf praktische Umsetzbarkeit und Implementierung gelegt wird.
+Das entstandene Protokoll erfüllt die Anforderungen, die an es gestellt wurden, ist jedoch nicht in der Praxis erprobt.
+\end{Zusammenfassung}
+\vspace{6pt}
+
+\begin{abstract}
+In order to benefit from the greater computing power, this work presents an integration of another microcontroller into an existing system.
+Therefore at the beginning the necessary basics about the bus system and protocol theory are introduced. 
+A protocol has been designed, with a special focus on the development approach.
+This protocol is based on many existing concepts of protocol technology, which are introduced, compared and also classified. 
+By using an appropriate test procedure the performance of the protocol is tested while always paying attention to practical feasibility and implementation.
+The resulting protocol meets the requirements that have been placed on it, but has not been tested in practice.
+\end{abstract}
+
+\section{Einführung}
+Ein Multikopter stellt mit seinen zahlreichen Messgrößen und dynamischem Verhalten eine zugleich komplexe als auch herausfordernde Regelaufgabe dar.
+
+Der digital ausgeführte Regler erfordert somit ein hohes Maß an Rechenleistung.
+Diese Rechenleistung ist jedoch oft beispielsweise aus Kosten- oder Platzgründen in Multikoptersystemen nicht vorgesehen. 
+Keine Ausnahme stellt der Hexacopter Asctec Firefly mit seinem frei programmierbaren High-Level-Prozessor dar.
+Sowohl der kleine Programmspeicher als auch die fehlende Rechengeschwindigkeit insbesondere bei Gleitkommaoperationen schränken den Regelungstechniker bei der Lösungsfindung stark ein.
+So muss beispielsweise durch den limitierten Programmspeicher auf lange Codesequenzen verzichtet werden und durch die fehlende Rechengeschwindigkeit zeitintensive Rechenoperatoren nur sparsam Anwendung finden.
+Abhilfe schaffen soll der in jeder Hinsicht performantere Mikrocontroller \glqq Nucleo STM32F767ZI\grqq{} (im Folgenden als Nucleo abgekürzt), der dem System als weiterer Rechenprozessor hinzugefügt werden soll.
+Um den neuen Prozessor sinnvoll in die Berechnungen miteinzubeziehen, muss jedoch zunächst eine Schnittstelle zwischen dem zu leistungsschwachen High-Level-Prozessor und dem Nucleo hergestellt werden.
+Dabei gelten besondere Anforderungen an die Schnittstelle, wie hohe Transferraten, ein hohes Maß an Robustheit als auch Echtzeitfähigkeit.
+Nur wenn diese Anforderungen auch ausreichend erfüllt werden, können später die Berechnungen praktisch auf dem Nucleo durchgeführt werden und der Hexacopter entsprechend geregelt werden.
+Es existieren bereits Protokolle, die für die Kommunikation unbemannter Luftfahrzeuge konzipiert und erprobt sind. 
+Diese sind jedoch durch ihre hohe Funktionsvielfalt und universelle Anwendbarkeit sehr komplex und damit ungeeignet.
+Ein Beispiel eines solchen Protokolls ist \emph{Micro Air Vehicle Link} oder kurz {MAVLink} (vgl. \cite{MAVLink}).
+Es wird jedoch ein möglichst einfaches Protokoll angestrebt, das die Anforderungen erfüllt ohne sehr komplex und hardwarefordernd zu sein.
+
+Somit soll durch diese Arbeit eine solide Grundlage geschaffen werden, um darauf aufbauend eine Regelung für den Hexacopter entwerfen zu können.
+
+Das vorliegende Paper wird zunächst in die notwendigen Grundlagen einführen.
+Dazu gehört eine Beschreibung des vorliegenden Systems sowie verwendeter Schnittstellen und eine kurze Einführung über Kommunikationsprotokolle.
+Einen Schwerpunkt nimmt die Entwicklung des verwendeten Protokolls ein, das im Anschluss auch getestet wird. Nach einer kurzen Beschreibung der Vorgehensweise wird eine Anforderungsanalyse durchgeführt.
+Auf Grundlage dieser Anforderungen wird dann das Protokoll entworfen und auch auf die Implementierung eingegangen. 
+Inwiefern die Ziele erfüllt wurden, wird schließlich durch die Durchführung geeigneter Testmethoden bestimmt. 
+Den Abschluss bildet schließlich eine Zusammenfassung der Ergebnisse inklusive eines Ausblicks auf zukünftige Arbeiten.
+
+
+\section{Grundlagen}
+\label{sec:grundlangen}
+
+\subsection{Systembeschreibung}
+\subsubsection{Unmanned aerial vehicle} Asctec Firefly \newline
+Im praktischen Mittelpunkt dieses Papers steht ein UAV (zu englisch \emph{unmanned aerial vehicle}), wobei
+im Deutschen Beschreibungen wie \emph{unbemanntes Luftfahrzeug} oder \emph{Drone} geläufiger sind. Genauer wird der Hexacopter \emph{Firefly} der Firma \emph{Ascending Technologies} verwendet, der sich mit zahlreicher Sensorik und Erweiterbarkeit an den Forschungsmarkt richtet. 
+Die Größe des \emph{Firefly} beträgt \SI{60.5 x 66.5 x 16.5}{cm} und durch sechs \SI{100}{W} Motoren kann es bis auf \SI{12}{\frac{m}{s}} beschleunigt werden.
+Die Steuerung bzw. Regelung des \emph{Firefly} wird durch zwei Mikroprozessoren realisiert, die auf dem sog. \emph{AscTec AutoPilot Board} platziert sind.
+Neben den Prozessoren sind darauf auch verschiedene Sensoren wie z.B. ein Gyroskop, Beschleunigungs- und Drucksensor integriert.
+Mit diesen Sensoren kann das UAV als inertiale Messeinheit (zu englisch \emph{inertial measurement unit} oder kurz \emph{IMU}) modelliert werden.
+Zahlreiche physikalische Schnittstellen stehen dem Benutzer auf dem Board zur Verfügung.
+Somit ist die Kommunikation zwischen UAV und verschiedenen Peripherien bzw. weiteren Sensoren möglich.
+Die wesentliche Steuerung des UAV basiert auf zwei integrierten ARM7 Mikroprozessoren.
+Zunächst dem sogenannten \emph{LLP} (engl. Abkürzung für \emph{Low Level Processor}), der Sensorik ausliest, Motoren ansteuert sowie einen stabilen Regelalgorithmus implementiert hat, auf den im Notfall zurückgegriffen werden kann.
+Neben dem unveränderlichen Code des \emph{LLP} kann der Benutzer eigene Algorithmen auf dem sogenannten \emph{HLP} (engl. Abkürzung für \emph{High Level Processor}) implementieren.
+\emph{Ascending Technologies} stellt zu diesem Zweck mit dem \emph{AscTec SDK} ein Softwareentwicklungswerkzeug zur Verfügung, was die Programmierung vereinfacht. 
+Die Vorgehensweise zur Programmierung wird in \cite{TUT_HLP} genauer vorgestellt.
+Wie Bild \ref{fig:firefly} andeutet, kommunizieren \emph{HLP} und \emph{LLP} über eine SPI-Schnittstelle. 
+Diese Schnittstelle wird auf den folgenden Seiten noch im Datail erklärt (vgl. Abschnitt \ref{subsec:spi}).
+\begin{figure}[h]
+  \centering
+  \includegraphics[width = 250px]{./pics/HL_LL.pdf}
+  \caption{Aufbau des Firefly \emph{AutoPilot Board}, nach \cite{AutoPilot}}
+  \label{fig:firefly}
+\end{figure}
+Somit werden Sensor- und Steuerungsdaten zwischen beiden ausgetauscht und dem jeweils anderen Partner bereitgestellt.\\
+
+\subsubsection{Sensorik} Ein Überblick\newline
+Sensorik spielt für die Regelung des UAV eine zentrale Rolle. Es kann prinzipiell zwischen zwei Sensortypen unterschieden werden. 
+Zum einen den Sensoren, die im UAV integriert sind und zum anderen äußere neu hinzugefügte Sensoren.
+Das Firefly besitzt bspw. einen Gyrosensor, Kompass und auch einen GPS-Empfänger.
+Diese sind zunächst ausreichend für weniger anspruchsvolle Situationen, jedoch bspw. nicht gut geeignet für Indoor-Situationen.
+Um besser zu positionieren und die Haltung besser zu schätzen, werden darüber hinaus noch weitere Sensoren wie eine Kamera oder auch \emph{PX4Flow} (optischer Flusssensor) hinzugefügt (siehe Bild \ref{fig:otherSensor}).
+Als innere Sensoren kommen folgende zum Einsatz:
+\begin{itemize}
+	\item Gyrosensor (zeigt die lineare Beschleunigung und Winkelgeschwindigkeit)
+	
+	\item  Kompass (misst das Magnetfeld der Erde)
+	
+	\item  GPS (misst u.A. die globale Position, Geschwindigkeit und Zeit)
+	
+	\item  Drucksensor (zur Höhenmessung)
+\end{itemize}
+Als äußere Sensoren des UAV werden folgende eingesetzt:
+\begin{itemize}
+	\item 
+	Optische Flussmessung (GPS kann nicht innerhalb des Gebäudes arbeiten. Daher ist die Messung des optischen Flusses eine gute Ergänzung. Konkret in dieser Arbeit angewendet wird PX4FLOW, das das GPS als Positionierungssystem ersetzt \cite{HON}.) % An Open Source and Open Hardware Embedded Metric Optical Flow 	CMOS Camera for Indoor and Outdoor Applications	Dominik Honegger, Lorenz Meier, Petri Tanskanen and Marc Pollefeys ETH Zurich, Switzerland 
+	\item 
+	\emph{LIDAR-Lite v3} (für Indoor-Höhen-Bestimmungen, dabei schneller als Ultraschall und sehr zuverlässig \cite{TUT_LIDAR}).
+\end{itemize}
+
+Das in Form dieser Arbeit erstellte Protokoll soll zulassen, dass auch im Nachhinein noch weitere Sensoren hinzugefügt werden können, so bspw. eine Kamera. \newline
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.4\linewidth]{pics/PX4FLOW.jpg}
+	\includegraphics[width=0.4\linewidth]{pics/Lidar.jpg}
+	\caption{Beispiele für äußere Sensoren (links: PX4FLOW \cite{PIC_px4flow}, rechts: LIDAR \cite{PIC_lidar})}
+	\label{fig:otherSensor}
+\end{figure}
+
+\subsubsection{Mikrocontroller} STM32F767 Nucleo-144 \newline
+Wie zuvor erwähnt, wird der Regelalgorithmus (Sensorfusion) auf dem hinzugefügten Hochleistungsprozessor \glqq Nucleo STM32F767ZIT6\grqq{} implementiert.
+Der von STMicroelectronics entwickelte Mikrocontroller findet aufgrund seiner hohen Leistungsfähigkeit heutzutage breite Anwendung.
+Mikrocontroller enthalten neben Prozessor, Arbeits- und Programmspeicher zugleich auch Peripheriefunktionen.
+Dies umfasst nicht nur simple Peripherien sondern auch komplexe Peripheriefunktionen wie z.B. PWM-Ausgänge, CAN, USB, I2C und SPI.
+Diese Komponenten werden komplett und kompakt auf demselben Chip integriert, was eine kostengünstige und flexible Möglichkeit für Benutzer bietet, Projekte zu realisieren.
+Dank weit verbreiteter Entwicklungswerkzeuge wird die Entwicklungsarbeit sehr erleichtert \cite{NOVIELLO}.
+Durch die weite Verbreitung der STM32-Familien existieren zahlreiche Bibliotheksfunktionen und Tutorials, die vor allem den Einstieg
+erleichtern und auch später noch Entwicklungszeit verkürzen.
+Auch GUI-Werkzeuge wie CubeMX, die als Codegeneratoren einfach und sicher Grundkonfigurationen bzw. ein Grundgerüst erstellen, sind weit verbreitet und häufig in der Anwendung \cite{NOVIELLO}.
+Zur genaueren Vorgehensweise zur Codegenerierung und der übrigen Werkzeugkette wird auf \cite{TUT_NUCLEO} verwiesen. 
+
+Der STM32767 besitzt einen ARM Cortex-M7 Kern, der bis maximal 216 MHz arbeiten kann.
+Zudem besitzt er 2 MByte Flash-Speicher, 512 Kbytes SRAM und 144 Pins, während der Stromverbrauch mit c.a. \SI{250}{mA} zeitgleich sehr gering bleibt.
+Das Debugger- und Programmierwerkzeug ST-LinkV2 ist bereits implementiert. Ausreichende Peripheriegeräte sind implementiert, darunter insgesamt vier I2C Schnittstellen sechs SPI Schnittstellen.
+Die später noch verwendete SPI-Peripherie kann eine maximale Transfergeschwindigkeit von 25 Mbit/s erreichen und ist somit gut für größere Datenmengen geeignet.
+Genannte Informationen und noch einen wesentlich größeren Informationsgehalt zum verwendeten Mikrocontroller liefert \cite{MAN_NUCLEO}.
+
+\subsection{Serial Peripheral Interface (SPI)}
+\label{subsec:spi}
+Das Serial Peripheral Interface (kurz SPI) ist ein im Jahr 1987 von Susan C. Hill Et al., damals Motorola (heute NXP Semiconductors), entwickeltes Bus-System \cite{HILL}.
+Es stellt einen \glqq lockeren\grqq{} Standard für einen synchronen seriellen Datenbus dar, mit dem digitale Schaltungen nach dem Master-Slave-Prinzip miteinander verbunden werden \cite{HILL}.
+% Patent US4816996: Queued serial peripheral interface for use in a data processing system. Angemeldet am 24. Juli 1987, veröffentlicht am 28. März 1989, Anmelder: Motorola (heute: NXP USA Inc.), Erfinder: Susan C. Hill, Joseph Jelemensky, Mark R. Heene.).
+
+SPI verwendet im Gegensatz zu vielen anderen Bussystemen keine Adressen zur Slave Auswahl, sondern einen reservierten Pin als \glqq Chip Select\grqq{}.
+Das Interface ist ein vollduplexfähiger Bus und weist vergleichsweise hohe Kommunikationsgeschwindigkeiten im Vergleich zu anderen gängigen seriellen Bussen wie USART, I2C auf.
+Typischerweise findet die Verbindung, wie Bild \ref{fig:spi-verbindung} verdeutlicht, sternförmig statt.
+Die Masterperipherie ist mit jedem Slave über folgende vier Leitungen verbunden:
+\begin{itemize}
+	\item SCLK ( Serial Clock) auch SCK, wird vom Master zur Synchronisation ausgegeben
+	\item MOSI ( Master Output, Slave Input) oder SIMO (Slave Input, Master Output)
+	\item MISO ( Master Input, Slave Output) oder SOMI (Slave Output, Master Input)
+	\item ${\overline{SS}}$ (Slave Select), oder $\overline{CS}$ (Chip Select).
+\end{itemize}
+Dabei besitzt jeder Slave seine eigene \glqq Slave Select\grqq{}-Verbindung, die übrigen Leitungen werden geteilt.
+Eine Bitübertragung findet immer abhängig vom SCLK statt, man spricht daher auch von einem synchronen Datenbus.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.9\linewidth]{pics/SPI_Verbindung.pdf}
+	\caption{SPI-Verbindung durch Kaskadierung der Slaves, nach \cite{PIC_WIKI}}
+	\label{fig:spi-verbindung}
+\end{figure}
+
+Der Protokollablauf wird in Bild \ref{fig:spiablauf} veranschaulicht.
+Legt der Master die Leitung \glqq Slave Select\grqq{} auf logisch Null, ist der jeweilige Slave aktiv.
+Dann werden wortweise in beide Richtungen Daten ausgetauscht.
+
+Die Polarität vom Taktsignal (SCLK) bei der Datenübertragung ist durch Motorola nicht fest definiert.
+Sie werden durch \glqq CPHA\grqq{} (Clock Phase) und \glqq CPOL\grqq{} (Clock Polarity) definiert.
+Dadurch wird entschieden, ob bei einer fallenden oder einer steigenden Flanke Bits übernommen werden und auf welchem Niveau die Taktleitung im Ruhezustand ist.
+
+In jeder Taktperiode wird ein Bit übertragen. Beim üblichen Bytetransfer sind also acht Taktperioden für eine vollständige Übertragung nötig.
+Wie genau die empfangenen Bits gespeichert werden, unterscheidet sich je nach Realisierung der Peripheriekomponente.
+In der Regel kommen Schieberegister und FIFOs (First In First Out) zum Einsatz, damit Daten für kurze Zeit gepuffert werden können (vlg. \cite{MAN_NUCLEO}, \cite{MAN_HLP}).
+Eine Übertragung ist beendet, wenn das Slave-Select-Signal endgültig wieder auf logisch Eins gesetzt wird.
+\begin{figure}
+	\centering
+	\includegraphics[width=0.9\linewidth]{pics/SPI_Ablauf.pdf}
+	\caption{Ablauf eines SPI-Transfers, nach \cite{PIC_WIKI}}
+	\label{fig:spiablauf}
+\end{figure}
+
+\subsection{Protokolltheorie}
+Um eine Kommunikation zwischen den zuvor erwähnten Mikrocontrollern zu ermöglichen, bedarf es eines gut geplanten sowie gut umgesetzten Kommunikationsprotokolls.
+
+Ein Kommunikationsprotokoll ist nach \cite{protocol_eng} nichts anderes als eine Verhaltenskonvention zwischen zwei Kommunikationspartnern (oft auch als Instanzen bezeichnet).
+Durch diese Verhaltenskonvention wird einerseits der zeitliche Ablauf der Kommunikationsaktionen zwischen den Partnern definiert. Andererseits wird auch die Form der zu übermittelnden Nachrichten eindeutig festgelegt. 
+Diese Nachrichten werden auch als PDUs (\emph{protocol data units}) bezeichnet und ihre Struktur muss bei beiden Kommunikationspartnern bekannt sein, damit sie identisch interpretiert werden.
+Damit ein Protokoll erfolgreich zwischen zwei Partnern ausgeführt werden kann, müssen besagte Partner über bestimmte Protokollfunktionen verfügen. Dazu zählt bspw. die PDU-Codierung oder Fehlerkontrolle, auf die später noch eingegangen wird.
+
+Einen wichtigen Begriff in der Protokolltheorie stellen die sogenannten Schichten dar, durch die sich die Funktionalität eines Protokolls veranschaulichen lässt.
+Eine Schicht umfasst dabei vereinfacht ausgedrückt alle Teilfunktionalitäten, die zur Erfüllung einer bestimmten Zielstellung herangezogen werden.
+Während der Protokollausführung interagieren besagte Schichten miteinander, wobei jede Schicht (N) die Funktionalitäten der nächsttieferen Schicht (N-1) verwendet.
+Dabei ist für die höhere Schicht irrelevant, wie die benötigte Funktionalität genau realisiert wird. Als Beispiel für eine Schicht wäre die \textit{physikalische Bitübertragungsschicht} als unterste Schicht oder die darüberliegende \textit{Datensicherungsschicht} anzusehen.
+Auf beide Schichten wird später noch genauer eingegangen.
+
+Das nachfolgende Bild \ref{fig:Schichten_theo} veranschaulicht die Generierung einer PDU über mehrere Schichten beispielhaft.
+Dabei soll deutlich werden, dass ein Datentransfer ausschließlich in der untersten Schicht N=1 stattfindet.
+Es wird offensichtlich, dass die Schichten N=1 und N=2 während der PDU Generierung die PDUs noch durch zusätzliche Informationen ergänzen, die bspw. für den eigentlichen Bit-Transfer notwendig sind.
+Während dem Empfang auf der rechten Seite werden diese Zusatzinformationen verarbeitet und wieder entfernt und die ursprüngliche PDU aus Schicht N=3 steht auf der Empfangsseite bereit.
+Einen ausführlichen Überblick über Kommunikationsprotokolle bieten \cite{protocol_eng} und \cite{check_theo}. An dieser Literatur wurde sich auch für dieses Paper orientiert.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width = 250px]{./pics/Schichten_theo.pdf}
+  \caption{Bildung von PDUs in der Schichtendarstellung, nach \cite{protocol_eng}}
+  \label{fig:Schichten_theo}
+\end{figure}
+
+
+
+
+\section{Entwicklung und Vorstellung des Protokolls}
+\label{sec:ent}
+
+\subsection{Vorgehensweise}
+Wie in \cite{protocol_eng} aufgeführt, kommt zur Entwicklung des Protokolls ein einfaches Wasserfall-Modell zur Anwendung. Bild \ref{fig:was} zeigt den groben Verlauf dieses Entwicklungsprozesses. 
+Prinzipiell werden die einzelnen Aufgaben nacheinander abgearbeitet, es wird jedoch nicht ausgeschlossen, dass nach der Feststellung einer Designschwäche wieder zu einem vorherigen Schritt zurückgekehrt werden kann.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width = 250px]{./pics/Wasserfall.pdf}
+  \caption{Wasserfall-Modell des Protokollentwicklungsprozesses, nach \cite{protocol_eng}}
+  \label{fig:was}
+\end{figure}
+
+Zunächst wird demnach eine Anforderungsspezifikation ermittelt, die das System möglichst umfassend berücksichtigt. Aus dieser Spezifikation wird dann ein Entwurf des Protokolls erstellt, das die Anforderungen möglichst optimal erfüllt.
+Es folgt die eigentliche Implementierung, die diesen Entwurf, auf die Zielsysteme angepasst, implementiert. Nach der Implementierung werden verschiedene Testszenarien durchlaufen, um das Protokoll auf seine Leistungsfähigkeit und Robustheit zu untersuchen.
+Werden in diesem finalen Schritt Designfehler festgestellt, muss wieder zum vorherigen Schritt zurückgekehrt werden. Im Folgenden werden die Ergebnisse der einzelnen durchlaufenen Schritte vorgestellt.
+
+\subsection{Anforderungsanalyse}
+Wie bereits in der Einleitung motiviert, sind besondere Anforderungen zu erfüllen, damit das Protokoll praktisch einsetzbar ist.
+Zu den primären Anforderungen gehört zunächst eine ausreichend hohe Transfergeschwindigkeit, ein hohes Maß an Robustheit als auch Echtzeitfähigkeit.
+Die Transfergeschwindigkeit sollte groß genug sein, um eine ausreichend große Anzahl an PDUs zwischen den Mikrocontrollern senden zu können.
+Robustheit ist ebenfalls eine wichtige Anforderung, denn sowohl unerkannte Übertragungsfehler als auch ein undefinierter \glqq festgebremster\grqq \space Status führen zum sofortigen Absturz. Diese beiden Fehler gilt es demnach unbedingt zu verhindern.
+Weiterhin sollte die Anzahl an (zwar) erkannten Fehlübertragungen nicht zu hoch sein.
+Zuletzt muss auch Echtzeitfähigkeit gegeben sein. Nach \cite{echtzeitsys} wird unter Echtzeitfähigkeit verstanden, dass anfallende Daten zuverlässig innerhalb einer vorgegebenen Zeit verarbeitet werden und auch verfügbar sind.
+Orientiert an den Gegebenheiten des Standardprogramms auf dem High-Level-Prozessor wird zunächst eine Paketrate von 1000 PDUs pro Sekunde angestrebt.
+Daraus lässt sich die Mindesttransfergeschwindigkeit ableiten, wenn man zunächst von einer Paketgröße von 150 Byte ausgeht. 
+Wenn $n$ PDUs mit jeweils $X$ Byte Paketgröße übertragen werden sollen, muss für die Transferrate
+
+ \begin{align}\label{gl:spiSpeed}
+  T(n,X) > \frac{n*X*\SI{8}{bit}}{\SI{1}{s}}
+ \end{align}
+ gelten. Für das angestrebte $n = \mathrm{1000}$ und $X = \mathrm{150}$ ergibt sich demnach eine Mindestransferrate von 
+  \begin{align*}
+   T(\mathrm{1000},\mathrm{150}) > \SI{1,2}{\frac{Mbit}{s}}. 
+  \end{align*}
+  
+  Diese Rechnung dient jedoch nur der groben Orientierung und beschreibt den absoluten Optimalfall. 
+  In realen Systemen muss zusätzlich Zeit berücksichtigt werden, um bspw. einen Transfer einzuleiten oder neue Daten bereitzustellen.
+  Diese Transferrate ist weder mit UART noch mit I2C (fast mode) erreichbar, daher fällt die Wahl auf das bereits eingeführte SPI.
+
+Als zusätzliche Anforderung ist noch ein Betrieb ohne Nucleo gewünscht. Demnach darf der High-Level-Processor auch durch eine physisch getrennte SPI-Schnittstelle nicht beeinflusst werden und nach wie vor lauffähig bleiben.
+Der \emph{HLP} soll möglichst kontinuierlich und unabhängig vom Nucleo Daten aussenden, um so eine dauerhafte Versorgung aktueller Daten zu gewährleisten.
+
+ \subsection{Protokollentwurf}
+In \cite{protocol_eng} werden mehrere Protokollfunktionen aufgezählt, die zur Erfüllung der Anforderungsspezifikation ggf. notwendig sind, wie
+\begin{itemize}
+ \item \emph{Synchronisation},
+ \item \emph{PDU-Codierung/-Decodierung},
+ \item \emph{Fehlerkontrolle},
+ \item \emph{Fluss-Steuerung} oder
+ \item \emph{Anpassen der PDU-Größen}.
+\end{itemize}
+
+Als \emph{Synchronisation} wird eine Methode bezeichnet, um beide Kommunikationspartner in einen definierten Zustand zu bringen (bspw. beim Verbindungsaufbau oder -abbau). Eine einfache Methode stellt der 2-Wege-Handshake dar, wobei der Wunsch zum Aufbau einer Verbindung durch eine festgelegte Antwort bestätigt wird.
+Damit würde man jedoch gegen verschiedenste Anforderungen verstoßen. Zum einen wurde ein Handshake-Verfahren im späteren Verlauf der Entwicklung getestet und hat sich als zu langsam heraus gestellt. Zum anderen widerspricht eine Synchronisation zwischen beiden Mikrocontrollern der Anforderung, dass der HLP möglichst unabhängig vom Nucleo sein soll.
+Als Alternative kommt ein Ringspeicher (zu engl. \emph{ringbuffer}) zum Einsatz, der empfangene Nachrichten zwischenspeichert, bis die entsprechenden Ressourcen frei sind oder Bedarf an neuen Daten besteht und die Nachricht(en) extrahiert werden. Diese Art der Speicherung erfordert jedoch eine eindeutige Form einer jeden Nachricht um Anfang und Ende zu erkennen.
+Diese Forderung führt zur nächsten Protokollfunktion, genauer zur \emph{PDU-Codierung/-Decodierung}. Ein reiner Datentransfer kann theoretisch alle Byte-Werte annehmen und sieht keine zusätzlichen Informationen wie Startbytes, Kontrollsummen, etc. vor.
+Die Extraktion einer Nachricht aus einem Puffer ist jedoch nur schwer möglich, wenn weder Anfang noch Ende der Nachricht klar ersichtlich sind. 
+Durch die Einführung eines sogenannten Trennzeichens (zu engl. \emph{delimiter}) lässt sich dies jedoch ändern.
+\newline
+\emph{COBS}: 
+Consistent Overhead Byte Stuffing (im Folgenden mit COBS abgekürzt) beschreibt einen Algorithmus, der eine beliebige Folge von Bytes encodiert.
+Die resultierende Byte-Folge ist dabei frei von einem fest gewählten Trennzeichen, sodass dieses Zeichen in der Folge für die Begrenzung eines jeden Pakets verwendet werden kann.
+Um zu garantieren, dass sich das Trennzeichen nicht mehr innerhalb der Byte-Folge befindet, müssen zusätzliche Bytes hinzugefügt werden (zu engl. \emph{byte stuffing}).
+Der Algorithmus zeichnet sich dabei durch seine Effizienz und Zuverlässigkeit aus.
+Effizient ist er sowohl bezüglich des Rechenaufwands bei der En- und Decodierung als auch bei der Anzahl an zusätzlich hinzugefügten Bytes \cite{COBS}.
+
+Der Algoritmus zum Encodieren lässt sich recht leicht erklären.
+Zunächst wird der Bytefolge ein Byte vorne angehängt, das anzeigt wann genau die erste Null (oder das gewählte Trennzeichen) auftaucht.
+Die erste Null wird dann wiederum durch den Wert der Anzahl von Stellen bis zur nächsten Null ersetzt. 
+Dies wird nun solange fortgeführt, bis keine weitere Null folgt. 
+In diesen Fall wird die Anzahl von Stellen bis zum Nachrichtenende angegeben und an das Nachrichtenende das Trennzeichen angehängt.
+Insgesamt werden demnach zwei zusätzliche Bytes hinzugefügt.
+Als Einschränkung gilt jedoch, dass mindestens im Abstand von 255 Stellen eine Null in der Bytefolge vorhanden sein muss.
+Um dies zu garantieren kann in jeder Protokollnachricht standartmäßig ein festes Null-Byte eingefügt werden.
+Dem interessierten Leser wird \cite{COBS} empfohlen, worin bereits genannte und noch weiterführende Informationen zu COBS zu finden sind.
+
+Als Alternative zu COBS sei auf PPP (point-to-point protocol) verwiesen, was jedoch nach \cite{COBS} im Worst Case einen wesentlich 
+größeren Overhead an zusätzlichen Bytes aufweist. 
+Ebenso sei als alternativer Ansatz auf \emph{Two-Way-Handshake-Verfahren} verwiesen (vlg. \cite{protocol_eng}), wobei Nachrichten im Klartext verschickt werden können.
+Um trotzdem den Nachrichtenanfang zu ermitteln und eine stabile Verbindung zu überprüfen, synchronisieren sich die Kommunikationsteilnehmer zu Anfang jeder Übertragung durch den vereinbarten \emph{Handshake} (in der Regel durch die Erwiderung eines Antwortbytes zu einem Anfragebyte).
+Auf den Einsatz eines solchen synchronisierten Verfahrens wird jedoch aus Gründen der Anforderungsspezifikation verzichtet.
+So soll nämlich der \emph{HLP} unabhängig vom Zustand des Nucleos konstant Nachrichten aussenden.
+
+Um der Anforderung der Robustheit gerecht zu werden, muss das Protokoll eine \emph{Fehlerkontrolle} besitzen.
+Diese \emph{Fehlerkontrolle} prüft alle eingehenden PDUs hinsichtlich ihrer Integrität, wobei verschiedenste Verfahren zur Verfügung stehen (vlg. \cite{protocol_eng}).
+Bereits COBS stellt ein robustes Element dar, denn eine valide Nachricht darf kein Trennzeichen innerhalb der Nachricht enthalten und die decodierte Nachricht muss genau der festgelegten Nachrichtenlänge entsprechen, um valide zu sein.
+Da COBS jedoch primär nicht der Fehlererkennung dient, wird zusätzlich noch ein Checksum-Verfahren Anwendung finden.
+Eine Checksum (zu deutsch Prüfsumme) kann für eine beliebige Bytefolge von der Senderinstanz erzeugt werden und anschließend der Nachricht angehängt werden.
+Der Empfänger bildet dann ebenfalls die Checksum für die empfangenen Bytes und stellt anschließend einen Vergleich mit der übertragenen Checksum an.
+Falls beide Checksums übereinstimmen, kann davon ausgegangen werden, dass die Übertragung korrekt war. 
+Diese und weiterführende Informationen über Checksum-Verfahren finden sich unter \cite{check_theo}.
+Zahlreiche Verfahren sind erprobt und heute noch in Anwendung. 
+Sie unterscheiden sich in der Regel in zwei Attributen. Zum einen sind sie unterschiedlich komplex in der Ausführung, zum anderen unterscheiden sie sich in der Erkennungsrate.
+Während simple Verfahren wie \emph{Two's Complement Addition Checksum} zwar sehr effizient auch in eingebetteten Systemen einsetzbar sind, ist ihre Fehlererkennungsrate nicht hinreichend.
+Auf der anderen Seite existieren Verfahren wie der \emph{cyclic redundancy check (CRC)}, die zwar eine hohe Fehlererkennungsrate aufweisen, jedoch ohne Hardwarebeschleunigung auf langsamen Prozessoren nur eingeschränkt nutzbar sind.
+Ein Vergleich dieser und weiterer Checksum Verfahren wurde in \cite{checksum} angestellt. Wenn man von \SI{16}{Bit}-Checksums und Paketgrößen von 150 Byte ausgeht, unterscheiden sich die getesteten Verfahren bei zufälligen Bit-Fehlern wie in Tabelle \ref{tab:che} dargestellt.
+
+\begin{table}[htbp]
+\caption{Vergleich verschiedener Verfahren zur Bildung einer Checksum, nach \cite{checksum}}
+\begin{tabular}{l  l  l} 
+\hline
+ Verfahren & Wahrscheinlichkeit ei- & Rechenaufwand\\
+ &nes unentdeckten Fehlers & im Vergleich\\
+ \hline
+ 2's Complement Add-16 & $10^{-6}$ & 100\% \\ 
+ Fletcher-16 & $10^{-12}$ & 200\% \\
+ CRC-16 bound & $10^{-14}$ & >400\% \\
+\end{tabular} 
+\label{tab:che}
+\end{table}
+
+Es zeigt sich, dass die \emph{Fletcher Checksum} einen guten Kompromiss aus der simplen \emph{Add} und der komplexen \emph{CRC} Checksum darstellt. Sie wird daher für das Protokoll vorgesehen. Die genaue Funktionsweise kann \cite{Fletcher} entnommen werden.
+
+Auch \emph{Fluss-Steuerung} stellt eine Protokollaufgabe dar, insbesondere wenn Puffer zur Anwendung kommen. Sowohl ein Empfangspuffer als auch ein Sendepuffer kann an Kapazitätsgrenzen stoßen, sodass ohne den Verlust von gespeicherten Daten keine weiteren Daten mehr aufgenommen werden können.
+Es existieren nach \cite{protocol_eng} zahlreiche Verfahren wie das Kredit-Verfahren, um auf eine solche Situation zu reagieren. Diese sind jedoch sehr komplex und sehen in der Regel eine dynamische Anpassung der Übertragungsrate des Sendepartners vor.
+Da jede PDU jedoch identische Informationen (zu unterschiedlichen Messpunkten) enthält, kann man davon ausgehen, dass das zuerst empfangene Paket die ältesten Daten enthält. Dieses wird daher verworfen und durch das aktuelle Paket ersetzt.
+In einem gut ausgelegten System sollte diese Situation jedoch gar nicht erst auftreten, denn die Übertragungsrate der PDUs sollte immer im Verhältnis zur Verarbeitungsgeschwindigkeit stehen.
+
+Die Aufgabe \emph{Anpassen der PDU-Größen} wird im entwickelten Protokoll nicht unterstützt, da nur eine einzelne PDU-Definition (pro Transferrichtung) existiert.
+Jede gesendete PDU enthält somit die gleiche Art von Informationen.
+Im Bild \ref{fig:PDU} ist der prinzipielle Aufbau einer PDU veranschaulicht.
+\begin{figure}[ht]
+	\centering
+	\includegraphics[width=0.6\linewidth]{pics/PDU.pdf}
+	\caption{Aufbau einer PDU}
+	\label{fig:PDU}
+\end{figure}
+
+Das Startbyte enthält Statusinformationen über die Nachricht und deren Inhalt.
+Es folgt ein Zeitstempel, der über die Aktualität der übertragenen Sensordaten Auskunft gibt. 
+Dabei werden verschiedene Gruppen zusammengefasst, denen jeweils ein eigener Zeitstempel zugeordnet werden kann.
+Die PDU kann beliebig erweitert werden, wobei ihre Gesamtgröße durch die Übertragungsrate der SPI-Kommunikation und Gl. \ref{gl:spiSpeed} begrenzt ist.
+Für die Steuerungsdaten, die in Gegenrichtung verschickt werden, gilt ein ganz ähnlicher Aufbau.
+
+Bisher unbeachtet war die unterste Schicht, also die physischen Schnittstelle zwischen beiden Mikrocontrollern.
+Aus der minimalen Transfergeschwindigkeit von \SI{1,2}{\frac{Mbit}{s}} in der Anforderungsspezifikation lässt sich schnell ableiten, dass weder UART (Universal asynchronous receiver-transmitter) noch I2C (Inter-Integrated Circuit) schnell genug für eine solche Verbindung sind.
+Die zur Verfügung stehende SPI-Peripherie auf dem High-Level-Prozessor bietet jedoch theoretische Transferraten bis zu \SI{40}{\frac{Mbit}{s}} (vlg. \cite{MAN_HLP}), was den Anforderungen entspricht.
+Sie kommt demnach zum Einsatz und stellt in der folgenden Schichtendarstellung die unterste Schicht dar.
+
+Zum Abschluss wird nun die entstandene Schichtendarstellung in Bild \ref{fig:sch} gezeigt. In dieser sind nun alle bisher beschriebenen Protokollfunktionen vereint.
+
+\begin{figure}[h]
+  \centering
+  \includegraphics[width = 250px]{./pics/Schichten_praktisch.pdf}
+  \caption{Schichtendarstellung des fertigen Protokolls, Darstellung nach \cite{protocol_eng}}
+  \label{fig:sch}
+\end{figure}
+
+Bei der obersten Schicht N=4 handelt es sich um die \emph{Anwendungsschicht}. In dieser Schicht liegen Nachrichten im Klartext vor und die Inhalte der Nachticht können nach Belieben durch den Anwender ausgelesen bzw. abgeändert werden.
+Bei Schicht N=3 handelt es sich um die \emph{Datensicherungsschicht}.
+Wenn das Paket inhaltlich fertiggestellt ist, was nach Anforderungsspezifikation im \SI{1}{kHz}-Takt geschieht, wird von der Anwendungsschicht in diese Schicht übergegangen. In ihr wird die Checksum generiert und an die (N=4)-PDU angehängt.
+Nach dem Anhängen der Checksum wird die (N=3)-PDU durch den COBS Algorithmus in der Schicht N=2 (\emph{De-/Encodierungsschicht}) encodiert. 
+Die dadurch entstandene (N=2)-PDU besitzt nun das gültige Sendeformat. 
+Die unterste \emph{Übertragungsschicht} N=1 ist nun für Empfang und Absendung der Nachrichten über die SPI Schnittstelle zuständig.
+
+Im Falle eines Empfangs einer PDU wird in Schicht N=3 die empfangene Checksum auf ihre Integrität untersucht.
+In Schicht N=2 wird die PDU daran anschließend decodiert und liegt danach in Schicht N=3 als Klartext vor.
+
+
+\subsection{Implementierung}
+Für die Implementierung muss nun der entstandene Protokollentwurf auf die Zielsysteme angepasst werden.
+Beide Mikrocontroller unterscheiden sich hauptsächlich in dem Aufbau ihrer SPI Peripherie. Der erste Schritt besteht daher aus der Implementierung von Treiberfunktionen.
+Es wurde sowohl eine Treibervariante auf Blocking-Basis als auch auf Interrupt-Basis und Ringspeicher entwickelt. 
+Während die erste Variante den regulären Programmablauf blockiert währenddessen Daten gesendet oder empfangen werden, ist bei der zweiten Variante der Programmablauf weiterhin möglich und wird nur zu notwendigen Zeitpunkten kurz unterbrochen. 
+Einen solchen Zeitpunkt stellen beispielsweise ein voller oder leerer Pufferspeicher dar, der einen Interrupt auslöst.
+Aus Gründen von Performance und der gewünschten Unabhängigkeit zwischen beiden Prozessoren, kommt die zweite Variante zur Anwendung.
+Diese ist Ringspeicher-basiert, daher interagiert das Hauptprogramm nur indirekt durch Auslesen und Beschreiben der Puffer mit der Peripherie.
+
+Für den Anwender des Protokolls ist zunächst wichtig, wie man neue Pakete (PDUs) generiert und fertigstellt. Um die Schnittstelle zum Anwender möglichst komfortabel zu gestalten, kommt ein \emph{c-struct} bzw. ein \emph{c-union} zur Anwendung.
+In Code-Darstellung sieht die Umsetzung folgendermaßen aus:
+\begin{lstlisting}
+typedef union {
+  struct{
+    /*** --- Protocol Header --- ***/
+    uint8_t startByte; //Status Flags
+    uint64_t IMU_timeStamp_Sensory;
+
+    /*** --- Sensory Data --- ***/
+
+    int IMU_angle_pitch;
+    int IMU_angle_roll;
+    int IMU_angle_yaw;
+
+    //[...]
+
+    /*** --- Protocol Footer --- ***/
+    uint16_t checksum;
+  }__attribute__ ((__packed__))protocol_s;
+
+  uint8_t bytestream[num_sum];
+}protocol_u;
+\end{lstlisting}
+
+Der Anwender greift in diesem \lstinline{union} über den \lstinline{struct protocol_u} auf die einzelnen Datenfelder zu und kann das nächste zu sendende Paket somit manipulieren. 
+Die Protokollfunktionen greifen über das Bytearray \lstinline{bytestream} auf die PDU zu, interpretieren die Sensordaten also als Bytefolge.
+Ein Beispiel für eine solche Protokollfunktion ist die \lstinline{generate_Checksum}-Funktion, die auf alle Bytes zugreift und schließlich die errechnete Checksum in \lstinline{checksum} (siehe Z. 16) abspeichert.
+Das Union sorgt dafür, dass \lstinline{struct} und Bytearray auf den gleichen Speicherbereich zugreifen.
+Dabei ist unbedingt zu berücksichtigen, dass Compileroptimierungen zu einer Inkonsistenz zwischen \lstinline{struct} und Bytearray führen können.
+Um die physischen Speicherzugriffe zu beschleunigen, fügt der Compiler Leerräume in das \lstinline{struct} ein.
+Damit wird versucht, die Variablen so im Speicher auszurichten, dass die Ausrichtung mit der natürlichen Ausrichtung der physischen Speicherzugriffe übereinstimmt und der Zugriff möglichst schnell ablaufen kann.
+Diese Optimierung wird als \emph{padding} bezeichnet und ist in \cite{padding} noch wesentlich genauer ausgeführt.
+Um dies zu verhindern existieren verschiedene Techniken, die den Compiler an besagter Optimierung hindern.
+Im vorangegangenen Code sorgt bspw. \lstinline{__attribute__ ((__packed__))} in Z. 17 für die Verhinderung der Optimierung.
+Eine Alternative stellt die Benutzung von \lstinline{#pragma pack(push, 1)} vor der \lstinline{struct}-Definition und \lstinline{#pragma pack(pop)} nach der Definition dar.
+
+Nach der Fertigstellung der Nachricht (zu sendende Daten in struct gespeichert) kann nun über den Aufruf von \lstinline{pack_message()} dafür gesorgt werden, dass die Nachricht codiert und abgeschickt wird.
+Alle Änderungen am vorgestellten \lstinline{struct}, die nach dem Aufruf dieser Methode getätigt werden, können erst für die nächste Nachricht berücksichtigt werden. Zum Lesen der Nachricht existiert eine ähnliche Funktion namens \lstinline{unpack_message()}.
+
+In der von Asctec bereitgestellten Programmstruktur wird folgende Funktion in der angestrebten Frequenz von \SI{1}{kHz} aufgerufen:
+\begin{lstlisting}
+
+void mainloopSDK()
+{
+  //Reads messages from receive buffer (control data)
+  unpack_message();
+  
+  //Forwards the currently read control data to the LLP
+  apply_message_to_UAV();
+  
+  
+  //Received sensory from the IMU (like angle_pitch)
+  // is written into the next message
+  update_message_with_IMU_Sensory(); 
+  
+  //Current version of message-struct gets packed
+  // and sent to the Nucleo
+  pack_message(); 
+}
+
+\end{lstlisting}
+
+Die ersten zwei Funktionen dienen dem Auslesen des Empfangspuffers und des Weiterleitens der Steuerungsdaten an den \emph{LLP}. Dafür wird der Puffer ausgelesen, der zuvor durch den Nucleo mit Steuerungsdaten gefüllt wurde.
+Eine wichtige Voraussetzung an die Methode \lstinline{unpack_message()} lautet, dass im Falle eines Empfangsfehlers (bspw. wenn der Nucleo nicht verbunden ist) die Ausführung nicht in einen Deadlock-Zustand gerät und fortgesetzt wird.  
+
+Die Implementierung beim Kommunikationspartner (Nucleo) sieht dazu äquivalent aus:
+\begin{lstlisting}
+while(1)
+{
+  //Reads messages from receive buffer (sensory data)
+  unpack_message();
+  
+  /* --- Here the sensor-fusion is taking place --- */
+  // Estaminate control signals and store them inside
+  // the PDU-struct
+  
+  // Current version of Control-PDU gets packed
+  // and sent to the HLP
+  pack_message(); 
+}
+\end{lstlisting}
+
+Hierbei handelt es sich bei den gelesenen Paketen um Sensordaten, die nach der Ausführung von \lstinline{unpack_message()} zur Verfügung stehen.
+Auf diese wird dann der Regelalgorithmus angewendet, um neue Steuerungsdaten zu generieren.
+Diese Steuerungsdaten werden dann durch \lstinline{pack_message()} nach dem vorgestellten Verfahren verarbeitet und in den ausgehenden Puffer geschrieben.
+
+Der gesamte implementierte Programmcode kann online jederzeit unter \cite{git} eingesehen werden, wobei für beide Zielplattformen ein eigenenes Projekt existiert.
+
+\subsection{Protokolltest}
+Nach der erfolgreichen Entwicklung eines Protokolls muss dieses auf Leistungsfähigkeit und Fehler getestet werden.
+Bei der Fehlererkennung ergibt sich dabei nach \cite{protocol_eng} das Problem, dass Fehler zwar nachgewiesen werden können, jedoch nicht das vollständige Nichtvorhandensein von Fehlern.
+Der Nachweis eines restlos fehlerfreien Protokolls kann demnach nicht geführt werden, das Vertrauen in die Funktionalität und Verlässlichkeit jedoch gesteigert werden.
+Die zuvor genannte Literatur nennt prinzipiell vier Typen von Protokolltests, den
+\begin{itemize}
+\item \emph{entwicklungsbegleitenden Test},
+\item \emph{Konformitätstest},
+\item \emph{Interoperabilitätstest} und
+\item \emph{ergänzenden Tests}.
+\end{itemize}
+
+Der \emph{entwicklungsbegleitende Test} wird oft bereits während der Implementierung gestartet. Darin werden einzelne Teile der Implementierung auf ihre Funktionstüchtigkeit untersucht. Diese Tests erfordern eine detaillierte Kenntnis über die jeweilige Implementierung und werden daher oft vom Implementierter selbst durchgeführt. Ein Beispiel einer solchen Teilfunktion stellt die Generierung einer Checksum dar. Diese Funktion kann unter verschiedenen Eingabefolgen getestet werden, von denen das korrekte Ergebnis bekannt ist, und dann die entsprechenden Ausgaben überprüft werden.
+Von dieser Art Test wurde während der Implementierung des Protokolls ausgiebig gebraucht gemacht. Fehler wurden somit bereits frühzeitig erkannt und konnten direkt behoben werden. 
+Im \emph{Konformitätstest} wird überprüft, ob das äußere Verhalten des Protokolls der Entwurfsspezifikation entspricht. So wurde beispielsweise festgelegt, wie groß jede PDU zu sein hat bzw. wie diese codiert werden. Beides lässt sich durch ein Oszilloskop oder Logic Analyser überprüfen, obwohl dies stellenweise sehr aufwändig ist. Nach entsprechender Konfiguration kann damit an den Ausgängen der seriellen Schnittstelle (im vorliegenden Fall SPI) die gesendete Nachricht auf ihre Korrektheit überprüft werden. Auf der anderen Seite wird ebenfalls überprüft, ob das System korrekt auf eingehende Nachrichten reagiert. Aufgrund des hohen Aufwands wurde dieser Test nur sehr eingeschränkt durchgeführt.
+
+Häufig ist die jeweilige Implementierung des Protokolls vom jeweiligen Zielsystem abhängig. So müssen bspw. Treiberfunktionen abhängig von den verbauten Peripheriekomponenten programmiert werden. Durch den \emph{Interoperabilitätstest} wird überprüft ob unterschiedliche Implementierungen auch miteinander kompatibel sind. Dieser Test kann im vorliegenden Fall schnell durchgeführt werden, da es nur zwei unterschiedliche Implementierungen (für beide Mikrocontroller) gibt.
+
+Zuletzt erfolgen noch \emph{ergänzende Tests}, die hier etwas ausführlicher ausgeführt werden. Genannte Literatur unterscheidet in \emph{Leistungstests} und \emph{Robustheitstests}. Ersterer Test dient der Überprüfung der Anforderungen an Durchsatz. In letzterem Test wird die Robustheit des Protokolls gegenüber fehlerhaften Übertragungen untersucht. 
+Für die Durchführung dieser Tests ist von großer Bedeutung, dass Rahmenbedingungen gewählt und eingehalten werden. Nur so wird Realitätsnähe und Vergleichbarkeit sichergestellt. Für den vorliegenden Fall bedeutet dies in erster Linie den Hexacopter in einen definierten Zustand zu versetzen. Dazu gehört zunächst, dass die gesamte Sensorik korrekt kalibriert ist. Nur so kann verhindert werden, dass die Testergebnisse aufgrund einer Rekalibrierung während der Testlaufzeit verfälscht werden. Wichtig ist ebenso, dass der \emph{HLP} während der Testlaufzeit vom Debugging-Werkzeug getrennt ist. Nur so arbeitet der Prozessor in seiner vorgesehenen Geschwindigkeit. Von enormer Wichtigkeit ist ebenfalls, dass jederzeit eine Verbindung zur Fernsteuerung besteht. Ist dies nicht gegeben, verfällt der \emph{HLP} in regelmäßigen Abständen in einen wartenden Zustand, der die reguläre Programmausführung verzögert. 
+Die Einschränkung der nicht verwendbaren Debugging Schnittstelle am \emph{HLP} stellt eine besondere Herausforderung dar, denn es muss eine alternative Möglichkeit gefunden werden, die Testergebnisse im \emph{HLP} an den Tester zu übermitteln. Dieses Problem wird dadurch gelöst, dass die Testergebnisse neben einigen Testwerten der PDU angehängt werden, die dem Nucleo gesendet wird. Somit sind die Testergebnisse beider Prozessoren über den Debugger des Nucleos entnehmbar.
+
+Einige Protokoll- und Übertragungsparameter sind zum Testzeitpunkt noch nicht final festgelegt und tauchen somit als variable Größe während der Tests auf. Dazu zählen
+\begin{itemize}
+\item SPI-Übertragungsgeschwindigkeit (in Bit/Sekunde),
+\item Paketrate (in Anzahl zu sendender Nachrichten (PDUs) pro Sekunde) und
+\item Paketgröße (in Bytes).
+\end{itemize}
+Die Testmethode sieht zunächst folgendermaßen aus: Sowohl \emph{HLP} als auch \emph{Nucleo} senden fest definierte Pakete. Die Testmethode wurde im späteren Verlauf noch insofern weiterentwickelt, dass sich die Antwortpakete aus den Daten der eingehenden Pakete errechnen. Jeder Empfang einer Nachricht wird auf beiden Seiten dokumentiert. Dabei können vier verschiedene Situationen eintreten:
+\begin{enumerate}
+\item Protokoll akzeptiert Daten und diese entsprechen dem abgesendeten Paket
+\item Protokoll erkennt einen Übertragungsfehler, der auch wirklich vorliegt
+\item Protokoll akzeptiert Daten, diese entsprechen allerdings nicht dem abgesendeten Paket
+\item Protokoll erkennt irrtümlich einen Übertragungsfehler, obwohl die empfangende Nachricht korrekt war
+\end{enumerate}
+Zur Bestimmung des Durchsatzes ist primär die erste Situation von Interesse. Sie entspricht dem erfolgreichen Empfang eines Pakets und tritt im Idealfall immer auf.
+Für die Bestimmung der Robustheit sind primär die übrigen drei Situation relevant. Als besonders kritisch wird der dritte Fall angesehen. Eine unentdeckte Fehlübertragung kann zum sofortigen Absturz führen, da fehlerhafte Daten weiterverarbeitet werden. Diese Situation tritt dann auf, wenn das Checksum-Verfahren versagt hat.
+
+Die erzielten Testresultate können Bild \ref{fig:test_graphs} entnommen werden.
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=\linewidth]{pics/test_graphs3.pdf}
+    \caption{Testresultate bei varriierenden Einflussparamtern}
+    \label{fig:test_graphs}
+\end{figure}
+Es zeigt sich, dass die Erfolgsübertragungsquote sowohl von niedrigeren Paketraten als auch von der höheren SPI Geschwindigkeit profitiert.
+Dies gilt sowohl auf Seiten des \emph{HLPs} als auch auf Seiten des \emph{Nucleo}. 
+Als erfolgreich zählt ein Transfer ausschließlich, wenn eine Nachricht zu \SI{100}{\%} korrekt übertragen wurde.
+Ein weiterer Test hat außerdem offenbart, dass durch die Deaktivierung der vordefinierten Interrupts auf dem \emph{HLP} die Erfolgsübertragungsrate auf annähernd \SI{100}{\%} gesteigert werden kann. 
+Dies ist für den Dauerbetrieb unbrauchbar, macht jedoch deutlich, dass die Übertragung unter der großen Interruptlast leidet.
+Die Kombination aus \SI{4}{MHz} SPI Geschwindigkeit und einer Paketrate von \SI{250}{Hz} bietet die höchste Erfolgsübertragungsquote.
+Als \glqq Sweetspot\grqq{} stellt sich jedoch die nur leicht schwächere Paketrate von \SI{500}{Hz} heraus, die den doppelten Durchsatz bietet.
+
+Eine Begründung, warum eine höhere SPI Geschwindigkeit bessere Resultate liefert, kann nicht eindeutig gegeben werden. 
+Prinzipiell führen schnellere Übertragungsgeschwindigkeiten zu mehr Übertragungsfehlern.
+Dieses Verhalten hat sich auch in Vortests gezeigt, wobei der Unterschied in der Fehlerrate zwischen \SI{4}{MHz} und \SI{2}{MHz} kaum messbar ist.
+Erst ab \SI{5}{MHz} steigt die Fehlerrate stark an.
+Als Anhaltspunkt kann jedoch festgehalten werden, dass die Dauer eines Nachrichtentransfers durch höhere Übertragungsgeschwindigkeiten verkürzt wird.
+Damit sinkt auch die Dauer, in der durch große Interruptlasten der Transfer beeinflusst werden kann.
+
+Ein weiterer Test wurde durchgeführt, um speziell die Robustheit des Protokolls zu testen.
+Ob korrekt auf Fehlübertragungen reagiert wird, wird bereits im vorherigen Test untersucht.
+Darüber hinaus muss nach \cite{protocol_eng} jedoch noch auf sogenannte Deadlock- und Livelock-Freiheit getestet werden.
+Ein Deadlock beschreibt dabei einen Zustand, der sich nie wieder ändern wird.
+Das Programm wird demnach nicht mehr korrekt ausgeführt, was unbedingt vermieden werden muss.
+Als Livelock wird ein Zustand beschrieben, in dem ein endloser Zyklus ausgeführt wird, der keine produktiven Aktionen beinhaltet. 
+Um auf diese Freiheit zu testen, wird ein mehrstündiger regulärer Datenaustausch initiiert.
+Am Ende des Tests wird geprüft, ob nach wie vor ein funktionierender Datentransfer vorliegt, oder ob sich einer der beiden genannten Zustände eingestellt hat.
+Ein fünfstündiger Test lief dabei erfolgreich ab, denn die erwartete Anzahl an Transfers wurde erreicht und es ist keiner der unerwünschten Zustände aufgetreten.
+
+
+
+\section{Zusammenfassung}
+\label{sec:zus}
+Wie angestrebt wurde eine Möglichkeit gefunden, die Leistungsdefizite des \emph{HLPs} zu kompensieren. 
+Während der Implementierung wurden mehrere Probleme wie \emph{Padding} aufgedeckt, die unbedingt zu berücksichtigen sind.
+Durch ein erfolgreich getestetes Protokoll können nun Sensordaten zum leistungsstarken Nucleo exportiert werden und die berechneten Steuerungsdaten wieder zurück gesendet werden.
+Das Protokoll erfüllt einen Großteil der gestellten Anforderungen, ist jedoch definitiv noch optimierbar und erweiterbar.
+Die angestrebte Paketrate wurde zugunsten der Robustheit leicht verfehlt, bewegt sich mit \SI{500}{Hz} jedoch im akzeptablen Bereich.
+Die erzielte SPI-Transfergeschwindigkeit von \SI{4}{MHz} ermöglicht weiterhin  noch eine Vergrößerung der Pakete, was mehr Flexibilität bietet.
+Eine Regelung wurde jedoch nicht implementiert, daher kann die tatsächliche Funktionalität bisher nur unterstellt werden.
+Zukünftige Arbeiten werden diesen Beweis führen und komplexe Regelalgorithmen auf dem neu hinzugefügten Mikrocontroller implementieren.
+
+
+\section*{Danksagung}
+Für die kompetente, fachliche Unterstützung bedanken wir uns sehr bei M.Sc. Raúl Acuña Godoy und Dipl.-Ing. Dinu Mihailescu-Stoica.
+Ebenfalls Dank gebührt unseren Korrekturlesern Christina Ruh und Uwe Breitenbach.
+
+\begin{thebibliography}{1}
+\bibitem{protocol_eng}
+H.~König, \emph{Protocol Engineering}, 1st~ed. Wiesbaden, Deutschland: Teubner, 2003.
+\bibitem{echtzeitsys}
+H.~Wörn, \emph{Echtzeitsysteme}, 1st~ed. Springer-Verlag Berlin Heidelberg, 2005.
+\bibitem{checksum}
+T.C.~Maxino und P.J.~Koopman, \emph{The Effectiveness of Checksums for Embedded Control Networks}, IEEE Xplore Digital Library, 2009.
+\bibitem{check_theo}
+J.F.~Kurose und K.W.~Ross, \emph{Computer networking}, 5. ed. Boston, MA : Pearson/Addison-Wesley, Pearson Education, 2009.
+\bibitem{COBS}
+S.~Cheshire und M.~Baker, \emph{Consistent Overhead Byte Stuffing}, IEEE/ACM TRANSACTIONS ON NETWORKING, VOL.7, NO. 2, 1999.
+\bibitem{NOVIELLO}
+C.~Noviello, \emph{Mastering STM32}, Victoria, BC, Canada: Leanpub, 2017.
+\bibitem{HILL}
+S.C.~Hill und J.~Jelemensky und M.R. Heene, \emph{Queued serial peripheral interface for use in a data processing system}, Google Patents, 1989.
+\bibitem{HON}
+D.~HONEGGER, \emph{An open source and open hardware embedded metric optical flow cmos camera for indoor and outdoor applications}, Robotics and Automation (ICRA), IEEE International Conference on. IEEE, 2013.
+\bibitem{Fletcher}
+J.G.~Fletcher, \emph{An Arithmetic Checksum for Serial Transmissions}, IEEE Transactions on Communications Vol. 30, 1982.
+\bibitem{AutoPilot}
+\emph{Technical Documentation: AscTec AutoPilot}, 2014, (URL: \url{http://wiki.asctec.de/display/AR/AscTec+AutoPilot}, Zugriff: 12.06.18).
+\bibitem{TUT_NUCLEO}
+\emph{Tutorial: Coding, Programming and Debugging STM32F767ZI}, 2018, (URL: \url{https://github.com/im-Kitsch/RMR_sensor_fusion/blob/master/data/tutorials/Tutorial_toolchain.pdf}, Zugriff: 22.06.18).
+\bibitem{TUT_HLP}
+\emph{Tutorial: Coding, Programming and Debugging HLP}, 2018, (URL: \url{https://github.com/im-Kitsch/RMR_sensor_fusion/blob/master/data/tutorials/Tutorial_HLP.pdf}, Zugriff: 22.06.18).
+\bibitem{git}
+\emph{Public Git Reposotory: RMR\_sensor\_fusion}, (URL: \url{https://github.com/im-Kitsch/RMR_sensor_fusion}, Zugriff: 04.07.18).
+\bibitem{padding}
+\emph{Padding and Alignment}, (URL: \url{https://www.geeksforgeeks.org/structure-member-alignment-padding-and-data-packing/}, Zugriff: 01.07.18).
+\bibitem{MAVLink}
+\emph{Introduction to MAVLink}, (URL: \url{http://qgroundcontrol.org/mavlink/start}, Zugriff: 01.07.18).
+\bibitem{MAN_NUCLEO}
+\emph{UM1974: User manual}, Rev. 7, 2017, (URL: \url{https://www.st.com/content/ccc/resource/technical/document/user_manual/group0/26/49/90/2e/33/0d/4a/da/DM00244518/files/DM00244518.pdf/jcr:content/translations/en.DM00244518.pdf}, Zugriff: 01.07.18).
+\bibitem{MAN_HLP}
+\emph{UM10139 LPC214x User manual}, Rev. 4, 2012, (URL: \url{https://www.nxp.com/docs/en/user-guide/UM10139.pdf}, Zugriff: 03.07.18).
+\bibitem{TUT_LIDAR}
+\emph{Tutorial: Communication between HLP and Lidar Lite v3 via I2C}, 2018, (URL: \url{https://github.com/im-Kitsch/RMR_sensor_fusion/blob/master/data/tutorials/Lidar\%20Tutorial.md}, Zugriff: 03.07.18).
+\bibitem{PIC_WIKI}
+Bildquelle: \emph{SPI} (URL: \url{https://en.wikipedia.org/wiki/Serial_Peripheral_Interface}, Zugriff: 29.06.18).
+\bibitem{PIC_px4flow}
+Bildquelle: \emph{px4flow} (URL: \url{https://pixhawk.org/modules/px4flow}, Zugriff: 29.06.18).
+\bibitem{PIC_lidar}
+Bildquelle: \emph{Lidar} (URL: \url{https://buy.garmin.com/de-DE/DE/p/557294}, Zugriff: 29.06.18).
+\end{thebibliography}
+
+\begin{biography}
+[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{./pics/Profilbild_Malte.pdf}}] % hier ein Foto einbinden
+{Malte Markus Breitenbach}
+wurde am 23.07.95 in Gelnhausen geboren. Seinen Bachelortitel erlangte er 2018 an der Technischen Universität Darmstadt im Studiengang Mechatronik. 
+\end{biography}
+\begin{biography}
+[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{./pics/Profilbild_chen.pdf}}] % hier ein Foto einbinden
+{Xianglun Chen}
+wurde am 06.11.1992 in Baoshan (China) geboren. Seinen Bachelortitel erlangte er 2015 an der Nanjing Universität (China) im Studiengang Automatisierungstechnik.
+\end{biography}
+\begin{biography}
+[{\includegraphics[width=1in,height=1.25in,clip,keepaspectratio]{./pics/Profilbild_zhi.pdf}}] % hier ein Foto einbinden
+{Zhiyuan Hu}
+wurde am 18.06.94 in Weifang (China) geboren. Seinen Bachelortitel erlangte er 2016 an der Technischen und Wissenschaftlichen Universität Nanjing im Studiengang Mechatronik.
+\end{biography}
+
+\end{document}
