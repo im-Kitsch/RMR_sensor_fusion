@@ -16,7 +16,7 @@
 %%% so ist dies dringend mit dem Betreuer abzuklären!
 
 \begin{document}
-\newcommand{\euertitel}{Arbeitstitel: Eingliederung einer zusätzlichen Hardwarekomponente in ein bestehendes Hexacopter System zur Leistungssteigerung}   % Titel hier eintragen!
+\newcommand{\euertitel}{Entwicklung eines Protokolls zur Eingliederung einer Hardwarekomponente in ein Hexacopter-System}   % Titel hier eintragen!
 \newcommand{\betreuer}{M.Sc. Raúl Acuña Godoy, Dipl.-Ing. Dinu Mihailescu-Stoica }  % Betreuerdaten hier eintragen (mit einem Leerzeichen am Ende)!
 
 \headsep 40pt
@@ -54,7 +54,7 @@ Es ist daher erforderlich, eine ausreichend leistungsfähige Rechenhardware zur V
 Keine Ausnahme stellt der Asctec Firefly mit seinem frei programmierbaren High-Level-Prozessor dar.
 Sowohl der kleine Programmspeicher als auch die fehlende Rechengeschwindigkeit insbesondere bei Gleitkommaoperationen schränken den Regelungstechniker bei der Lösungsfindung stark ein.
 So muss beispielsweise durch den limitierten Programmspeicher auf lange Codesequenzen verzichtet werden und durch die fehlende Rechengeschwindigkeit zeitintensive Rechenoperatoren nur sparsam Anwendung finden.
-Abhilfe schaffen soll der in jeder Hinsicht performantere Microcontroller \glqq Nucleo STM32F767ZI\grqq  (im Folgenden als Nucleo abgekürzt), der dem System als weiterer Rechenprozessor hinzugefügt werden soll.
+Abhilfe schaffen soll der in jeder Hinsicht performantere Microcontroller \glqq Nucleo STM32F767ZI\grqq{} (im Folgenden als Nucleo abgekürzt), der dem System als weiterer Rechenprozessor hinzugefügt werden soll.
 Um den neuen Prozessor sinnvoll in die Berechnungen miteinzubeziehen, muss jedoch zunächst eine Schnittstelle zwischen dem zu leistungsschwachen High-Level-Prozessor und dem Nucleo hergestellt werden.
 Dabei gelten besondere Anforderungen an die Schnittstelle, wie hohe Transferraten, ein hohes Maß an Robustheit als auch Echtzeitfähigkeit.
 Nur wenn diese Anforderungen auch ausreichend erfüllt werden, können später die Berechnungen praktisch auf dem Nucleo durchgeführt werden und der Hexakopter entsprechend geregelt werden.
@@ -70,22 +70,22 @@ Das vorliegende Paper wird zunächst in die notwendigen Grundlagen einführen. Dar
 \subsection{Systembeschreibung}
 \subsubsection{UAV} Asctec Firefly \newline
 Im praktischen Mittelpunkt dieses Papers steht ein UAV (zu englisch \emph{unmanned aerial vehicle}). Genauer wird der Hexakopter \emph{Firefly} der Firma \emph{Ascending Technologies} verwendet, der sich mit zahlreicher Sensorik und Erweiterbarkeit an den Forschungsmarkt richtet. 
-Die Größe des \emph{Firefly} beträgt 60.5 x 66.5 x \SI{16.5}{cm} und durch sechs 100 W Motoren kann es bis auf 12 m/s beschleunigt werden.
+Die Größe des \emph{Firefly} beträgt \SI{60.5 x 66.5 x 16.5}{cm} und durch sechs \SI{100}{W} Motoren kann es bis auf \SI{12}{\frac{m}{s}} beschleunigt werden.
 Die Steuerung bzw. Regelung des \emph{Firefly} wird durch zwei Microprozessoren realisiert, die auf dem sog. \emph{AscTec AutoPilot Board} platziert sind.
 Neben den Prozessoren sind darauf auch verschiedene Sensoren wie z.B. ein Gyroskop, Beschleunigungs- und Drucksensor integriert.
 Mit diesen Sensoren kann das UAV als inertiale Messeinheit (zu englisch \emph{inertial measurement unit} oder kurz \emph{IMU}) modelliert werden.
 Zahlreiche physikalische Schnittstellen stehen dem Benutzer auf dem Board zur Verfügung.
 Somit ist die Kommunikation zwischen UAV und verschiedenen Peripherien bzw. weiteren Sensoren möglich.
-Die wesentliche Steuerung des UAV basiert wie bereits erwähnt auf zwei integrierten ARM7 Mikroprozessoren.
+Die wesentliche Steuerung des UAV basiert auf zwei integrierten ARM7 Mikroprozessoren.
 Zum einem dem sogenannten \emph{LLP} (engl. Abkürzung für \emph{Low Level Processor}), der Sensorik ausliest, Motoren ansteuert sowie einen stabilen Regelalgorithmus implementiert hat, auf den im Notfall zurückgegriffen werden kann.
 Neben dem unveränderlichen Code des \emph{LLP} kann der Benutzer eigene Algorithmen auf dem sogenannten \emph{HLP} (engl. Abkürzung für \emph{High Level Processor}) implementieren.
 \emph{Ascending Technologies} stellt zu diesem Zweck mit dem \emph{AscTec SDK} ein Softwareentwicklungswerkzeug zur Verfügung, was die Programmierung vereinfacht. 
-Die Vorgehensweise zur Programmierung wird in [VERWEIS AUF TUTORIAL] genauer vorgestellt.
+Die Vorgehensweise zur Programmierung wird in \cite{TUT_HLP} genauer vorgestellt.
 Wie Bild \ref{fig:firefly} andeutet, kommunizieren \emph{HLP} und \emph{LLP} über eine SPI-Schnittstelle. 
 \begin{figure}[h]
   \centering
   \includegraphics[width = 250px]{./pics/HL_LL.pdf}
-  \caption{Aufbau des Firefly \emph{AutoPilot Board} (angelehnt an MANUAL)}
+  \caption{Aufbau des Firefly \emph{AutoPilot Board}, nach \cite{AutoPilot}}
   \label{fig:firefly}
 \end{figure}
 Somit werden Sensor- und Steuerungsdaten zwischen beiden ausgetauscht und dem jeweils anderen Partner bereitgestellt.
@@ -109,8 +109,7 @@ Als innere Sensoren kommen folgende zum Einsatz:
 Als äußere Sensoren des UAV werden folgende eingesetzt:
 \begin{itemize}
 	\item 
-	Optische Flussmessung (GPS kann nicht innerhalb des Gebäudes arbeiten. Daher ist die Messung des optischen Flusses eine gute Ergänzung. Konkret in dieser Arbeit angewendet wird PX4FLOW, das das GPS als Positionierungssystem ersetzt.
-	Im Laufe dieser Arbeit wird noch auf das Auslesen und die Integration in das Protokoll eingegangen. (Ref)) % An Open Source and Open Hardware Embedded Metric Optical Flow 	CMOS Camera for Indoor and Outdoor Applications	Dominik Honegger, Lorenz Meier, Petri Tanskanen and Marc Pollefeys ETH Zurich, Switzerland 
+	Optische Flussmessung (GPS kann nicht innerhalb des Gebäudes arbeiten. Daher ist die Messung des optischen Flusses eine gute Ergänzung. Konkret in dieser Arbeit angewendet wird PX4FLOW, das das GPS als Positionierungssystem ersetzt. (Ref)) % An Open Source and Open Hardware Embedded Metric Optical Flow 	CMOS Camera for Indoor and Outdoor Applications	Dominik Honegger, Lorenz Meier, Petri Tanskanen and Marc Pollefeys ETH Zurich, Switzerland 
 	\item 
 	\emph{LIDAR-Lite v3} (für Indoor-Höhen-Bestimmungen, dabei schneller als Ultraschall und sehr zuverlässig (Ref)).
 \end{itemize}
@@ -162,7 +161,7 @@ Eine Bitübertragung findet immer abhängig vom SCLK statt, man spricht daher auch
 
 \begin{figure}
 	\centering
-	\includegraphics[width=0.9\linewidth]{pics/SPIVerbindung.png}
+	\includegraphics[width=0.9\linewidth]{pics/SPI_Verbindung.pdf}
 	\caption{SPI-Verbindung durch Kaskadierung der Slaves}
 	\label{fig:spi-verbindung}
 \end{figure}
@@ -182,7 +181,7 @@ In der Regel kommen Schieberegister und FIFOs (First In First Out) zum Einsatz, 
 Eine Übertragung ist beendet, wenn das Slave-Select-Signal endgültig wieder auf logisch Eins gesetzt wird.
 \begin{figure}
 	\centering
-	\includegraphics[width=0.9\linewidth]{pics/SPIAblauf}
+	\includegraphics[width=0.9\linewidth]{pics/SPI_Ablauf.pdf}
 	\caption{Ablauf eines SPI-Transfers}
 	\label{fig:spiablauf}
 \end{figure}
@@ -241,12 +240,12 @@ Die Transfergeschwindigkeit sollte groß genug sein, um eine ausreichend große An
 Robustheit ist ebenfalls eine wichtige Anforderung, denn sowohl unerkannte Übertragungsfehler als auch ein undefinierter \glqq festgebremster\grqq \space Status führen zum sofortigen Absturz. Diese beiden Fehler gilt es demnach unnedingt zu verhindern.
 Weiterhin sollte die Anzahl an (zwar) erkannten Fehlübertragungen nicht zu hoch sein.
 Zuletzt muss auch Echtzeitfähigkeit gegeben sein. Nach \cite{echtzeitsys} wird unter Echtzeitfähigkeit verstanden, dass anfallende Daten zuverlässig innerhalb einer vorgegebenen Zeit verarbeitet werden und auch verfügbar sind.
-Orientiert an den Gegebenheiten des Standardprogramms auf dem High-Level-Prozessor wird zunächst eine Paketgeschwindigkeit von 1000 PDUs pro Sekunde angestrebt.
+Orientiert an den Gegebenheiten des Standardprogramms auf dem High-Level-Prozessor wird zunächst eine Paketrate von 1000 PDUs pro Sekunde angestrebt.
 Daraus lässt sich die Mindesttransfergeschwindkeit ableiten, wenn man zunächst von einer Paketgröße von 150 Byte ausgeht. 
 Wenn $n$ PDUs mit jeweils $X$ Byte Paketgröße übertragen werden sollen, muss für die Transferrate
 
  \begin{align*}
-  T(n,X) > \frac{n*X*8\text{bit}}{1s}
+  T(n,X) > \frac{n*X*\SI{8}{bit}}{\SI{1}{s}
  \end{align*}
  gelten. Für das angestrebte $n = \mathrm{1000}$ und $X = \mathrm{150}$ ergibt sich demnach eine Mindestransferrate von 
   \begin{align*}
@@ -277,7 +276,7 @@ Diese Forderung führt zur nächsten Protokollfunktion, genauer zur \emph{PDU-Codi
 Die Extraktion einer Nachricht aus einem Puffer ist jedoch nur schwer möglich, wenn weder Anfang noch Ende der Nachricht klar ersichtlich sind. 
 Durch die Einführung eines sogenannten Trennzeichens (zu engl. \emph{delimiter}) lässt sich dies jedoch ändern.
 \newline
-\emph{COBS}
+\emph{COBS}: 
 Consistent Overhead Byte Stuffing (im Folgenden mit COBS abgekürzt) beschreibt einen Algorithmus, der eine beliebige Folge von Bytes encodiert.
 Die resultierende Byte-Folge ist dabei frei von einem fest gewählten Trennzeichen, sodass dieses Zeichen in der Folge für die Begrenzung eines jeden Pakets verwenden kann.
 Um zu garantieren, dass sich das Trennzeichen nicht mehr innerhalb der Byte-Folge befindet, müssen zusätzliche Bytes hinzugefügt werden (zu engl. \emph{byte stuffing}).
@@ -445,7 +444,7 @@ while(1)
 
 \subsection{Protokolltest}
 Nach der erfolgreichen Entwicklung eines Protokolls muss dieses auf Leistungsfähigkeit und Fehler getestet werden.
-Bei der Fehlererkennung ergibt sich dabei nach \cite{protocol} das Problem, dass Fehler zwar nachgewiesen werden können, jedoch nicht das vollständige Nichtvorhanden sein von Fehlern.
+Bei der Fehlererkennung ergibt sich dabei nach \cite{protocol_eng} das Problem, dass Fehler zwar nachgewiesen werden können, jedoch nicht das vollständige Nichtvorhanden sein von Fehlern.
 Der Nachweis eines restlos fehlerfreien Protokolls kann demnach nicht geführt werden, das Vertrauen in die Funktionalität und Verlässlichkeit jedoch gesteigert werden.
 Die zuvor genannte Literatur nennt prinzipiell vier Typen von Protokolltests, den
 \begin{itemize}
@@ -505,7 +504,7 @@ Damit sinkt auch die Dauer, in der durch große Interruptlasten der Transfer beei
 
 Ein weiterer Test wurde durchgeführt, um speziell die Robustheit des Protokolls zu testen.
 Ob korrekt auf Fehlübertragungen reagiert wird, wird bereits im vorherigen Test untersucht.
-Darüber hinaus muss nach \cite{protocol} jedoch noch auf sogenannte Deadlock- und Livelock-Freiheit getestet werden.
+Darüber hinaus muss nach \cite{protocol_eng} jedoch noch auf sogenannte Deadlock- und Livelock-Freiheit getestet werden.
 Ein Deadlock beschreibt dabei einen Zustand, der sich nie wieder ändern wird.
 Das Programm wird demnach nicht mehr korrekt ausgeführt, was unbedingt vermieden werden muss.
 Als Livelock wird ein Zustand beschrieben, in dem ein endloser Zyklus ausgeführt wird, der keine produktiven Aktionen beinhaltet. 
@@ -542,11 +541,18 @@ H.~König, \emph{Protocol Engineering}, 1st~ed. Wiesbaden, Deutschland: Teubner, 
 \bibitem{echtzeitsys}
 H.~Wörn, \emph{Echtzeitsysteme}, 1st~ed. Springer-Verlag Berlin Heidelberg, 2005.
 \bibitem{checksum}
-Maxino, T.C.; Koopman, P.J.,\emph{The Effectiveness of Checksums for Embedded Control Networks}, IEEE Xplore Digital Library, 2009.
+T.C.~Maxino und P.J.~Koopman, \emph{The Effectiveness of Checksums for Embedded Control Networks}, IEEE Xplore Digital Library, 2009.
 \bibitem{COBS}
-COBS Paper
+S.~Cheshire und M.~Baker, \emph{Consistent Overhead Byte Stuffing}, IEEE/ACM TRANSACTIONS ON NETWORKING, VOL.7, NO. 2, 1999.
 \bibitem{padding}
 padding Theroie
+\bibitem{AutoPilot}
+\emph{Technical Documentation: AscTec AutoPilot}, 2014, (URL: \url{http://wiki.asctec.de/display/AR/AscTec+AutoPilot}, Zugriff: 12.06.18).
+\bibitem{TUT_NUCLEO}
+\emph{Tutorial: Coding, Programming and Debugging STM32F767ZI}, 2018, (URL: \url{https://github.com/im-Kitsch/RMR_sensor_fusion/blob/master/data/tutorials/Tutorial_toolchain.pdf}, Zugriff: 22.06.18).
+\bibitem{TUT_HLP}
+\emph{Tutorial: Flashing and programming of the Asctec Firefly's HLP using Windows 10}, 2018, (URL: \url{https://github.com/im-Kitsch/RMR_sensor_fusion/blob/master/data/tutorials/Tutorial_HLP_Flashing.pdf}, Zugriff: 03.07.18).
+
 
 \end{thebibliography}
 

@@ -16,7 +16,7 @@
    version="1.1"
    id="svg4338"
    inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
-   sodipodi:docname="SPI Verbindung.svg">
+   sodipodi:docname="SPI_Verbindung.svg">
   <defs
      id="defs4332">
     <marker
@@ -482,7 +482,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>

@@ -9,12 +9,12 @@
    xmlns="http://www.w3.org/2000/svg"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="190mm"
-   height="110mm"
-   viewBox="0 0 190 110"
+   width="178.71596mm"
+   height="92.556931mm"
+   viewBox="0 0 178.71596 92.556931"
    version="1.1"
    id="svg12745"
-   inkscape:version="0.92.3 (2405546, 2018-03-11)"
+   inkscape:version="0.92.2 (5c3e80d, 2017-08-06)"
    sodipodi:docname="SPI ablauf.svg">
   <defs
      id="defs12739" />
@@ -25,91 +25,95 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.7"
-     inkscape:cx="376.27885"
-     inkscape:cy="230.0165"
+     inkscape:zoom="2.8"
+     inkscape:cx="312.70104"
+     inkscape:cy="163.22679"
      inkscape:document-units="mm"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="layer5"
      showgrid="false"
      showguides="false"
      inkscape:guide-bbox="true"
-     inkscape:window-width="1920"
-     inkscape:window-height="1017"
-     inkscape:window-x="-8"
-     inkscape:window-y="-8"
-     inkscape:window-maximized="1">
+     inkscape:window-width="3840"
+     inkscape:window-height="2083"
+     inkscape:window-x="1920"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     fit-margin-top="0"
+     fit-margin-left="0"
+     fit-margin-right="0"
+     fit-margin-bottom="0">
     <sodipodi:guide
-       position="99.596724,247.95239"
+       position="95.542344,242.26382"
        orientation="0,1"
        id="guide12763"
        inkscape:locked="false" />
     <sodipodi:guide
-       position="92.710471,250.05488"
+       position="88.656091,244.36631"
        orientation="1,0"
        id="guide12984"
        inkscape:locked="false" />
     <sodipodi:guide
-       position="68.933406,251.07069"
+       position="64.879027,245.38212"
        orientation="1,0"
        id="guide12986"
        inkscape:locked="false" />
     <sodipodi:guide
-       position="81.205821,250.02535"
+       position="77.151441,244.33678"
        orientation="1,0"
        id="guide12988"
        inkscape:locked="false" />
     <sodipodi:guide
-       position="68.933404,273.48355"
+       position="64.879025,267.79498"
        orientation="0,1"
        id="guide12990"
        inkscape:locked="false" />
     <sodipodi:guide
-       position="71.761867,271.27858"
+       position="67.707488,265.59001"
        orientation="0,1"
        id="guide12992"
        inkscape:locked="false" />
     <sodipodi:guide
-       position="92.060824,278.23773"
+       position="88.006444,272.54916"
        orientation="0,1"
        id="guide13030"
        inkscape:locked="false" />
     <sodipodi:guide
-       position="89.674849,185.68081"
+       position="85.620469,179.99224"
        orientation="0,1"
        id="guide13032"
        inkscape:locked="false" />
     <sodipodi:guide
-       position="87.454241,253.24405"
+       position="83.399861,247.55548"
        orientation="1,0"
        id="guide13036"
        inkscape:locked="false" />
     <sodipodi:guide
-       position="184.73586,224.59204"
+       position="180.68148,218.90347"
        orientation="1,0"
        id="guide13258"
        inkscape:locked="false" />
     <sodipodi:guide
-       position="76.422059,247.9524"
+       position="72.36768,242.26383"
        orientation="1,0"
        id="guide13774"
        inkscape:locked="false" />
     <sodipodi:guide
-       position="95.391739,249.98401"
+       position="91.337359,244.29544"
        orientation="0,1"
        id="guide14763"
        inkscape:locked="false" />
     <sodipodi:guide
-       position="178.68824,271.27859"
+       position="174.63386,265.59002"
        orientation="1,0"
        id="guide15089"
        inkscape:locked="false" />
     <sodipodi:guide
-       position="87.454239,257.96876"
+       position="83.399859,252.28019"
        orientation="0,1"
        id="guide15091"
        inkscape:locked="false" />
     <sodipodi:guide
-       position="82.786736,261.65687"
+       position="78.732356,255.9683"
        orientation="0,1"
        id="guide15097"
        inkscape:locked="false" />
@@ -130,7 +134,7 @@
      inkscape:groupmode="layer"
      id="layer5"
      inkscape:label="Layer 3"
-     transform="translate(0,-187)">
+     transform="translate(-4.0543766,-198.75451)">
     <path
        style="fill:#800080;fill-opacity:1;fill-rule:evenodd;stroke:#87cbed;stroke-width:0.69999999;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
        d="m 90.744985,198.75451 v 92.55692"
@@ -1411,7 +1415,7 @@
        inkscape:connector-curvature="0" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:charter;-inkscape-font-specification:charter;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
        x="19.950617"
        y="208.11913"
        id="text15210"><tspan
@@ -1419,10 +1423,10 @@
          id="tspan15208"
          x="19.950617"
          y="208.11913"
-         style="stroke-width:0.26458332">SCK</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:charter;-inkscape-font-specification:charter;stroke-width:0.26458332">SCK</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:charter;-inkscape-font-specification:charter;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
        x="23.911768"
        y="226.33453"
        id="text15210-6"><tspan
@@ -1430,10 +1434,10 @@
          id="tspan15208-5"
          x="23.911768"
          y="226.33453"
-         style="stroke-width:0.26458332">SS</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:charter;-inkscape-font-specification:charter;stroke-width:0.26458332">SS</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:charter;-inkscape-font-specification:charter;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
        x="3.5992932"
        y="251.92258"
        id="text15210-67"><tspan
@@ -1441,10 +1445,10 @@
          id="tspan15208-4"
          x="3.5992932"
          y="251.92258"
-         style="stroke-width:0.26458332">CPHA=0</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:charter;-inkscape-font-specification:charter;stroke-width:0.26458332">CPHA=0</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:charter;-inkscape-font-specification:charter;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
        x="4.4011016"
        y="283.41739"
        id="text15210-5"><tspan
@@ -1452,13 +1456,13 @@
          id="tspan15208-9"
          x="4.4011016"
          y="283.41739"
-         style="stroke-width:0.26458332">CPHA=1</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-family:charter;-inkscape-font-specification:charter;stroke-width:0.26458332">CPHA=1</tspan></text>
   </g>
   <g
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1"
-     transform="translate(0,-187)">
+     transform="translate(-4.0543766,-198.75451)">
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 79.24034,203.50869 h 5.445221"
@@ -1857,7 +1861,7 @@
        inkscape:connector-curvature="0" />
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:charter;-inkscape-font-specification:charter;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
        x="52.557499"
        y="202.90738"
        id="text15109"><tspan
@@ -1865,10 +1869,10 @@
          id="tspan15107"
          x="52.557499"
          y="202.90738"
-         style="font-size:4.23333311px;stroke-width:0.26458332">CPOL=0</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;font-family:charter;-inkscape-font-specification:charter;stroke-width:0.26458332">CPOL=0</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:charter;-inkscape-font-specification:charter;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
        x="52.985764"
        y="209.65807"
        id="text15109-6"><tspan
@@ -1876,10 +1880,10 @@
          id="tspan15107-1"
          x="52.985764"
          y="209.65807"
-         style="font-size:4.23333311px;stroke-width:0.26458332">CPOL=1</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;font-family:charter;-inkscape-font-specification:charter;stroke-width:0.26458332">CPOL=1</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:charter;-inkscape-font-specification:charter;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
        x="55.209702"
        y="249.07965"
        id="text15109-6-9"><tspan
@@ -1887,10 +1891,10 @@
          id="tspan15107-1-0"
          x="55.209702"
          y="249.07965"
-         style="font-size:4.23333311px;stroke-width:0.26458332">MISO</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;font-family:charter;-inkscape-font-specification:charter;stroke-width:0.26458332">MISO</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:charter;-inkscape-font-specification:charter;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
        x="52.937912"
        y="241.5961"
        id="text15109-6-9-5"><tspan
@@ -1898,15 +1902,15 @@
          id="tspan15107-1-0-9"
          x="52.937912"
          y="241.5961"
-         style="font-size:4.23333311px;stroke-width:0.26458332">CYCLE #</tspan><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;font-family:charter;-inkscape-font-specification:charter;stroke-width:0.26458332">CYCLE #</tspan><tspan
          sodipodi:role="line"
          x="52.937912"
          y="254.82527"
-         style="font-size:4.23333311px;stroke-width:0.26458332"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;font-family:charter;-inkscape-font-specification:charter;stroke-width:0.26458332"
          id="tspan15173" /></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:charter;-inkscape-font-specification:charter;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
        x="55.076065"
        y="257.76587"
        id="text15109-6-9-2"><tspan
@@ -1914,10 +1918,10 @@
          id="tspan15107-1-0-7"
          x="55.076065"
          y="257.76587"
-         style="font-size:4.23333311px;stroke-width:0.26458332">MOSI</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;font-family:charter;-inkscape-font-specification:charter;stroke-width:0.26458332">MOSI</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:charter;-inkscape-font-specification:charter;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
        x="55.010689"
        y="280.50873"
        id="text15109-6-9-0"><tspan
@@ -1925,10 +1929,10 @@
          id="tspan15107-1-0-8"
          x="55.010689"
          y="280.50873"
-         style="font-size:4.23333311px;stroke-width:0.26458332">MISO</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;font-family:charter;-inkscape-font-specification:charter;stroke-width:0.26458332">MISO</tspan></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:charter;-inkscape-font-specification:charter;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
        x="52.738899"
        y="273.02518"
        id="text15109-6-9-5-6"><tspan
@@ -1936,15 +1940,15 @@
          id="tspan15107-1-0-9-3"
          x="52.738899"
          y="273.02518"
-         style="font-size:4.23333311px;stroke-width:0.26458332">CYCLE #</tspan><tspan
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;font-family:charter;-inkscape-font-specification:charter;stroke-width:0.26458332">CYCLE #</tspan><tspan
          sodipodi:role="line"
          x="52.738899"
          y="286.25433"
-         style="font-size:4.23333311px;stroke-width:0.26458332"
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;font-family:charter;-inkscape-font-specification:charter;stroke-width:0.26458332"
          id="tspan15173-7" /></text>
     <text
        xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:10.58333302px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:10.58333302px;line-height:1.25;font-family:charter;-inkscape-font-specification:charter;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.26458332"
        x="54.877052"
        y="289.19498"
        id="text15109-6-9-2-5"><tspan
@@ -1952,13 +1956,13 @@
          id="tspan15107-1-0-7-5"
          x="54.877052"
          y="289.19498"
-         style="font-size:4.23333311px;stroke-width:0.26458332">MOSI</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333311px;font-family:charter;-inkscape-font-specification:charter;stroke-width:0.26458332">MOSI</tspan></text>
   </g>
   <g
      inkscape:groupmode="layer"
      id="layer4"
      inkscape:label="Layer 2"
-     transform="translate(0,-187)">
+     transform="translate(-4.0543766,-198.75451)">
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.26458332px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 74.456579,238.11129 h 4.275854"
@@ -2192,7 +2196,7 @@
      inkscape:groupmode="layer"
      id="layer6"
      inkscape:label="Layer 4"
-     transform="translate(0,-187)">
+     transform="translate(-4.0543766,-198.75451)">
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:4.04288816px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:0.10107221"
