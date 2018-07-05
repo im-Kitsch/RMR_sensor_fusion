@@ -7,29 +7,21 @@
 #include "COBS.h"
 
 
-
+/**
+ * Generate a checksum calculated from sensory data, stored at the end of protocol's stream.
+ * @param proStream 	protocol stream the checksum will be calculated for
+ */
 void generateChecksum(protocol_u *proStream)
 {
 	//ToDo: Implement a CRC or a Fletchers's Checksum
 	
-	//Now used: Fletcher's Checksum (optimized, source: "http://www.drdobbs.com/database/fletchers-checksum/")
-	register unsigned char *ptr = proStream->bytestream;
-    register short int sum1, len = num_sum-4;
-    register unsigned int sum2 ;
-
-    sum1 = sum2 = 0;
-    while (len--)
-    {
-         sum1 += *ptr++;
-         if (sum1 >= 255) sum1 -= 255;
-         sum2 += sum1;
-    }
-    sum2 %= 255;
-
-
+	//Now used: Simple Additional Checksum
+	uint32_t checksum = 0;
+	for(uint8_t i = 0; i < num_sum-4; i++)
+		checksum += proStream->bytestream[i]; //Overflow is accepted
 	
 	//Store checksum in protocolByteStream
-	proStream->protocol_s.checksum = (uint32_t)sum1 + ((uint32_t)sum2<<16);
+	proStream->protocol_s.checksum = checksum;
 }
 
 /**
@@ -41,22 +33,13 @@ char checkChecksum(protocol_u *proStream)
 {
 	//ToDo: Implement a CRC or a Fletchers's Checksum
 	
-	//Now used: Fletcher's Checksum (optimized, source: "http://www.drdobbs.com/database/fletchers-checksum/")
-	register unsigned char *ptr = proStream->bytestream;
-    register short int sum1, len = num_sum-4;
-    register unsigned int sum2 ;
-
-    sum1 = sum2 = 0;
-    while (len--)
-    {
-         sum1 += *ptr++;
-         if (sum1 >= 255) sum1 -= 255;
-         sum2 += sum1;
-    }
-    sum2 %= 255;
+	//Now used: Simple Additional Checksum
+	uint32_t checksum = 0;
+	for(uint8_t i = 0; i < num_sum-4; i++)
+		checksum += proStream->bytestream[i]; //Overflow is accepted
 	
 	//Check if the calculated checksum equals the received checksum
-	if(((uint32_t)sum1 + ((uint32_t)sum2<<16)) == proStream->protocol_s.checksum)
+	if(checksum == proStream->protocol_s.checksum)
 		return 1;
 	else
 		return 0;
@@ -66,24 +49,13 @@ void generateChecksum_C(Cprotocol_u *proStream)
 {
 	//ToDo: Implement a CRC or a Fletchers's Checksum
 
-	//Now used: Fletcher's Checksum (optimized, source: "http://www.drdobbs.com/database/fletchers-checksum/")
-	register unsigned char *ptr = proStream->bytestream;
-    register short int sum1, len = Cnum_sum-4;
-    register unsigned int sum2 ;
-
-    sum1 = sum2 = 0;
-    while (len--)
-    {
-         sum1 += *ptr++;
-         if (sum1 >= 255) sum1 -= 255;
-         sum2 += sum1;
-    }
-    sum2 %= 255;
-
-
+	//Now used: Simple Additional Checksum
+	uint32_t checksum = 0;
+	for(uint8_t i = 0; i < Cnum_sum-4; i++)
+		checksum += proStream->bytestream[i]; //Overflow is accepted
 
 	//Store checksum in protocolByteStream
-	proStream->Cprotocol_s.checksum = (uint32_t)sum1 + ((uint32_t)sum2<<16);
+	proStream->Cprotocol_s.checksum = checksum;
 }
 
 /**
@@ -95,26 +67,19 @@ char checkChecksum_C(Cprotocol_u *proStream)
 {
 	//ToDo: Implement a CRC or a Fletchers's Checksum
 
-	//Now used: Fletcher's Checksum (optimized, source: "http://www.drdobbs.com/database/fletchers-checksum/")
-	register unsigned char *ptr = proStream->bytestream;
-    register short int sum1, len = Cnum_sum-4;
-    register unsigned int sum2 ;
-
-    sum1 = sum2 = 0;
-    while (len--)
-    {
-         sum1 += *ptr++;
-         if (sum1 >= 255) sum1 -= 255;
-         sum2 += sum1;
-    }
-    sum2 %= 255;
+	//Now used: Simple Additional Checksum
+	uint32_t checksum = 0;
+	for(uint8_t i = 0; i < Cnum_sum-4; i++)
+		checksum += proStream->bytestream[i]; //Overflow is accepted
 
 	//Check if the calculated checksum equals the received checksum
-	if(((uint32_t)sum1 + ((uint32_t)sum2<<16)) == proStream->Cprotocol_s.checksum)
+	if(checksum == proStream->Cprotocol_s.checksum)
 		return 1;
 	else
 		return 0;
 }
+
+
 
 /**
  * Update the sensory struct 'protocol_received' using buffered received messages.
@@ -127,11 +92,20 @@ void update_sensory_struct(void)
 		while(!(zeroDetected) && ((timeout++)<TIMEOUT)); //Wait until zero is detected, then try to unpack_message()
 		TOTAL_REC++;
 		zeroDetected = 0;
-		if(unpack_message() || (timeout > TIMEOUT))
+		if(unpack_message() && (timeout < TIMEOUT))
 		{
 			SUC_REC++;
 			break;
+		}else if((timeout == TIMEOUT+1))
+		{
+			TIMEOUT_REC++;
+			break;
+		}else
+		{
+			UNSUCCESS_REC++;
+			break;
 		}
+
 	}
 }
 
