@@ -89,9 +89,13 @@ void update_sensory_struct(void)
 	while(1)
 	{
 		while(!(zeroDetected) && ((timeout++)<TIMEOUT)); //Wait until zero is detected, then try to unpack_message()
+		TOTAL_REC++;
 		zeroDetected = 0;
 		if(unpack_message() || (timeout > TIMEOUT))
+		{
+			SUC_REC++;
 			break;
+		}
 	}
 }
 
