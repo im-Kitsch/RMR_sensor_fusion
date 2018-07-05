@@ -147,8 +147,8 @@ int main(void)
 	   * Use 'protocol_transmit.Cprotocol_s.startByte |= 0x01' to mark control data as valid
 	   */
 
-	  //protocol_transmit.Cprotocol_s.startByte |= 0x01;
-	  //protocol_transmit.Cprotocol_s.pitch = 55;
+	  protocol_transmit.Cprotocol_s.startByte |= 0x01;
+	  protocol_transmit.Cprotocol_s.pitch = 55;
 
 
 	  // Current version of 'protocol_transmit' gets packed
