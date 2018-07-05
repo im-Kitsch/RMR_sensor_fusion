@@ -26,7 +26,7 @@ typedef union {
 		/*** 	--- Sensory Data --- ***/
 
 	//remote control data
-		unsigned short channel[8];
+		uint16_t channel[8];
 
 	//angles derived by integration of gyro_outputs, drift compensated by data fusion; -90000..+90000 pitch(nick) and roll, 0..360000 yaw; 1000 = 1 degree
 	    int angle_pitch;
@@ -39,15 +39,15 @@ typedef union {
 	    int angvel_yaw;
 
 	//acc-sensor outputs, calibrated: -10000..+10000 = -1g..+1g, body frame coordinate system
-	    short acc_x;
-	    short acc_y;
-	    short acc_z;
+	    int16_t acc_x;
+	    int16_t acc_y;
+	    int16_t acc_z;
 
 	//magnetic field sensors output, offset free and scaled to +-2500 = +- earth field strength;
 	    int Hx;
 	    int Hy;
 	    int Hz;
-	    unsigned char motor_rpm[6];
+	    uint8_t motor_rpm[6];
 		/***	--- Protocol end --- ***/
 		uint32_t checksum;
 	}__attribute__ ((__packed__))protocol_s;
@@ -80,10 +80,10 @@ typedef union {
 		// uint8_t newVariable;
 		// Increase in '#define num_8b X'  X by one
 
-		unsigned char pitch;
-		unsigned char roll;
-		unsigned char yaw;
-		unsigned char thrust;
+		uint8_t pitch;
+		uint8_t roll;
+		uint8_t yaw;
+		uint8_t thrust;
 
 		/***	--- Protocol end --- ***/
 		uint32_t checksum;

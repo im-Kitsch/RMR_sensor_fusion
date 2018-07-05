@@ -58,13 +58,24 @@ void generateChecksum(protocol_u *proStream)
 {
 	//ToDo: Implement a CRC or a Fletchers's Checksum
 	
-	//Now used: Simple Additional Checksum
-	uint32_t checksum = 0;
-	for(uint8_t i = 0; i < num_sum-4; i++)
-		checksum += proStream->bytestream[i]; //Overflow is accepted
+	//Now used: Fletcher's Checksum (optimized, source: "http://www.drdobbs.com/database/fletchers-checksum/")
+	register unsigned char *ptr = proStream->bytestream;
+    register short int sum1, len = num_sum-4;
+    register unsigned int sum2 ;
+
+    sum1 = sum2 = 0;
+    while (len--)
+    {
+         sum1 += *ptr++;
+         if (sum1 >= 255) sum1 -= 255;
+         sum2 += sum1;
+    }
+    sum2 %= 255;
+
+
 	
 	//Store checksum in protocolByteStream
-	proStream->protocol_s.checksum = checksum;
+	proStream->protocol_s.checksum = (uint32_t)sum1 + ((uint32_t)sum2<<16);
 }
 
 /**
@@ -76,13 +87,22 @@ char checkChecksum(protocol_u *proStream)
 {
 	//ToDo: Implement a CRC or a Fletchers's Checksum
 	
-	//Now used: Simple Additional Checksum
-	uint8_t checksum = 0;
-	for(uint8_t i = 0; i < num_sum-4; i++)
-		checksum += proStream->bytestream[i]; //Overflow is accepted
+	//Now used: Fletcher's Checksum (optimized, source: "http://www.drdobbs.com/database/fletchers-checksum/")
+	register unsigned char *ptr = proStream->bytestream;
+    register short int sum1, len = num_sum-4;
+    register unsigned int sum2 ;
+
+    sum1 = sum2 = 0;
+    while (len--)
+    {
+         sum1 += *ptr++;
+         if (sum1 >= 255) sum1 -= 255;
+         sum2 += sum1;
+    }
+    sum2 %= 255;
 	
 	//Check if the calculated checksum equals the received checksum
-	if(checksum == proStream->protocol_s.checksum)
+	if(((uint32_t)sum1 + ((uint32_t)sum2<<16)) == proStream->protocol_s.checksum)
 		return 1;
 	else
 		return 0;
@@ -92,13 +112,24 @@ void generateChecksum_C(Cprotocol_u *proStream)
 {
 	//ToDo: Implement a CRC or a Fletchers's Checksum
 
-	//Now used: Simple Additional Checksum
-	uint32_t checksum = 0;
-	for(uint8_t i = 0; i < Cnum_sum-4; i++)
-		checksum += proStream->bytestream[i]; //Overflow is accepted
+	//Now used: Fletcher's Checksum (optimized, source: "http://www.drdobbs.com/database/fletchers-checksum/")
+	register unsigned char *ptr = proStream->bytestream;
+    register short int sum1, len = Cnum_sum-4;
+    register unsigned int sum2 ;
+
+    sum1 = sum2 = 0;
+    while (len--)
+    {
+         sum1 += *ptr++;
+         if (sum1 >= 255) sum1 -= 255;
+         sum2 += sum1;
+    }
+    sum2 %= 255;
+
+
 
 	//Store checksum in protocolByteStream
-	proStream->Cprotocol_s.checksum = checksum;
+	proStream->Cprotocol_s.checksum = (uint32_t)sum1 + ((uint32_t)sum2<<16);
 }
 
 /**
@@ -110,13 +141,22 @@ char checkChecksum_C(Cprotocol_u *proStream)
 {
 	//ToDo: Implement a CRC or a Fletchers's Checksum
 
-	//Now used: Simple Additional Checksum
-	uint32_t checksum = 0;
-	for(uint8_t i = 0; i < Cnum_sum-4; i++)
-		checksum += proStream->bytestream[i]; //Overflow is accepted
+	//Now used: Fletcher's Checksum (optimized, source: "http://www.drdobbs.com/database/fletchers-checksum/")
+	register unsigned char *ptr = proStream->bytestream;
+    register short int sum1, len = Cnum_sum-4;
+    register unsigned int sum2 ;
+
+    sum1 = sum2 = 0;
+    while (len--)
+    {
+         sum1 += *ptr++;
+         if (sum1 >= 255) sum1 -= 255;
+         sum2 += sum1;
+    }
+    sum2 %= 255;
 
 	//Check if the calculated checksum equals the received checksum
-	if(checksum == proStream->Cprotocol_s.checksum)
+	if(((uint32_t)sum1 + ((uint32_t)sum2<<16)) == proStream->Cprotocol_s.checksum)
 		return 1;
 	else
 		return 0;
@@ -187,7 +227,7 @@ uint8_t unpack_message(void)
 
 		uint8_t COBS_len= decode_COBS(latestMessage_received, Cnum_sum + 2, protocol_received.bytestream);
 		/* --- COBS - FORMAT passed --- */
-		if((COBS_len == num_sum+1) && (checkChecksum_C(&protocol_received)))
+		if((COBS_len == Cnum_sum+1) && (checkChecksum_C(&protocol_received)))
 		{
 				/* --- Checksum is correct -> Received Data seems to be correct --- */
 				return 1;

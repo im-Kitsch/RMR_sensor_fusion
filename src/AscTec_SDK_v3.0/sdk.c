@@ -68,7 +68,7 @@ protocol_u protocolStream;
 
 
 
-uint8_t CLoop = 0;
+uint8_t SendLoopC = 0;
 
 
 #ifdef MATLAB
@@ -193,16 +193,23 @@ void SDK_mainloop(void)
 	  unpack_message();
 
 	  //Forwards the currently read control data to the LLP
-	  apply_message_to_UAV();
+	  //apply_message_to_UAV();
 
+	  if(SendLoopC == 0)
+	  {
+		  SendLoopC = 1; //Paketrate = 1000Hz / (SendLoopC + 1)
 
-	  //Received sensory from the IMU (like angle_pitch)
-	  // is written into the next message
-	  update_message_with_IMU_Sensory();
+		  //Received sensory from the IMU (like angle_pitch)
+		  // is written into the next message
+		  update_message_with_IMU_Sensory();
 
-	  //Current version of message-struct gets packed
-	  // and sent to the Nucleo
-	  pack_message();
+		  //Current version of message-struct gets packed
+		  // and sent to the Nucleo
+		  pack_message();
+	  }else
+	  {
+		  SendLoopC--;
+	  }
 
 	}
 
