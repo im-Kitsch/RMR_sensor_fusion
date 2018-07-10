@@ -19,37 +19,44 @@ void pushToTXBuffer(uint8_t *data, uint16_t length)
 {
 	IOCLR0 = (1<<7);  /* SS(GPIO) to '0', enable SPI communication */
 
-	/* ALTERNATIVE
-	//Flush last message of too slow down transfer (increase transmittBuffer!)
-	if(pWrite_buf_transmit > pRead_buf_transmit && (pRead_buf_transmit - pWrite_buf_transmit + TRANSMIT_BUFFER_SIZE) < length)
-		pWrite_buf_transmit = (pWrite_buf_transmit-length)%TRANSMIT_BUFFER_SIZE;
-	else if(pWrite_buf_transmit < pRead_buf_transmit && (pRead_buf_transmit - pWrite_buf_transmit) < length)
-		pWrite_buf_transmit = (pWrite_buf_transmit-length)%TRANSMIT_BUFFER_SIZE;
-	 */
+		int32_t pWrite = pWrite_buf_transmit;
+		int32_t pRead = pRead_buf_transmit;
+		int32_t len = length;
+
+		//Flush last message of too slow down transfer (increase transmittBuffer!)
+		if(pWrite > pRead && (pRead - pWrite + TRANSMIT_BUFFER_SIZE) < len)
+		{
+			if((pWrite-len) < 0)
+				pWrite_buf_transmit = TRANSMIT_BUFFER_SIZE - (pWrite-len);
+			else
+				pWrite_buf_transmit = (pWrite-len);
+			FlushC++;
+		}
+		else if(pWrite < pRead && (pRead - pWrite) < len)
+		{
+			if((pWrite-len) < 0)
+				pWrite_buf_transmit = TRANSMIT_BUFFER_SIZE - (pWrite-len);
+			else
+				pWrite_buf_transmit = (pWrite-len);
+			FlushC++;
+		}
+
 	for(uint16_t index_data = 0; index_data < length; index_data++)
 	{
-		if(pWrite_buf_transmit == pRead_buf_transmit-2)
+		if(pWrite_buf_transmit == pRead_buf_transmit-1)
 		{
 			/* --- Interrupt is not working anymore (Interrupt Nesting failed) -> Reset the SPI Peripheral --- */
 			if(!transfer_inProgress)
 			{
-				uint8_t statusReg = S0SPSR;
 				SPI0_Master_Init();
-				S0SPDR = 0xFF;  /* Load data to be written into the data register */
-				uint32_t timeout = 0;
-				while ( ((S0SPSR & 0x80) == 0) && (timeout++ < (1<<16)));  /* Wait till data transmission is completed, SPIF = 1? */
+				uint8_t statusReg = S0SPSR;
 				uint8_t flush = S0SPDR;
+				S0SPDR = 0xFF;  /* Load data to be written into the data register */
+
 			}
-			/* --- Timeout till it's enough space inside buffer is big enough --- */
-			FlushC++;
-			while((length - index_data) >= ((pRead_buf_transmit-pWrite_buf_transmit)%TRANSMIT_BUFFER_SIZE));
-
-			 //ToDo: Don't send message next time OR Flush last message before filling Buffer
-
-		} else if(pWrite_buf_transmit == pRead_buf_transmit-1)
-		{
-			OverrunC++; //Should be '0' all the time because of timeout!
+			OverrunC++; //Should be '0' all the time
 		}
+
 		buf_transmit[pWrite_buf_transmit++] = data[index_data];
 		if(pWrite_buf_transmit >= TRANSMIT_BUFFER_SIZE)
 		{

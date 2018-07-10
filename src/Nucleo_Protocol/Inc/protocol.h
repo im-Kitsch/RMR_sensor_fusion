@@ -10,7 +10,7 @@
 /*	--- Protocol Parameter --- */
 #define num_8b 7	//Number of 8 Bit - variables in protocol (for example: char, uint8_t, int8_t, ...) | Default: 1
 #define num_16b 15	//Number of 16 Bit - variables in protocol (for example: uint16_t, int16_t, (unsigned) short*, ...) | Default: 0
-#define num_32b 29	//Number of 32 Bit - variables in protocol (for example: (unsigned) int, float*, uint32_t, int32_t, ...) | Default: 1
+#define num_32b 17//incl. GPS: 29	//Number of 32 Bit - variables in protocol (for example: (unsigned) int, float*, uint32_t, int32_t, ...) | Default: 1
 #define num_64b 4	//Number of 64 Bit - variables in protocol (for example: long*, uint64_t*, int64_t*, ...) | Default: 0
 					// (*) not tested, yet!, DON'T use doubles, use float instead!
 
@@ -55,6 +55,7 @@ typedef union {
 			int8_t IMU_motor_rpm[6];
 
 //		/* --- GPS Data --- */
+			/*
 			uint32_t GPS_timeStamp; //GPS_time_of_week;	[ms] (1 week = 604,800 s)
 
 			//latitude/longitude in degrees * 10^7
@@ -81,6 +82,7 @@ typedef union {
 
 			// GPS status information: Bit7...Bit3: 0; Bit 2: longitude direction; Bit1: latitude direction; Bit 0: GPS lock
 			int GPS_status;
+			*/
 
 		/* --- PX4FLOW Data, optical flow measurement --- */
 			uint64_t FLOW_timeStamp;

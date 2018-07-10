@@ -20,33 +20,33 @@ void update_message_with_IMU_Sensory(void)
 
 	//TETSTING SEQUENCE
 	protocol_transmit.protocol_s.startByte = 0x01;
-	protocol_transmit.protocol_s.timeStamp_IMU_Sensory = getTimeStamp();
-	protocol_transmit.protocol_s.channel[0] = RO_ALL_Data.channel[0];
-	protocol_transmit.protocol_s.channel[1] = RO_ALL_Data.channel[1];
-	protocol_transmit.protocol_s.channel[2] = RO_ALL_Data.channel[2];
-	protocol_transmit.protocol_s.channel[3] = RO_ALL_Data.channel[3];
-	protocol_transmit.protocol_s.channel[4] = RO_ALL_Data.channel[4];
-	protocol_transmit.protocol_s.channel[5] = RO_ALL_Data.channel[5];
-	protocol_transmit.protocol_s.channel[6] = RO_ALL_Data.channel[6];
-	protocol_transmit.protocol_s.channel[7] = RO_ALL_Data.channel[7];
-	protocol_transmit.protocol_s.angle_pitch = RO_ALL_Data.angle_pitch;
-	protocol_transmit.protocol_s.angle_roll = RO_ALL_Data.angle_roll;
-	protocol_transmit.protocol_s.angle_yaw = RO_ALL_Data.angle_yaw;
-	protocol_transmit.protocol_s.angvel_pitch = RO_ALL_Data.angvel_pitch;
-	protocol_transmit.protocol_s.angvel_roll = RO_ALL_Data.angvel_roll;
-	protocol_transmit.protocol_s.angvel_yaw = RO_ALL_Data.angvel_yaw;
-	protocol_transmit.protocol_s.acc_x = RO_ALL_Data.acc_x;
-	protocol_transmit.protocol_s.acc_y = RO_ALL_Data.acc_y;
-	protocol_transmit.protocol_s.acc_z = RO_ALL_Data.acc_z;
-	protocol_transmit.protocol_s.Hx = RO_ALL_Data.Hx;
-	protocol_transmit.protocol_s.Hy = RO_ALL_Data.Hy;
-	protocol_transmit.protocol_s.Hz = RO_ALL_Data.Hz;
-	protocol_transmit.protocol_s.motor_rpm[0] = RO_ALL_Data.motor_rpm[0];
-	protocol_transmit.protocol_s.motor_rpm[1] = RO_ALL_Data.motor_rpm[1];
-	protocol_transmit.protocol_s.motor_rpm[2] = RO_ALL_Data.motor_rpm[2];
-	protocol_transmit.protocol_s.motor_rpm[3] = RO_ALL_Data.motor_rpm[3];
-	protocol_transmit.protocol_s.motor_rpm[4] = RO_ALL_Data.motor_rpm[4];
-	protocol_transmit.protocol_s.motor_rpm[5] = RO_ALL_Data.motor_rpm[5];
+	protocol_transmit.protocol_s.IMU_timeStamp = getTimeStamp();
+	protocol_transmit.protocol_s.IMU_channel[0] = RO_ALL_Data.channel[0];
+	protocol_transmit.protocol_s.IMU_channel[1] = RO_ALL_Data.channel[1];
+	protocol_transmit.protocol_s.IMU_channel[2] = RO_ALL_Data.channel[2];
+	protocol_transmit.protocol_s.IMU_channel[3] = RO_ALL_Data.channel[3];
+	protocol_transmit.protocol_s.IMU_channel[4] = RO_ALL_Data.channel[4];
+	protocol_transmit.protocol_s.IMU_channel[5] = RO_ALL_Data.channel[5];
+	protocol_transmit.protocol_s.IMU_channel[6] = RO_ALL_Data.channel[6];
+	protocol_transmit.protocol_s.IMU_channel[7] = RO_ALL_Data.channel[7];
+	protocol_transmit.protocol_s.IMU_angle_pitch = RO_ALL_Data.angle_pitch;
+	protocol_transmit.protocol_s.IMU_angle_roll = RO_ALL_Data.angle_roll;
+	protocol_transmit.protocol_s.IMU_angle_yaw = RO_ALL_Data.angle_yaw;
+	protocol_transmit.protocol_s.IMU_angvel_pitch = RO_ALL_Data.angvel_pitch;
+	protocol_transmit.protocol_s.IMU_angvel_roll = RO_ALL_Data.angvel_roll;
+	protocol_transmit.protocol_s.IMU_angvel_yaw = RO_ALL_Data.angvel_yaw;
+	protocol_transmit.protocol_s.IMU_acc_x = RO_ALL_Data.acc_x;
+	protocol_transmit.protocol_s.IMU_acc_y = RO_ALL_Data.acc_y;
+	protocol_transmit.protocol_s.IMU_acc_z = RO_ALL_Data.acc_z;
+	protocol_transmit.protocol_s.IMU_Hx = RO_ALL_Data.Hx;
+	protocol_transmit.protocol_s.IMU_Hy = RO_ALL_Data.Hy;
+	protocol_transmit.protocol_s.IMU_Hz = RO_ALL_Data.Hz;
+	protocol_transmit.protocol_s.IMU_motor_rpm[0] = RO_ALL_Data.motor_rpm[0];
+	protocol_transmit.protocol_s.IMU_motor_rpm[1] = RO_ALL_Data.motor_rpm[1];
+	protocol_transmit.protocol_s.IMU_motor_rpm[2] = RO_ALL_Data.motor_rpm[2];
+	protocol_transmit.protocol_s.IMU_motor_rpm[3] = RO_ALL_Data.motor_rpm[3];
+	protocol_transmit.protocol_s.IMU_motor_rpm[4] = RO_ALL_Data.motor_rpm[4];
+	protocol_transmit.protocol_s.IMU_motor_rpm[5] = RO_ALL_Data.motor_rpm[5];
 
 }
 
@@ -73,7 +73,7 @@ void generateChecksum(protocol_u *proStream)
     sum2 %= 255;
 
 
-	
+
 	//Store checksum in protocolByteStream
 	proStream->protocol_s.checksum = (uint32_t)sum1 + ((uint32_t)sum2<<16);
 }
@@ -86,7 +86,7 @@ void generateChecksum(protocol_u *proStream)
 char checkChecksum(protocol_u *proStream)
 {
 	//ToDo: Implement a CRC or a Fletchers's Checksum
-	
+
 	//Now used: Fletcher's Checksum (optimized, source: "http://www.drdobbs.com/database/fletchers-checksum/")
 	register unsigned char *ptr = proStream->bytestream;
     register short int sum1, len = num_sum-4;
@@ -100,7 +100,7 @@ char checkChecksum(protocol_u *proStream)
          sum2 += sum1;
     }
     sum2 %= 255;
-	
+
 	//Check if the calculated checksum equals the received checksum
 	if(((uint32_t)sum1 + ((uint32_t)sum2<<16)) == proStream->protocol_s.checksum)
 		return 1;
