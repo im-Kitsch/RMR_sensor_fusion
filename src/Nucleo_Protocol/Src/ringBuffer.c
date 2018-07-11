@@ -17,6 +17,28 @@ extern SPI_HandleTypeDef hspi3;
 
 void pushToTXBuffer(uint8_t *data, uint16_t length)
 {
+	int32_t pWrite = pWrite_buf_transmit;
+	int32_t pRead = pRead_buf_transmit;
+	int32_t len = length;
+	//Flush last message (Should never occur on this side (Control data << Sensory data))
+	if(pWrite > pRead && (pRead - pWrite + TRANSMIT_BUFFER_SIZE) < len)
+	{
+		if((pWrite-len) < 0)
+			pWrite_buf_transmit = TRANSMIT_BUFFER_SIZE - (pWrite-len);
+		else
+			pWrite_buf_transmit = (pWrite-len);
+		OV_Write++;
+	}
+	else if(pWrite < pRead && (pRead - pWrite) < len)
+	{
+		if((pWrite-len) < 0)
+			pWrite_buf_transmit = TRANSMIT_BUFFER_SIZE - (pWrite-len);
+		else
+			pWrite_buf_transmit = (pWrite-len);
+		OV_Write++;
+	}
+
+
 	for(uint16_t index_data = 0; index_data < length; index_data++)
 	{
 		buf_transmit[pWrite_buf_transmit++] = data[index_data];

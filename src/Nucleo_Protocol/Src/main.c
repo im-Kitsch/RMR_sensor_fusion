@@ -111,7 +111,6 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_SPI1_Init();
   MX_SPI3_Init();
   ini_SPI_interrrupt();
   /* USER CODE BEGIN 2 */

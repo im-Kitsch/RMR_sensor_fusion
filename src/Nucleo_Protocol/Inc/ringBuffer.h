@@ -29,6 +29,8 @@ uint8_t zeroDetected;
 void pushToTXBuffer(uint8_t *data, uint16_t length);
 char ReadLastMessageFromRXBuffer(uint8_t *data, uint16_t length);
 
+uint32_t OV_Write;
+
 
 
 #endif /* RINGBUFFER_H_ */
