@@ -2,7 +2,7 @@
  * COBS.c
  *
  *  Created on: 16.05.2018
- *      Author: Malte
+ *      Author: Malte (See "https://en.wikipedia.org/wiki/Consistent_Overhead_Byte_Stuffing" for the algorithm)
  */
 
 #include <stdint.h>

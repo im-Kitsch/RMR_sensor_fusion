@@ -13,7 +13,7 @@
  */
 void generateChecksum(protocol_u *proStream)
 {
-	//ToDo: Implement a CRC or a Fletchers's Checksum
+	//See "http://www.drdobbs.com/database/fletchers-checksum/184408761" for the Fletcher's Checksum implementation
 	
 	//Now used: Fletcher's Checksum (optimized, source: "http://www.drdobbs.com/database/fletchers-checksum/")
 	register unsigned char *ptr = proStream->bytestream;
@@ -42,7 +42,7 @@ void generateChecksum(protocol_u *proStream)
  */
 char checkChecksum(protocol_u *proStream)
 {
-	//ToDo: Implement a CRC or a Fletchers's Checksum
+	//See "http://www.drdobbs.com/database/fletchers-checksum/184408761" for the Fletcher's Checksum implementation
 	
 	//Now used: Fletcher's Checksum (optimized, source: "http://www.drdobbs.com/database/fletchers-checksum/")
 	register unsigned char *ptr = proStream->bytestream;
@@ -67,7 +67,7 @@ char checkChecksum(protocol_u *proStream)
 
 void generateChecksum_C(Cprotocol_u *proStream)
 {
-	//ToDo: Implement a CRC or a Fletchers's Checksum
+	//See "http://www.drdobbs.com/database/fletchers-checksum/184408761" for the Fletcher's Checksum implementation
 
 	//Now used: Fletcher's Checksum (optimized, source: "http://www.drdobbs.com/database/fletchers-checksum/")
 	register unsigned char *ptr = proStream->bytestream;
@@ -96,7 +96,7 @@ void generateChecksum_C(Cprotocol_u *proStream)
  */
 char checkChecksum_C(Cprotocol_u *proStream)
 {
-	//ToDo: Implement a CRC or a Fletchers's Checksum
+	//See "http://www.drdobbs.com/database/fletchers-checksum/184408761" for the Fletcher's Checksum implementation
 
 	//Now used: Fletcher's Checksum (optimized, source: "http://www.drdobbs.com/database/fletchers-checksum/")
 	register unsigned char *ptr = proStream->bytestream;
