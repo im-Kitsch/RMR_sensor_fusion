@@ -81,4 +81,10 @@ See archive file laseri2c.zip
 If you use data structure you can find the problem of Padding. In PX4Flow it's solve as attribute word, you can find many information in Internet about this solution.
 
 # Test Result
+![image](https://user-images.githubusercontent.com/33943000/43514905-8517a8aa-9581-11e8-9d6b-e380339cd5f1.png)
+
+# Connection Refine
+![1](https://user-images.githubusercontent.com/33943000/43515092-f2448f38-9581-11e8-9460-f9222210aa96.jpg)
+![default](https://user-images.githubusercontent.com/33943000/43515095-f42d6874-9581-11e8-8847-fc8c17b6feee.jpg)
+
 
